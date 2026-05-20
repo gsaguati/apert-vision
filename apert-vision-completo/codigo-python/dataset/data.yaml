@@ -1,0 +1,12 @@
+train: train/images
+val: train/images
+
+nc: 1
+names: ['apert-vision-lines-out']
+
+roboflow:
+  workspace: gonzalos-workspace-rri4p
+  project: apert-vision-lines-out
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/gonzalos-workspace-rri4p/apert-vision-lines-out/dataset/1

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0"/><mxCell id="1" parent="0"/>
+
+    <!-- ═══════════════ TÍTULO ═══════════════ -->
+    <mxCell id="titulo" value="Diagrama de Componentes — Apert Vision" style="text;html=1;fontSize=18;fontStyle=1;fillColor=#1A7A3C;fontColor=#ffffff;align=center;" vertex="1" parent="1"><mxGeometry x="300" y="20" width="560" height="40" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ CAPAS / GRUPOS ═══════════════ -->
+    <!-- Capa Frontend -->
+    <mxCell id="G_Front" value="FRONTEND" style="swimlane;fillColor=#D6EEE0;strokeColor=#1A7A3C;fontStyle=1;fontSize=11;fontColor=#1A7A3C;" vertex="1" parent="1"><mxGeometry x="60" y="100" width="220" height="100" as="geometry"/></mxCell>
+    <mxCell id="C_HTML" value="index.html" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A7A3C;fontColor=#ffffff;strokeColor=#1A7A3C;fontSize=11;" vertex="1" parent="G_Front"><mxGeometry x="30" y="40" width="160" height="40" as="geometry"/></mxCell>
+
+    <!-- Capa Backend -->
+    <mxCell id="G_Back" value="BACKEND" style="swimlane;fillColor=#D6EEE0;strokeColor=#1A7A3C;fontStyle=1;fontSize=11;fontColor=#1A7A3C;" vertex="1" parent="1"><mxGeometry x="360" y="100" width="220" height="100" as="geometry"/></mxCell>
+    <mxCell id="C_Flask" value="app.py (Flask)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2E9E54;fontColor=#ffffff;strokeColor=#2E9E54;fontSize=11;" vertex="1" parent="G_Back"><mxGeometry x="30" y="40" width="160" height="40" as="geometry"/></mxCell>
+
+    <!-- Capa Motor IA -->
+    <mxCell id="G_IA" value="MOTOR DE IA" style="swimlane;fillColor=#D6EEE0;strokeColor=#3498DB;fontStyle=1;fontSize=11;fontColor=#3498DB;" vertex="1" parent="1"><mxGeometry x="660" y="80" width="240" height="260" as="geometry"/></mxCell>
+    <mxCell id="C_Detector" value="detector.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3498DB;fontColor=#ffffff;strokeColor=#3498DB;fontSize=11;" vertex="1" parent="G_IA"><mxGeometry x="30" y="40" width="180" height="40" as="geometry"/></mxCell>
+    <mxCell id="C_Posesion" value="possession_analyzer.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3498DB;fontColor=#ffffff;strokeColor=#3498DB;fontSize=11;" vertex="1" parent="G_IA"><mxGeometry x="30" y="100" width="180" height="40" as="geometry"/></mxCell>
+    <mxCell id="C_Extract" value="extract_frames.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#888888;fontColor=#ffffff;strokeColor=#888888;fontSize=11;" vertex="1" parent="G_IA"><mxGeometry x="30" y="160" width="180" height="40" as="geometry"/></mxCell>
+    <mxCell id="C_OpenCV" value="OpenCV" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F39C12;fontColor=#ffffff;strokeColor=#F39C12;fontSize=11;" vertex="1" parent="G_IA"><mxGeometry x="30" y="210" width="180" height="40" as="geometry"/></mxCell>
+
+    <!-- Modelo YOLO -->
+    <mxCell id="C_YOLO" value="Modelo YOLO&#xa;best.pt" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#E67E22;fontColor=#ffffff;strokeColor=#E67E22;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="980" y="120" width="140" height="80" as="geometry"/></mxCell>
+
+    <!-- Firebase -->
+    <mxCell id="C_Firebase" value="Firebase Firestore" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#E53935;fontColor=#ffffff;strokeColor=#E53935;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="360" y="280" width="160" height="80" as="geometry"/></mxCell>
+
+    <!-- Auth0 -->
+    <mxCell id="C_Auth0" value="Auth0&#xa;Autenticación" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#8E44AD;fontColor=#ffffff;strokeColor=#8E44AD;fontSize=11;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="60" y="280" width="160" height="60" as="geometry"/></mxCell>
+
+    <!-- App Android -->
+    <mxCell id="G_Mobile" value="MOBILE" style="swimlane;fillColor=#D6EEE0;strokeColor=#27AE60;fontStyle=1;fontSize=11;fontColor=#27AE60;" vertex="1" parent="1"><mxGeometry x="360" y="430" width="220" height="100" as="geometry"/></mxCell>
+    <mxCell id="C_Android" value="App Android (Java)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#27AE60;fontColor=#ffffff;strokeColor=#27AE60;fontSize=11;" vertex="1" parent="G_Mobile"><mxGeometry x="30" y="40" width="160" height="40" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ CONEXIONES ═══════════════ -->
+    <!-- Frontend → Backend -->
+    <mxCell id="D1" value="HTTP requests" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;fontSize=9;" edge="1" source="C_HTML" target="C_Flask" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Backend → Detector -->
+    <mxCell id="D2" value="llama" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3498DB;fontSize=9;" edge="1" source="C_Flask" target="C_Detector" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Backend → Firebase -->
+    <mxCell id="D3" value="lee/escribe" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#E53935;fontSize=9;" edge="1" source="C_Flask" target="C_Firebase" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Backend → Auth0 -->
+    <mxCell id="D4" value="valida JWT" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#8E44AD;fontSize=9;" edge="1" source="C_Flask" target="C_Auth0" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Detector → Posesion -->
+    <mxCell id="D5" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3498DB;" edge="1" source="C_Detector" target="C_Posesion" parent="G_IA"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Detector → OpenCV -->
+    <mxCell id="D6" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#F39C12;" edge="1" source="C_Detector" target="C_OpenCV" parent="G_IA"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Posesion → OpenCV -->
+    <mxCell id="D7" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#F39C12;" edge="1" source="C_Posesion" target="C_OpenCV" parent="G_IA"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Extract → OpenCV -->
+    <mxCell id="D8" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#F39C12;" edge="1" source="C_Extract" target="C_OpenCV" parent="G_IA"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Detector → YOLO -->
+    <mxCell id="D9" value="usa modelo" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#E67E22;fontSize=9;" edge="1" source="C_Detector" target="C_YOLO" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Android → Firebase -->
+    <mxCell id="D10" value="lee datos" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#E53935;fontSize=9;" edge="1" source="C_Android" target="C_Firebase" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <!-- Android → Backend -->
+    <mxCell id="D11" value="API REST" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;fontSize=9;" edge="1" source="C_Android" target="C_Flask" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ LEYENDA ═══════════════ -->
+    <mxCell id="Leg" value="LEYENDA" style="swimlane;fillColor=#f5f5f5;strokeColor=#cccccc;fontStyle=1;fontSize=10;" vertex="1" parent="1"><mxGeometry x="980" y="280" width="200" height="220" as="geometry"/></mxCell>
+    <mxCell id="L1" value="Frontend" style="rounded=1;fillColor=#1A7A3C;fontColor=#fff;strokeColor=#1A7A3C;fontSize=10;" vertex="1" parent="Leg"><mxGeometry x="10" y="30" width="120" height="24" as="geometry"/></mxCell>
+    <mxCell id="L2" value="Backend (Flask)" style="rounded=1;fillColor=#2E9E54;fontColor=#fff;strokeColor=#2E9E54;fontSize=10;" vertex="1" parent="Leg"><mxGeometry x="10" y="64" width="120" height="24" as="geometry"/></mxCell>
+    <mxCell id="L3" value="Motor IA (YOLO)" style="rounded=1;fillColor=#3498DB;fontColor=#fff;strokeColor=#3498DB;fontSize=10;" vertex="1" parent="Leg"><mxGeometry x="10" y="98" width="120" height="24" as="geometry"/></mxCell>
+    <mxCell id="L4" value="Modelo / Datos" style="rounded=1;fillColor=#E67E22;fontColor=#fff;strokeColor=#E67E22;fontSize=10;" vertex="1" parent="Leg"><mxGeometry x="10" y="132" width="120" height="24" as="geometry"/></mxCell>
+    <mxCell id="L5" value="Base de datos" style="rounded=1;fillColor=#E53935;fontColor=#fff;strokeColor=#E53935;fontSize=10;" vertex="1" parent="Leg"><mxGeometry x="10" y="166" width="120" height="24" as="geometry"/></mxCell>
+
+  </root>
+</mxGraphModel>

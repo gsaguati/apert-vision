@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0"/><mxCell id="1" parent="0"/>
+
+    <!-- ═══════════════ ENTIDADES ═══════════════ -->
+    <!-- Club -->
+    <mxCell id="E_Club" value="Club" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1A7A3C;fontColor=#ffffff;strokeColor=#1A7A3C;fontStyle=1;fontSize=13;" vertex="1" parent="1"><mxGeometry x="120" y="340" width="140" height="50" as="geometry"/></mxCell>
+    <!-- Usuario -->
+    <mxCell id="E_Usuario" value="Usuario" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1A7A3C;fontColor=#ffffff;strokeColor=#1A7A3C;fontStyle=1;fontSize=13;" vertex="1" parent="1"><mxGeometry x="120" y="120" width="140" height="50" as="geometry"/></mxCell>
+    <!-- Jugador -->
+    <mxCell id="E_Jugador" value="Jugador" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1A7A3C;fontColor=#ffffff;strokeColor=#1A7A3C;fontStyle=1;fontSize=13;" vertex="1" parent="1"><mxGeometry x="480" y="120" width="140" height="50" as="geometry"/></mxCell>
+    <!-- Partido -->
+    <mxCell id="E_Partido" value="Partido" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1A7A3C;fontColor=#ffffff;strokeColor=#1A7A3C;fontStyle=1;fontSize=13;" vertex="1" parent="1"><mxGeometry x="700" y="340" width="140" height="50" as="geometry"/></mxCell>
+    <!-- Evento -->
+    <mxCell id="E_Evento" value="Evento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1A7A3C;fontColor=#ffffff;strokeColor=#1A7A3C;fontStyle=1;fontSize=13;" vertex="1" parent="1"><mxGeometry x="480" y="600" width="140" height="50" as="geometry"/></mxCell>
+    <!-- Posesion -->
+    <mxCell id="E_Posesion" value="Posesion" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1A7A3C;fontColor=#ffffff;strokeColor=#1A7A3C;fontStyle=1;fontSize=13;" vertex="1" parent="1"><mxGeometry x="940" y="600" width="140" height="50" as="geometry"/></mxCell>
+    <!-- Estadistica -->
+    <mxCell id="E_Estadistica" value="Estadistica" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1A7A3C;fontColor=#ffffff;strokeColor=#1A7A3C;fontStyle=1;fontSize=13;" vertex="1" parent="1"><mxGeometry x="940" y="120" width="140" height="50" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ ROMBOS RELACIONES ═══════════════ -->
+    <!-- Club-tiene-Usuario -->
+    <mxCell id="R_CU" value="tiene" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6EEE0;strokeColor=#1A7A3C;fontSize=11;" vertex="1" parent="1"><mxGeometry x="170" y="220" width="100" height="60" as="geometry"/></mxCell>
+    <!-- Club-tiene-Jugador -->
+    <mxCell id="R_CJ" value="tiene" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6EEE0;strokeColor=#1A7A3C;fontSize=11;" vertex="1" parent="1"><mxGeometry x="350" y="280" width="100" height="60" as="geometry"/></mxCell>
+    <!-- Club-juega-Partido -->
+    <mxCell id="R_CP" value="juega" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6EEE0;strokeColor=#1A7A3C;fontSize=11;" vertex="1" parent="1"><mxGeometry x="430" y="340" width="100" height="60" as="geometry"/></mxCell>
+    <!-- Partido-genera-Evento -->
+    <mxCell id="R_PE" value="genera" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6EEE0;strokeColor=#1A7A3C;fontSize=11;" vertex="1" parent="1"><mxGeometry x="620" y="480" width="100" height="60" as="geometry"/></mxCell>
+    <!-- Partido-registra-Posesion -->
+    <mxCell id="R_PP" value="registra" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6EEE0;strokeColor=#1A7A3C;fontSize=11;" vertex="1" parent="1"><mxGeometry x="830" y="480" width="110" height="60" as="geometry"/></mxCell>
+    <!-- Jugador-tiene-Estadistica -->
+    <mxCell id="R_JE" value="tiene" style="rhombus;whiteSpace;html=1;fillColor=#D6EEE0;strokeColor=#1A7A3C;fontSize=11;" vertex="1" parent="1"><mxGeometry x="760" y="120" width="100" height="60" as="geometry"/></mxCell>
+    <!-- Partido-tiene-Estadistica -->
+    <mxCell id="R_PEst" value="tiene" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6EEE0;strokeColor=#1A7A3C;fontSize=11;" vertex="1" parent="1"><mxGeometry x="870" y="280" width="100" height="60" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ LÍNEAS ENTIDAD-RELACIÓN ═══════════════ -->
+    <mxCell id="L1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="E_Club" target="R_CU" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="R_CU" target="E_Usuario" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="E_Club" target="R_CJ" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="R_CJ" target="E_Jugador" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="E_Club" target="R_CP" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="R_CP" target="E_Partido" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="E_Partido" target="R_PE" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="R_PE" target="E_Evento" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L9" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="E_Partido" target="R_PP" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L10" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="R_PP" target="E_Posesion" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L11" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="E_Jugador" target="R_JE" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L12" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="R_JE" target="E_Estadistica" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L13" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="E_Partido" target="R_PEst" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="L14" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="R_PEst" target="E_Estadistica" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ CARDINALIDADES ═══════════════ -->
+    <mxCell id="C1" value="1" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="148" y="295" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C2" value="N" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="148" y="158" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C3" value="1" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="318" y="340" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C4" value="N" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="452" y="158" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C5" value="1" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="398" y="358" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C6" value="N" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="672" y="358" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C7" value="1" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="692" y="460" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C8" value="N" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="548" y="578" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C9" value="1" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="820" y="460" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C10" value="N" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="982" y="578" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C11" value="1" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="730" y="138" width="30" height="20" as="geometry"/></mxCell>
+    <mxCell id="C12" value="N" style="text;html=1;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="912" y="138" width="30" height="20" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ ATRIBUTOS CLUB ═══════════════ -->
+    <mxCell id="A_Club1" value="id_club (PK)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="10" y="270" width="100" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_Club2" value="nombre" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="10" y="320" width="90" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_Club3" value="categoria" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="10" y="370" width="90" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_Club4" value="fecha_registro" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="10" y="420" width="100" height="36" as="geometry"/></mxCell>
+    <mxCell id="LA_C1" style="edgeStyle=none;exitX=0;exitY=0.3;" edge="1" source="E_Club" target="A_Club1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_C2" style="edgeStyle=none;" edge="1" source="E_Club" target="A_Club2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_C3" style="edgeStyle=none;" edge="1" source="E_Club" target="A_Club3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_C4" style="edgeStyle=none;" edge="1" source="E_Club" target="A_Club4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ ATRIBUTOS USUARIO ═══════════════ -->
+    <mxCell id="A_U1" value="id_usuario (PK)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="10" y="50" width="110" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_U2" value="email" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="130" y="30" width="80" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_U3" value="nombre" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="220" y="50" width="80" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_U4" value="rol" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="270" y="90" width="70" height="36" as="geometry"/></mxCell>
+    <mxCell id="LA_U1" style="edgeStyle=none;" edge="1" source="E_Usuario" target="A_U1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_U2" style="edgeStyle=none;" edge="1" source="E_Usuario" target="A_U2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_U3" style="edgeStyle=none;" edge="1" source="E_Usuario" target="A_U3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_U4" style="edgeStyle=none;" edge="1" source="E_Usuario" target="A_U4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ ATRIBUTOS JUGADOR ═══════════════ -->
+    <mxCell id="A_J1" value="id_jugador (PK)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="380" y="30" width="110" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_J2" value="posicion" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="500" y="30" width="90" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_J3" value="numero_camiseta" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="600" y="50" width="110" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_J4" value="activo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="620" y="100" width="80" height="36" as="geometry"/></mxCell>
+    <mxCell id="LA_J1" style="edgeStyle=none;" edge="1" source="E_Jugador" target="A_J1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_J2" style="edgeStyle=none;" edge="1" source="E_Jugador" target="A_J2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_J3" style="edgeStyle=none;" edge="1" source="E_Jugador" target="A_J3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_J4" style="edgeStyle=none;" edge="1" source="E_Jugador" target="A_J4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ ATRIBUTOS PARTIDO ═══════════════ -->
+    <mxCell id="A_P1" value="id_partido (PK)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="700" y="240" width="110" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_P2" value="rival" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="820" y="280" width="80" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_P3" value="fecha" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="860" y="340" width="80" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_P4" value="resultado" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="860" y="390" width="90" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_P5" value="color_local" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="820" y="440" width="100" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_P6" value="color_visitante" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="700" y="460" width="110" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_P7" value="procesado" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="580" y="430" width="90" height="36" as="geometry"/></mxCell>
+    <mxCell id="LA_P1" style="edgeStyle=none;" edge="1" source="E_Partido" target="A_P1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_P2" style="edgeStyle=none;" edge="1" source="E_Partido" target="A_P2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_P3" style="edgeStyle=none;" edge="1" source="E_Partido" target="A_P3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_P4" style="edgeStyle=none;" edge="1" source="E_Partido" target="A_P4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_P5" style="edgeStyle=none;" edge="1" source="E_Partido" target="A_P5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_P6" style="edgeStyle=none;" edge="1" source="E_Partido" target="A_P6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_P7" style="edgeStyle=none;" edge="1" source="E_Partido" target="A_P7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ ATRIBUTOS EVENTO ═══════════════ -->
+    <mxCell id="A_E1" value="id_evento (PK)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="340" y="640" width="110" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_E2" value="tipo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="400" y="690" width="80" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_E3" value="minuto" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="490" y="700" width="80" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_E4" value="confianza" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="590" y="690" width="90" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_E5" value="bbox" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="620" y="640" width="70" height="36" as="geometry"/></mxCell>
+    <mxCell id="LA_E1" style="edgeStyle=none;" edge="1" source="E_Evento" target="A_E1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_E2" style="edgeStyle=none;" edge="1" source="E_Evento" target="A_E2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_E3" style="edgeStyle=none;" edge="1" source="E_Evento" target="A_E3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_E4" style="edgeStyle=none;" edge="1" source="E_Evento" target="A_E4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_E5" style="edgeStyle=none;" edge="1" source="E_Evento" target="A_E5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ ATRIBUTOS POSESION ═══════════════ -->
+    <mxCell id="A_PO1" value="id_posesion (PK)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1080" y="570" width="120" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_PO2" value="equipo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1110" y="620" width="80" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_PO3" value="segundo_inicio" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1090" y="670" width="110" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_PO4" value="segundo_fin" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="960" y="680" width="100" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_PO5" value="duracion_seg" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="860" y="660" width="100" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_PO6" value="confianza_promedio" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="840" y="610" width="120" height="36" as="geometry"/></mxCell>
+    <mxCell id="LA_PO1" style="edgeStyle=none;" edge="1" source="E_Posesion" target="A_PO1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_PO2" style="edgeStyle=none;" edge="1" source="E_Posesion" target="A_PO2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_PO3" style="edgeStyle=none;" edge="1" source="E_Posesion" target="A_PO3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_PO4" style="edgeStyle=none;" edge="1" source="E_Posesion" target="A_PO4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_PO5" style="edgeStyle=none;" edge="1" source="E_Posesion" target="A_PO5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_PO6" style="edgeStyle=none;" edge="1" source="E_Posesion" target="A_PO6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ═══════════════ ATRIBUTOS ESTADISTICA ═══════════════ -->
+    <mxCell id="A_ES1" value="id_estadistica (PK)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1090" y="30" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_ES2" value="tackles_efectivos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1100" y="80" width="120" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_ES3" value="tackles_fallidos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1100" y="130" width="110" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_ES4" value="metros_ganados" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1080" y="180" width="110" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_ES5" value="participacion_lineout" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="940" y="50" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_ES6" value="velocidad_maxima" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="940" y="100" width="120" height="36" as="geometry"/></mxCell>
+    <mxCell id="A_ES7" value="distancia_recorrida" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1"><mxGeometry x="940" y="150" width="120" height="36" as="geometry"/></mxCell>
+    <mxCell id="LA_ES1" style="edgeStyle=none;" edge="1" source="E_Estadistica" target="A_ES1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_ES2" style="edgeStyle=none;" edge="1" source="E_Estadistica" target="A_ES2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_ES3" style="edgeStyle=none;" edge="1" source="E_Estadistica" target="A_ES3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_ES4" style="edgeStyle=none;" edge="1" source="E_Estadistica" target="A_ES4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_ES5" style="edgeStyle=none;" edge="1" source="E_Estadistica" target="A_ES5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_ES6" style="edgeStyle=none;" edge="1" source="E_Estadistica" target="A_ES6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="LA_ES7" style="edgeStyle=none;" edge="1" source="E_Estadistica" target="A_ES7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+  </root>
+</mxGraphModel>

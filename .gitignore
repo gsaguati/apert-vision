@@ -1,0 +1,39 @@
+# Videos
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Modelo entrenado (archivo pesado — subir por separado si se necesita)
+*.pt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Dataset imágenes (pesado — manejar con DVC o Drive)
+apert-vision-completo/codigo-python/dataset/train/
+apert-vision-completo/codigo-python/dataset/valid/
+apert-vision-completo/codigo-python/dataset/test/
+
+# Logs de entrenamiento
+*.txt
+runs/
+
+# Node
+node_modules/
+dist/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
