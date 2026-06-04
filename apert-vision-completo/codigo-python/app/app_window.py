@@ -7,7 +7,8 @@ from PyQt6.QtGui import QFont, QPainter, QColor, QBrush
 
 from app.styles import (
     C_BG, C_SURFACE, C_SURFACE2, C_BORDER, C_BORDER2,
-    C_GREEN, C_GREENBG, C_TEXT, C_MUTED, C_MUTED2,
+    C_GREEN, C_GREEN3, C_GREENBG, C_TEXT, C_MUTED, C_MUTED2,
+    C_SIDEBAR, C_SIDEBAR_BORDER,
 )
 from app.screens.dashboard       import DashboardScreen
 from app.screens.analysis        import AnalysisScreen
@@ -71,30 +72,32 @@ class NavItem(QWidget):
         self._dot.setVisible(active)
 
     def _set_style(self, active: bool):
+        # JS: active = bg-sidebar-accent (#151d2e), text sidebar-primary (#39e07a)
+        # JS: inactive = text-sidebar-foreground/60
         if active:
             self.setStyleSheet(
-                "background-color: #0d1a11; border-radius: 6px;")
+                "background-color: #151d2e; border-radius: 8px;")
             self._text_lbl.setStyleSheet(
-                f"color: {C_GREEN}; font-weight: 700; font-size: 13px;")
+                "color: #39e07a; font-weight: 600; font-size: 13px;")
             self._icon_lbl.setStyleSheet(
-                f"font-size: 13px; color: {C_GREEN};")
+                "font-size: 13px; color: #39e07a;")
         else:
             self.setStyleSheet(
-                "background-color: transparent; border-radius: 6px;")
+                "background-color: transparent; border-radius: 8px;")
             self._text_lbl.setStyleSheet(
-                f"color: {C_MUTED}; font-size: 13px;")
+                "color: #8a9ab8; font-size: 13px;")  # foreground/60
             self._icon_lbl.setStyleSheet(
-                f"font-size: 13px; color: {C_MUTED};")
+                "font-size: 13px; color: #8a9ab8;")
 
     def enterEvent(self, _):
         if not self._active:
-            self.setStyleSheet(
-                "background-color: #141a17; border-radius: 6px;")
+            self.setStyleSheet("background-color: #151d2e; border-radius: 8px;")
+            self._text_lbl.setStyleSheet("color: #e8eaf0; font-size: 13px;")
+            self._icon_lbl.setStyleSheet("font-size: 13px; color: #e8eaf0;")
 
     def leaveEvent(self, _):
         if not self._active:
-            self.setStyleSheet(
-                "background-color: transparent; border-radius: 6px;")
+            self._set_style(False)
 
     def mousePressEvent(self, _):
         self.clicked.emit(self._page)
@@ -108,9 +111,9 @@ class NavSidebar(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setFixedWidth(220)
+        self.setFixedWidth(240)
         self.setStyleSheet(
-            f"background-color: {C_SURFACE}; border-right: 1px solid {C_BORDER};")
+            f"background-color: {C_SIDEBAR}; border-right: 1px solid {C_SIDEBAR_BORDER};")
         self._items: dict[int, NavItem] = {}
         self._build()
 
@@ -123,7 +126,7 @@ class NavSidebar(QWidget):
         logo_box = QWidget()
         logo_box.setFixedHeight(64)
         logo_box.setStyleSheet(
-            f"background-color: {C_SURFACE}; border-bottom: 1px solid {C_BORDER};")
+            f"background-color: {C_SIDEBAR}; border-bottom: 1px solid {C_SIDEBAR_BORDER};")
         logo_lay = QHBoxLayout(logo_box)
         logo_lay.setContentsMargins(16, 0, 16, 0)
         logo_lay.setSpacing(10)
@@ -132,17 +135,17 @@ class NavSidebar(QWidget):
         eye.setFixedSize(34, 34)
         eye.setAlignment(Qt.AlignmentFlag.AlignCenter)
         eye.setStyleSheet(
-            f"background-color: {C_GREEN}; color: #000;"
+            f"background-color: {C_GREEN}; color: {C_BG};"
             f"border-radius: 8px; font-size: 16px;")
 
         brand_col = QVBoxLayout()
-        brand_col.setSpacing(0)
+        brand_col.setSpacing(1)
         brand_name = QLabel("Apert Vision")
-        brand_name.setFont(QFont("Segoe UI", 13, QFont.Weight.ExtraBold))
+        brand_name.setFont(QFont("Inter", 13, QFont.Weight.Bold))
         brand_name.setStyleSheet(f"color: {C_TEXT};")
         brand_sub = QLabel("RUGBY AI")
         brand_sub.setStyleSheet(
-            f"color: {C_MUTED}; font-size: 9px; letter-spacing: 1.5px;")
+            f"color: {C_MUTED}; font-size: 9px; letter-spacing: 2px; font-weight: 500;")
         brand_col.addWidget(brand_name)
         brand_col.addWidget(brand_sub)
 
@@ -152,23 +155,24 @@ class NavSidebar(QWidget):
 
         # ── Club pill ──
         club_box = QWidget()
-        club_box.setFixedHeight(48)
+        club_box.setFixedHeight(52)
         club_box.setStyleSheet(
-            f"background-color: {C_SURFACE}; border-bottom: 1px solid {C_BORDER};")
+            f"background-color: {C_SIDEBAR}; border-bottom: 1px solid {C_SIDEBAR_BORDER};")
         club_lay = QHBoxLayout(club_box)
         club_lay.setContentsMargins(12, 0, 12, 0)
 
         club_pill = QFrame()
         club_pill.setStyleSheet(
-            f"background-color: {C_SURFACE2}; border-radius: 16px;"
+            f"background-color: {C_SURFACE2}; border-radius: 18px;"
             f"border: 1px solid {C_BORDER};")
         cp_lay = QHBoxLayout(club_pill)
-        cp_lay.setContentsMargins(10, 4, 12, 4)
-        cp_lay.setSpacing(6)
+        cp_lay.setContentsMargins(12, 6, 14, 6)
+        cp_lay.setSpacing(8)
         dot = QLabel("●")
-        dot.setStyleSheet(f"color: {C_GREEN}; font-size: 9px;")
+        dot.setStyleSheet(f"color: {C_GREEN}; font-size: 8px;")
         club_name = QLabel(mock.CLUB_NAME)
-        club_name.setStyleSheet(f"color: {C_TEXT}; font-size: 12px; font-weight: 600;")
+        club_name.setStyleSheet(
+            f"color: {C_TEXT}; font-size: 12px; font-weight: 600;")
         cp_lay.addWidget(dot)
         cp_lay.addWidget(club_name)
         club_lay.addWidget(club_pill)
@@ -201,40 +205,44 @@ class NavSidebar(QWidget):
         # ── Separator ──
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
-        sep.setStyleSheet(f"background-color: {C_BORDER}; max-height: 1px;")
+        sep.setStyleSheet(
+            f"background-color: {C_SIDEBAR_BORDER}; max-height: 1px;")
         lay.addWidget(sep)
 
-        # ── User ──
+        # ── User ── (JS: avatar gradient #39e07a → #1db954)
         user_box = QWidget()
-        user_box.setStyleSheet(f"background-color: {C_SURFACE};")
-        user_box.setFixedHeight(70)
+        user_box.setStyleSheet(f"background-color: {C_SIDEBAR};")
+        user_box.setFixedHeight(72)
         user_lay = QHBoxLayout(user_box)
-        user_lay.setContentsMargins(12, 0, 12, 0)
+        user_lay.setContentsMargins(14, 0, 14, 0)
         user_lay.setSpacing(10)
 
         u = user_state.get()
-        initials = (u["name"][0].upper() if u else "?")
+        initials = (u["name"][:2].upper() if u and len(u["name"]) >= 2
+                    else (u["name"][0].upper() if u else "?"))
 
         avatar = QLabel(initials)
         avatar.setFixedSize(36, 36)
         avatar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # JS: linear-gradient(135deg, #39e07a 0%, #1db954 100%)
+        # Qt doesn't support gradient on QLabel; use solid primary
         avatar.setStyleSheet(
-            f"background-color: {C_GREEN}; color: #000;"
-            f"border-radius: 18px; font-size: 14px; font-weight: 800;")
+            f"background-color: {C_GREEN}; color: {C_BG};"
+            f"border-radius: 18px; font-size: 12px; font-weight: 700;")
 
         info_col = QVBoxLayout()
         info_col.setSpacing(1)
-        name_lbl = QLabel(u["name"]  if u else "Invitado")
-        name_lbl.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
+        name_lbl = QLabel(u["name"] if u else "Invitado")
+        name_lbl.setFont(QFont("Inter", 12, QFont.Weight.Bold))
         name_lbl.setStyleSheet(f"color: {C_TEXT};")
         role_lbl = QLabel("Entrenador")
-        role_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 10px;")
+        role_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 11px;")
         info_col.addWidget(name_lbl)
         info_col.addWidget(role_lbl)
 
-        logout_btn = QPushButton("⇥")
+        logout_btn = QPushButton("→")
         logout_btn.setObjectName("ghost")
-        logout_btn.setFixedSize(30, 30)
+        logout_btn.setFixedSize(28, 28)
         logout_btn.setToolTip("Cerrar sesión")
         logout_btn.clicked.connect(self.logout_requested)
 

@@ -9,8 +9,13 @@ from PyQt6.QtGui import (
 from app.styles import (
     C_BG, C_SURFACE, C_SURFACE2, C_BORDER, C_BORDER2,
     C_GREEN, C_BLUE, C_BLUEBG, C_ORANGE, C_TEXT, C_MUTED, C_MUTED2,
-    C_GREENBG,
+    C_GREENBG, C_ACCENT,
 )
+# JS exact chart colors
+_CHART_GREEN  = "#39e07a"
+_CHART_BLUE   = "#3b82f6"
+_CHART_AMBER  = "#f59e0b"
+_GRID_COLOR   = "#1e2540"   # rgba(255,255,255,0.05) on card
 
 
 # ── Area Chart ─────────────────────────────────────────────────────────────────
@@ -19,7 +24,7 @@ class AreaChart(QWidget):
     """Gráfico de área para posesión por minuto (dos series)."""
 
     def __init__(self, series_a=None, series_b=None,
-                 color_a=C_GREEN, color_b=C_BLUE,
+                 color_a=_CHART_GREEN, color_b=_CHART_BLUE,
                  label_a="Local", label_b="Visitante"):
         super().__init__()
         self._series_a = series_a or []
@@ -49,11 +54,11 @@ class AreaChart(QWidget):
 
         # Background
         p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(QBrush(QColor(C_BG)))
+        p.setBrush(QBrush(QColor(C_SURFACE)))
         p.drawRect(0, 0, W, H)
 
-        # Grid lines
-        p.setPen(QPen(QColor(C_BORDER), 1, Qt.PenStyle.SolidLine))
+        # Grid lines (JS: rgba(255,255,255,0.05))
+        p.setPen(QPen(QColor(_GRID_COLOR), 1, Qt.PenStyle.SolidLine))
         for i in range(5):
             y = PAD_T + int(chart_h * i / 4)
             p.drawLine(PAD_L, y, PAD_L + chart_w, y)
@@ -136,7 +141,7 @@ class BarChart(QWidget):
     def __init__(self):
         super().__init__()
         self._groups  = []   # [{"label": "CB", "values": [lo, sc, ko]}, ...]
-        self._colors  = [C_GREEN, C_BLUE, C_ORANGE]
+        self._colors  = [_CHART_GREEN, _CHART_BLUE, _CHART_AMBER]
         self._legends = ["Line-outs", "Scrums", "Salidas 22"]
         self.setMinimumHeight(200)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
@@ -155,7 +160,7 @@ class BarChart(QWidget):
         chart_h = H - PAD_T - PAD_B
 
         p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(QBrush(QColor(C_BG)))
+        p.setBrush(QBrush(QColor(C_SURFACE)))
         p.drawRect(0, 0, W, H)
 
         if not self._groups:
@@ -168,7 +173,7 @@ class BarChart(QWidget):
         p.setFont(font)
 
         # Grid + Y labels
-        p.setPen(QPen(QColor(C_BORDER), 1))
+        p.setPen(QPen(QColor(_GRID_COLOR), 1))
         for i in range(y_steps + 1):
             y   = PAD_T + chart_h - int(chart_h * i / y_steps)
             val = int(max_val * i / y_steps)
@@ -224,14 +229,14 @@ class DonutChart(QWidget):
     """Gráfico de dona para posesión promedio."""
 
     def __init__(self, pct_a=54, label_a="Local", label_b="Rivales",
-                 color_a=C_GREEN, color_b=C_BLUEBG):
+                 color_a=_CHART_GREEN, color_b=C_BLUEBG):
         from app.styles import C_BLUEBG
         super().__init__()
         self._pct_a   = pct_a
         self._label_a = label_a
         self._label_b = label_b
         self._color_a = color_a
-        self._color_b = "#1c3a4a"
+        self._color_b = C_ACCENT   # JS: #1a2540
         self.setFixedSize(200, 200)
 
     def set_data(self, pct_a, label_a="Local", label_b="Rivales"):
@@ -325,7 +330,7 @@ class RadarChart(QWidget):
         for i in range(n):
             p.drawLine(QPointF(cx, cy), axis_pt(i, R))
 
-        # Data polygon
+        # Data polygon (JS: fillOpacity 0.18, stroke #39e07a)
         data_pts = [axis_pt(i, R * v) for i, v in enumerate(self._values)]
         path = QPainterPath()
         path.moveTo(data_pts[0])
@@ -333,10 +338,10 @@ class RadarChart(QWidget):
             path.lineTo(pt)
         path.closeSubpath()
 
-        fill_color = QColor(C_GREEN)
-        fill_color.setAlphaF(0.2)
+        fill_color = QColor(_CHART_GREEN)
+        fill_color.setAlphaF(0.18)
         p.setBrush(QBrush(fill_color))
-        p.setPen(QPen(QColor(C_GREEN), 2))
+        p.setPen(QPen(QColor(_CHART_GREEN), 2))
         p.drawPath(path)
 
         # Dots

@@ -15,18 +15,18 @@ from app.styles import (
 # ── Toggle Switch ──────────────────────────────────────────────────────────────
 
 class ToggleSwitch(QWidget):
+    """iOS-style toggle. JS spec: trackW=51, trackH=31, thumb=25, margin=3.
+    ON=#39e07a, OFF=#2a3550"""
     toggled = pyqtSignal(bool)
+
+    # JS exact sizes (md variant)
+    TW, TH, THUMB = 51, 31, 25
 
     def __init__(self, checked: bool = True):
         super().__init__()
-        self._checked  = checked
-        self._thumb_x  = 1.0 if checked else 0.0
-        self.setFixedSize(46, 26)
+        self._checked = checked
+        self.setFixedSize(self.TW, self.TH)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-
-        self._anim = QPropertyAnimation(self, b"")
-        self._anim.setDuration(160)
-        self._anim.setEasingCurve(QEasingCurve.Type.InOutCubic)
 
     @property
     def is_checked(self) -> bool:
@@ -34,36 +34,37 @@ class ToggleSwitch(QWidget):
 
     def set_checked(self, val: bool):
         self._checked = val
-        self._thumb_x = 1.0 if val else 0.0
         self.update()
 
     def mousePressEvent(self, _):
         self._checked = not self._checked
-        target = 1.0 if self._checked else 0.0
-        # Simple lerp via repaint steps
-        self._thumb_x = target
         self.update()
         self.toggled.emit(self._checked)
 
     def paintEvent(self, _):
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        W, H = self.width(), self.height()
+        W, H = self.TW, self.TH
         r = H / 2
 
-        # Track
-        track_color = QColor(C_GREEN if self._checked else C_MUTED2)
+        # Track: ON=#39e07a, OFF=#2a3550
+        track_color = QColor("#39e07a" if self._checked else "#2a3550")
         p.setPen(Qt.PenStyle.NoPen)
         p.setBrush(QBrush(track_color))
         p.drawRoundedRect(0, 0, W, H, r, r)
 
-        # Thumb
-        margin   = 3
-        thumb_d  = H - margin * 2
-        max_tx   = W - thumb_d - margin
-        tx       = margin + self._thumb_x * max_tx
+        # Thumb: margin=3, diameter=25
+        margin = 3
+        td = self.THUMB
+        # JS: offX=3, onX=23
+        tx = 23 if self._checked else 3
+        # Shadow
+        shadow = QColor(0, 0, 0, 60)
+        p.setBrush(QBrush(shadow))
+        p.drawEllipse(tx + 1, margin + 1, td, td)
+        # White thumb
         p.setBrush(QBrush(QColor("#ffffff")))
-        p.drawEllipse(int(tx), margin, thumb_d, thumb_d)
+        p.drawEllipse(tx, margin, td, td)
         p.end()
 
 

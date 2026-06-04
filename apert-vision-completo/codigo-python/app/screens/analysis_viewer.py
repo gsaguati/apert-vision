@@ -11,9 +11,13 @@ from PyQt6.QtGui import QFont, QPainter, QColor, QBrush, QPen
 
 from app.styles import (
     C_BG, C_SURFACE, C_SURFACE2, C_BORDER, C_BORDER2,
-    C_GREEN, C_GREEN2, C_GREENBG, C_BLUE, C_BLUEBG,
-    C_ORANGE, C_ORANGEBG, C_TEXT, C_MUTED, C_MUTED2,
+    C_GREEN, C_GREEN2, C_GREEN3, C_GREENBG, C_BLUE, C_BLUEBG,
+    C_ORANGE, C_ORANGEBG, C_TEXT, C_MUTED, C_MUTED2, C_ACCENT,
 )
+# JS exact chart colors
+_GREEN  = "#39e07a"
+_BLUE   = "#3b82f6"
+_AMBER  = "#f59e0b"
 from app.charts import AreaChart
 
 
@@ -80,9 +84,14 @@ class VideoFrame(QFrame):
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         W, H = self.width(), self.height()
 
-        # Dark green field background
+        # JS gradient: linear-gradient(160deg, #0d2e1a 0%, #051210 50%, #0a1528 100%)
+        from PyQt6.QtGui import QLinearGradient
+        grad = QLinearGradient(0, 0, W * 0.6, H)
+        grad.setColorAt(0.0, QColor("#0d2e1a"))
+        grad.setColorAt(0.5, QColor("#051210"))
+        grad.setColorAt(1.0, QColor("#0a1528"))
         p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(QBrush(QColor("#0a1f10")))
+        p.setBrush(QBrush(grad))
         p.drawRoundedRect(0, 0, W, H, 10, 10)
 
         if not self._has_data:
@@ -187,7 +196,7 @@ class EventRow(QFrame):
         time_lbl.setFixedWidth(44)
         time_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 12px; font-family: 'Consolas';")
 
-        color_map = {"lineout": C_GREEN, "scrum": C_BLUE, "kickoff": C_ORANGE}
+        color_map = {"lineout": _GREEN,  "scrum": _BLUE,   "kickoff": _AMBER}
         bg_map    = {"lineout": C_GREENBG, "scrum": C_BLUEBG, "kickoff": C_ORANGEBG}
         c  = color_map.get(ev["type"], C_TEXT)
         bg = bg_map.get(ev["type"],    C_SURFACE2)
