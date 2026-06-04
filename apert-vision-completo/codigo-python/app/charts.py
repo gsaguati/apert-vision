@@ -8,7 +8,7 @@ from PyQt6.QtGui import (
 )
 from app.styles import (
     C_BG, C_SURFACE, C_SURFACE2, C_BORDER, C_BORDER2,
-    C_GREEN, C_BLUE, C_ORANGE, C_TEXT, C_MUTED, C_MUTED2,
+    C_GREEN, C_BLUE, C_BLUEBG, C_ORANGE, C_TEXT, C_MUTED, C_MUTED2,
     C_GREENBG,
 )
 

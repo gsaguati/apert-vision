@@ -20,6 +20,7 @@ C_ORANGE   = "#ff9800"
 C_ORANGEBG = "#2a1e0a"
 C_BLUE     = "#29b6f6"
 C_BLUEBG   = "#0a1f2a"
+C_GREEN3   = "#009e45"
 
 STYLESHEET = f"""
 /* ── Base ───────────────────────────────────────────────────────── */
