@@ -3,37 +3,38 @@ from PyQt6.QtWidgets import (
     QPushButton, QFrame, QStackedWidget, QSizePolicy,
 )
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QPainter, QColor, QBrush
 
-from app.styles import C_BG, C_SURFACE, C_BORDER, C_GREEN, C_GREEN2, C_TEXT, C_MUTED
+from app.styles import (
+    C_BG, C_SURFACE, C_SURFACE2, C_BORDER, C_BORDER2,
+    C_GREEN, C_GREEN2, C_TEXT, C_MUTED, C_MUTED2,
+)
 from app.screens.home     import HomeScreen
 from app.screens.analysis import AnalysisScreen
-import app.history     as history
-import app.user_state  as user_state
+import app.history    as history
+import app.user_state as user_state
 
-# Índices del QStackedWidget
 PAGE_HOME     = 0
 PAGE_ANALYSIS = 1
 
 
-class NavButton(QPushButton):
+class NavItem(QPushButton):
     def __init__(self, icon: str, label: str):
         super().__init__()
-        self._active = False
-        self._icon   = icon
-        self._label  = label
-        self.setText(f"  {icon}  {label}")
+        self._icon  = icon
+        self._label = label
+        self.setText(f"{icon}   {label}")
         self.setCheckable(True)
-        self.setFixedHeight(44)
+        self.setFixedHeight(42)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self._set_style(False)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._apply(False)
 
     def set_active(self, active: bool):
-        self._active = active
         self.setChecked(active)
-        self._set_style(active)
+        self._apply(active)
 
-    def _set_style(self, active: bool):
+    def _apply(self, active: bool):
         if active:
             self.setStyleSheet(f"""
                 QPushButton {{
@@ -43,7 +44,7 @@ class NavButton(QPushButton):
                     border-left: 3px solid {C_GREEN};
                     border-radius: 0px;
                     text-align: left;
-                    padding-left: 14px;
+                    padding: 0 0 0 18px;
                     font-size: 13px;
                     font-weight: 700;
                 }}
@@ -57,23 +58,23 @@ class NavButton(QPushButton):
                     border-left: 3px solid transparent;
                     border-radius: 0px;
                     text-align: left;
-                    padding-left: 14px;
+                    padding: 0 0 0 18px;
                     font-size: 13px;
                 }}
                 QPushButton:hover {{
+                    background-color: #0a1812;
                     color: {C_TEXT};
-                    background-color: #0a1a12;
                 }}
             """)
 
 
 class NavSidebar(QWidget):
-    navigate = pyqtSignal(int)
+    navigate         = pyqtSignal(int)
     logout_requested = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        self.setFixedWidth(220)
+        self.setFixedWidth(230)
         self.setStyleSheet(
             f"background-color: {C_SURFACE}; border-right: 1px solid {C_BORDER};")
         self._build()
@@ -83,33 +84,39 @@ class NavSidebar(QWidget):
         lay.setContentsMargins(0, 0, 0, 0)
         lay.setSpacing(0)
 
-        # Logo
-        logo_box = QWidget()
-        logo_box.setStyleSheet(
+        # ── Logo ──
+        logo_widget = QWidget()
+        logo_widget.setFixedHeight(80)
+        logo_widget.setStyleSheet(
             f"background-color: {C_SURFACE}; border-bottom: 1px solid {C_BORDER};")
-        logo_lay = QVBoxLayout(logo_box)
-        logo_lay.setContentsMargins(20, 20, 20, 18)
+        logo_lay = QVBoxLayout(logo_widget)
+        logo_lay.setContentsMargins(20, 16, 20, 16)
         logo_lay.setSpacing(2)
 
-        title = QLabel("APERT\nVISION")
-        title.setFont(QFont("Segoe UI", 17, QFont.Weight.ExtraBold))
-        title.setStyleSheet(f"color: {C_GREEN}; letter-spacing: 2px;")
-        sub = QLabel("RUGBY ANALYTICS")
-        sub.setStyleSheet(f"color: {C_MUTED}; font-size: 9px; letter-spacing: 1.5px;")
+        logo_title = QLabel("APERT VISION")
+        logo_title.setFont(QFont("Segoe UI", 14, QFont.Weight.ExtraBold))
+        logo_title.setStyleSheet(f"color: {C_GREEN}; letter-spacing: 2px;")
 
-        logo_lay.addWidget(title)
-        logo_lay.addWidget(sub)
-        lay.addWidget(logo_box)
+        logo_sub = QLabel("RUGBY  ·  IA  ·  ANALYTICS")
+        logo_sub.setStyleSheet(
+            f"color: {C_MUTED2}; font-size: 8px; letter-spacing: 2px;")
 
-        # Sección nav
-        nav_section = QLabel("NAVEGACIÓN")
-        nav_section.setStyleSheet(
-            f"color: {C_BORDER}; font-size: 9px; letter-spacing: 1.5px;"
-            f"padding: 16px 20px 6px 20px;")
-        lay.addWidget(nav_section)
+        logo_lay.addWidget(logo_title)
+        logo_lay.addWidget(logo_sub)
+        lay.addWidget(logo_widget)
 
-        self.btn_home     = NavButton("🏠", "Inicio")
-        self.btn_analysis = NavButton("▶", "Nuevo análisis")
+        # ── Nav section label ──
+        def section_lbl(text):
+            lbl = QLabel(text)
+            lbl.setStyleSheet(
+                f"color: {C_MUTED2}; font-size: 8px; letter-spacing: 2px;"
+                f"padding: 16px 20px 6px 20px; text-transform: uppercase;")
+            return lbl
+
+        lay.addWidget(section_lbl("MENÚ PRINCIPAL"))
+
+        self.btn_home     = NavItem("🏠", "Inicio")
+        self.btn_analysis = NavItem("▶", "Nuevo análisis")
 
         self.btn_home.clicked.connect(lambda: self._activate(PAGE_HOME))
         self.btn_analysis.clicked.connect(lambda: self._activate(PAGE_ANALYSIS))
@@ -117,37 +124,70 @@ class NavSidebar(QWidget):
         lay.addWidget(self.btn_home)
         lay.addWidget(self.btn_analysis)
 
+        # ── Próximamente ──
+        lay.addWidget(section_lbl("PRÓXIMAMENTE"))
+
+        for icon, label in [("📊", "Estadísticas"), ("👥", "Jugadores"), ("📅", "Temporada")]:
+            btn = NavItem(icon, label)
+            btn.setEnabled(False)
+            btn.setStyleSheet(btn.styleSheet() + "QPushButton { opacity: 0.4; }")
+            lay.addWidget(btn)
+
         lay.addStretch()
 
-        # Separador
+        # ── Divider ──
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
         sep.setStyleSheet(f"background-color: {C_BORDER}; max-height: 1px;")
         lay.addWidget(sep)
 
-        # Info usuario
-        user_box = QWidget()
-        user_box.setStyleSheet(f"background-color: {C_SURFACE};")
-        user_lay = QVBoxLayout(user_box)
+        # ── Usuario ──
+        user_widget = QWidget()
+        user_widget.setStyleSheet(f"background-color: {C_SURFACE};")
+        user_lay = QVBoxLayout(user_widget)
         user_lay.setContentsMargins(20, 14, 20, 16)
-        user_lay.setSpacing(4)
+        user_lay.setSpacing(2)
 
         u = user_state.get()
-        name_lbl = QLabel(u["name"] if u else "Usuario")
-        name_lbl.setStyleSheet(f"color: {C_TEXT}; font-size: 13px; font-weight: 600;")
+
+        # Avatar + nombre
+        avatar_row = QHBoxLayout()
+        avatar = QLabel(u["name"][0].upper() if u else "?")
+        avatar.setFixedSize(32, 32)
+        avatar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        avatar.setStyleSheet(
+            f"background-color: {C_GREEN}; color: #000; border-radius: 16px;"
+            f"font-size: 14px; font-weight: 800;")
+
+        name_col = QVBoxLayout()
+        name_col.setSpacing(0)
+        name_lbl  = QLabel(u["name"]  if u else "Invitado")
+        name_lbl.setStyleSheet(f"color: {C_TEXT}; font-size: 12px; font-weight: 600;")
         email_lbl = QLabel(u["email"] if u else "")
-        email_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 10px;")
+        email_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 9px;")
+        name_col.addWidget(name_lbl)
+        name_col.addWidget(email_lbl)
+
+        avatar_row.addWidget(avatar)
+        avatar_row.addSpacing(10)
+        avatar_row.addLayout(name_col, 1)
+        user_lay.addLayout(avatar_row)
+        user_lay.addSpacing(10)
 
         logout_btn = QPushButton("Cerrar sesión")
         logout_btn.setObjectName("secondary")
         logout_btn.setFixedHeight(30)
         logout_btn.clicked.connect(self.logout_requested)
-
-        user_lay.addWidget(name_lbl)
-        user_lay.addWidget(email_lbl)
-        user_lay.addSpacing(6)
         user_lay.addWidget(logout_btn)
-        lay.addWidget(user_box)
+
+        # Versión
+        ver_lbl = QLabel("v0.1.0-MVP  ·  BETA")
+        ver_lbl.setStyleSheet(
+            f"color: {C_MUTED2}; font-size: 9px; letter-spacing: 0.5px;"
+            f"padding-top: 6px;")
+        user_lay.addWidget(ver_lbl)
+
+        lay.addWidget(user_widget)
 
         self._activate(PAGE_HOME)
 
@@ -162,8 +202,8 @@ class AppWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Apert Vision")
-        self.setMinimumSize(1280, 800)
+        self.setWindowTitle("Apert Vision  —  Rugby Analytics")
+        self.setMinimumSize(1300, 820)
         self._build_ui()
 
     def _build_ui(self):
@@ -173,28 +213,23 @@ class AppWindow(QMainWindow):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        # Sidebar de navegación
         self.nav = NavSidebar()
         self.nav.navigate.connect(self._on_navigate)
         self.nav.logout_requested.connect(self.logout_requested)
         root.addWidget(self.nav)
 
-        # Páginas
         self.stack = QStackedWidget()
         self.stack.setStyleSheet(f"background-color: {C_BG};")
 
         self.home_screen     = HomeScreen()
         self.analysis_screen = AnalysisScreen()
 
-        # Cuando termine un análisis → guardar en historial y volver a home
         self.analysis_screen.analysis_saved.connect(self._on_analysis_saved)
-
-        # Nuevo análisis desde la home screen
         self.home_screen.new_analysis_requested.connect(
             lambda: self.nav.btn_analysis.click())
 
-        self.stack.addWidget(self.home_screen)     # PAGE_HOME = 0
-        self.stack.addWidget(self.analysis_screen) # PAGE_ANALYSIS = 1
+        self.stack.addWidget(self.home_screen)
+        self.stack.addWidget(self.analysis_screen)
 
         root.addWidget(self.stack, 1)
 
@@ -204,5 +239,4 @@ class AppWindow(QMainWindow):
     def _on_analysis_saved(self, stats: dict, team_local: str, team_visit: str, video_name: str):
         history.save_match(stats, team_local, team_visit, video_name)
         self.home_screen.refresh()
-        # Navegar a home después de guardar
         self.nav.btn_home.click()
