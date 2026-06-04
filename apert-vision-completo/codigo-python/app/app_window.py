@@ -73,22 +73,23 @@ class NavItem(QWidget):
     def _set_style(self, active: bool):
         if active:
             self.setStyleSheet(
-                f"background-color: {C_GREENBG}; border-radius: 6px;")
+                "background-color: #0d1a11; border-radius: 6px;")
             self._text_lbl.setStyleSheet(
-                f"color: {C_GREEN}; font-weight: 700;")
+                f"color: {C_GREEN}; font-weight: 700; font-size: 13px;")
             self._icon_lbl.setStyleSheet(
-                f"font-size: 14px; color: {C_GREEN};")
+                f"font-size: 13px; color: {C_GREEN};")
         else:
             self.setStyleSheet(
                 "background-color: transparent; border-radius: 6px;")
-            self._text_lbl.setStyleSheet(f"color: {C_MUTED};")
+            self._text_lbl.setStyleSheet(
+                f"color: {C_MUTED}; font-size: 13px;")
             self._icon_lbl.setStyleSheet(
-                f"font-size: 14px; color: {C_MUTED};")
+                f"font-size: 13px; color: {C_MUTED};")
 
     def enterEvent(self, _):
         if not self._active:
             self.setStyleSheet(
-                f"background-color: {C_SURFACE2}; border-radius: 6px;")
+                "background-color: #141a17; border-radius: 6px;")
 
     def leaveEvent(self, _):
         if not self._active:
@@ -181,12 +182,12 @@ class NavSidebar(QWidget):
         nav_lay.setSpacing(2)
 
         nav_defs = [
-            (PAGE_DASHBOARD, "⊞", "Dashboard"),
-            (PAGE_ANALYSIS,  "▶", "Análisis"),
-            (PAGE_MATCHES,   "📅", "Partidos"),
-            (PAGE_PLAYERS,   "👤", "Jugadores"),
-            (PAGE_STATS,     "📊", "Estadísticas"),
-            (PAGE_CONFIG,    "⚙", "Configuración"),
+            (PAGE_DASHBOARD, "▣", "Dashboard"),
+            (PAGE_ANALYSIS,  "▷", "Análisis"),
+            (PAGE_MATCHES,   "▤", "Partidos"),
+            (PAGE_PLAYERS,   "◉", "Jugadores"),
+            (PAGE_STATS,     "▦", "Estadísticas"),
+            (PAGE_CONFIG,    "◎", "Configuración"),
         ]
         for page, icon, label in nav_defs:
             item = NavItem(page, icon, label)

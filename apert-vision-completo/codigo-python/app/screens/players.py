@@ -148,16 +148,22 @@ class PlayersScreen(QWidget):
             pw_lay.addWidget(name_lbl)
             self._table.setCellWidget(i, 1, player_widget)
 
-            # Posición badge
+            # Posición badge (compact pill, not full-width)
             pos_widget = QWidget()
             pos_lay = QHBoxLayout(pos_widget)
-            pos_lay.setContentsMargins(0, 0, 0, 0)
+            pos_lay.setContentsMargins(12, 0, 0, 0)
+            pos_lay.setSpacing(0)
             bg = POSITION_COLORS.get(p["position"], C_SURFACE2)
             badge = QLabel(p["position"])
+            badge.setFixedHeight(24)
             badge.setStyleSheet(
                 f"color: {C_MUTED}; background-color: {bg};"
-                f"border-radius: 4px; padding: 3px 8px; font-size: 11px;")
-            pos_lay.addWidget(badge)
+                f"border-radius: 4px; padding: 2px 10px; font-size: 11px;")
+            badge.setSizePolicy(
+                badge.sizePolicy().horizontalPolicy(),
+                badge.sizePolicy().verticalPolicy())
+            badge.adjustSize()
+            pos_lay.addWidget(badge, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             pos_lay.addStretch()
             self._table.setCellWidget(i, 2, pos_widget)
 

@@ -102,6 +102,9 @@ class DropZone(QFrame):
         self._btn = QPushButton("Seleccionar archivo")
         self._btn.setFixedWidth(180)
         self._btn.setFixedHeight(36)
+        self._btn.setStyleSheet(
+            f"background-color: {C_GREEN}; color: #000; font-weight: 700;"
+            f"border-radius: 18px; border: none; font-size: 13px;")
         self._btn.clicked.connect(self._browse)
 
         lay.addWidget(upload_icon, 0, Qt.AlignmentFlag.AlignCenter)

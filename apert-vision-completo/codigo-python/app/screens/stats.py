@@ -6,7 +6,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QColor
 
 from app.styles import (
-    C_BG, C_SURFACE, C_SURFACE2, C_BORDER,
+    C_BG, C_SURFACE, C_SURFACE2, C_BORDER, C_BORDER2,
     C_GREEN, C_GREENBG, C_BLUE, C_ORANGE, C_TEXT, C_MUTED, C_MUTED2,
 )
 from app.charts import BarChart, DonutChart, RadarChart
@@ -19,6 +19,14 @@ class BigStatCard(QFrame):
         self.setObjectName("card")
         self.setFixedHeight(100)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        # Explicit style to ensure border is visible
+        self.setStyleSheet(f"""
+            QFrame#card {{
+                background-color: {C_SURFACE};
+                border: 1px solid {C_BORDER2};
+                border-radius: 10px;
+            }}
+        """)
 
         lay = QVBoxLayout(self)
         lay.setContentsMargins(20, 16, 20, 12)

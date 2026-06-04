@@ -173,6 +173,13 @@ class SectionCard(QFrame):
         super().__init__()
         self.setObjectName("card")
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.setStyleSheet(f"""
+            QFrame#card {{
+                background-color: {C_SURFACE};
+                border: 1px solid {C_BORDER2};
+                border-radius: 10px;
+            }}
+        """)
         self._lay = QVBoxLayout(self)
         self._lay.setContentsMargins(20, 16, 20, 16)
         self._lay.setSpacing(0)
@@ -259,40 +266,35 @@ class ToggleRow(QFrame):
 class ConfidenceRow(QWidget):
     def __init__(self, value: int = 85):
         super().__init__()
-        self.setFixedHeight(72)
+        self.setFixedHeight(68)
+        self.setStyleSheet(f"border-top: 1px solid {C_BORDER}; background: transparent;")
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(0, 8, 0, 0)
-        lay.setSpacing(6)
+        lay.setContentsMargins(0, 10, 0, 0)
+        lay.setSpacing(4)
 
-        top = QHBoxLayout()
-        info = QVBoxLayout()
-        info.setSpacing(2)
+        # Row 1: title + slider + value
+        row1 = QHBoxLayout()
         title_lbl = QLabel("Umbral de confianza")
         title_lbl.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
-        title_lbl.setStyleSheet(f"color: {C_TEXT};")
-        sub_lbl = QLabel("Formaciones por debajo de este umbral no se muestran")
-        sub_lbl.setStyleSheet(f"color: {C_GREEN}; font-size: 11px;")
-        info.addWidget(title_lbl)
-        info.addWidget(sub_lbl)
-
-        slider_row = QHBoxLayout()
-        slider_row.setSpacing(10)
+        title_lbl.setStyleSheet(f"color: {C_TEXT}; border: none;")
         self._slider = QSlider(Qt.Orientation.Horizontal)
         self._slider.setRange(10, 99)
         self._slider.setValue(value)
-        self._slider.setFixedWidth(180)
+        self._slider.setFixedWidth(200)
         self._val_lbl = QLabel(f"{value}%")
-        self._val_lbl.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
-        self._val_lbl.setStyleSheet(f"color: {C_GREEN};")
-        self._val_lbl.setFixedWidth(42)
-        self._slider.valueChanged.connect(
-            lambda v: self._val_lbl.setText(f"{v}%"))
-        slider_row.addWidget(self._slider)
-        slider_row.addWidget(self._val_lbl)
+        self._val_lbl.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
+        self._val_lbl.setStyleSheet(f"color: {C_GREEN}; border: none;")
+        self._val_lbl.setFixedWidth(40)
+        self._slider.valueChanged.connect(lambda v: self._val_lbl.setText(f"{v}%"))
+        row1.addWidget(title_lbl, 1)
+        row1.addWidget(self._slider)
+        row1.addWidget(self._val_lbl)
+        lay.addLayout(row1)
 
-        top.addLayout(info, 1)
-        top.addLayout(slider_row)
-        lay.addLayout(top)
+        # Row 2: subtitle
+        sub_lbl = QLabel("Formaciones por debajo de este umbral no se muestran")
+        sub_lbl.setStyleSheet(f"color: {C_GREEN}; font-size: 11px; border: none;")
+        lay.addWidget(sub_lbl)
 
     def value(self) -> int:
         return self._slider.value()
@@ -368,6 +370,9 @@ class ConfigScreen(QWidget):
         save_btn = QPushButton("💾  Guardar cambios")
         save_btn.setFixedHeight(38)
         save_btn.setFixedWidth(180)
+        save_btn.setStyleSheet(
+            f"background-color: {C_GREEN}; color: #000; font-weight: 700;"
+            f"border-radius: 8px; border: none; font-size: 13px;")
         save_btn.clicked.connect(self._save)
 
         hdr.addLayout(title_col)
@@ -439,7 +444,15 @@ class ConfigScreen(QWidget):
         lay.addWidget(ModelStatusCard())
 
         lay.addStretch()
-        scroll.setWidget(content)
+        # Wrap content in max-width container (like el mockup)
+        outer = QWidget()
+        outer.setStyleSheet("background: transparent;")
+        outer_lay = QHBoxLayout(outer)
+        outer_lay.setContentsMargins(0, 0, 0, 0)
+        content.setMaximumWidth(700)
+        outer_lay.addWidget(content)
+        outer_lay.addStretch()
+        scroll.setWidget(outer)
         root.addWidget(scroll, 1)
 
     def _save(self):
