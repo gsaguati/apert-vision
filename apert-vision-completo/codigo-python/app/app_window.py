@@ -15,6 +15,7 @@ from app.screens.analysis_viewer import AnalysisViewerScreen
 from app.screens.matches         import MatchesScreen
 from app.screens.players         import PlayersScreen
 from app.screens.stats           import StatsScreen
+from app.screens.config          import ConfigScreen
 import app.mock_data  as mock
 import app.history    as history
 import app.user_state as user_state
@@ -25,6 +26,7 @@ PAGE_MATCHES   = 2
 PAGE_PLAYERS   = 3
 PAGE_STATS     = 4
 PAGE_VIEWER    = 5
+PAGE_CONFIG    = 6
 
 
 # ── Nav item ───────────────────────────────────────────────────────────────────
@@ -184,19 +186,13 @@ class NavSidebar(QWidget):
             (PAGE_MATCHES,   "📅", "Partidos"),
             (PAGE_PLAYERS,   "👤", "Jugadores"),
             (PAGE_STATS,     "📊", "Estadísticas"),
+            (PAGE_CONFIG,    "⚙", "Configuración"),
         ]
         for page, icon, label in nav_defs:
             item = NavItem(page, icon, label)
             item.clicked.connect(self._on_nav_click)
             nav_lay.addWidget(item)
             self._items[page] = item
-
-        nav_lay.addSpacing(8)
-
-        # Configuración (disabled for now)
-        cfg_item = NavItem(99, "⚙", "Configuración")
-        cfg_item.setEnabled(False)
-        nav_lay.addWidget(cfg_item)
 
         nav_lay.addStretch()
         lay.addWidget(nav_container, 1)
@@ -292,6 +288,7 @@ class AppWindow(QMainWindow):
         self.matches    = MatchesScreen()
         self.players    = PlayersScreen()
         self.stats      = StatsScreen()
+        self.config     = ConfigScreen()
 
         # Signals
         self.dashboard.new_analysis_requested.connect(self._start_new_analysis)
@@ -305,6 +302,7 @@ class AppWindow(QMainWindow):
         self.stack.addWidget(self.players)    # 3
         self.stack.addWidget(self.stats)      # 4
         self.stack.addWidget(self.viewer)     # 5
+        self.stack.addWidget(self.config)     # 6
 
         root.addWidget(self.stack, 1)
 
