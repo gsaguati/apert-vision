@@ -7,66 +7,97 @@ from PyQt6.QtGui import QFont, QPainter, QColor, QBrush
 
 from app.styles import (
     C_BG, C_SURFACE, C_SURFACE2, C_BORDER, C_BORDER2,
-    C_GREEN, C_GREEN2, C_TEXT, C_MUTED, C_MUTED2,
+    C_GREEN, C_GREENBG, C_TEXT, C_MUTED, C_MUTED2,
 )
-from app.screens.home     import HomeScreen
-from app.screens.analysis import AnalysisScreen
+from app.screens.dashboard       import DashboardScreen
+from app.screens.analysis        import AnalysisScreen
+from app.screens.analysis_viewer import AnalysisViewerScreen
+from app.screens.matches         import MatchesScreen
+from app.screens.players         import PlayersScreen
+from app.screens.stats           import StatsScreen
+import app.mock_data  as mock
 import app.history    as history
 import app.user_state as user_state
 
-PAGE_HOME     = 0
-PAGE_ANALYSIS = 1
+PAGE_DASHBOARD = 0
+PAGE_ANALYSIS  = 1
+PAGE_MATCHES   = 2
+PAGE_PLAYERS   = 3
+PAGE_STATS     = 4
+PAGE_VIEWER    = 5
 
 
-class NavItem(QPushButton):
-    def __init__(self, icon: str, label: str):
+# ── Nav item ───────────────────────────────────────────────────────────────────
+
+class NavItem(QWidget):
+    clicked = pyqtSignal(int)
+
+    def __init__(self, page: int, icon: str, label: str):
         super().__init__()
-        self._icon  = icon
-        self._label = label
-        self.setText(f"{icon}   {label}")
-        self.setCheckable(True)
-        self.setFixedHeight(42)
+        self._page   = page
+        self._active = False
+        self.setFixedHeight(40)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._apply(False)
+
+        lay = QHBoxLayout(self)
+        lay.setContentsMargins(16, 0, 12, 0)
+        lay.setSpacing(10)
+
+        self._icon_lbl = QLabel(icon)
+        self._icon_lbl.setFixedWidth(18)
+        self._icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._icon_lbl.setStyleSheet(f"font-size: 14px; color: {C_MUTED};")
+
+        self._text_lbl = QLabel(label)
+        self._text_lbl.setFont(QFont("Segoe UI", 12))
+        self._text_lbl.setStyleSheet(f"color: {C_MUTED};")
+
+        self._dot = QLabel("●")
+        self._dot.setStyleSheet(f"color: {C_GREEN}; font-size: 7px;")
+        self._dot.setVisible(False)
+
+        lay.addWidget(self._icon_lbl)
+        lay.addWidget(self._text_lbl, 1)
+        lay.addWidget(self._dot)
+
+        self._set_style(False)
 
     def set_active(self, active: bool):
-        self.setChecked(active)
-        self._apply(active)
+        self._active = active
+        self._set_style(active)
+        self._dot.setVisible(active)
 
-    def _apply(self, active: bool):
+    def _set_style(self, active: bool):
         if active:
-            self.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: #0d2015;
-                    color: {C_GREEN};
-                    border: none;
-                    border-left: 3px solid {C_GREEN};
-                    border-radius: 0px;
-                    text-align: left;
-                    padding: 0 0 0 18px;
-                    font-size: 13px;
-                    font-weight: 700;
-                }}
-            """)
+            self.setStyleSheet(
+                f"background-color: {C_GREENBG}; border-radius: 6px;")
+            self._text_lbl.setStyleSheet(
+                f"color: {C_GREEN}; font-weight: 700;")
+            self._icon_lbl.setStyleSheet(
+                f"font-size: 14px; color: {C_GREEN};")
         else:
-            self.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: transparent;
-                    color: {C_MUTED};
-                    border: none;
-                    border-left: 3px solid transparent;
-                    border-radius: 0px;
-                    text-align: left;
-                    padding: 0 0 0 18px;
-                    font-size: 13px;
-                }}
-                QPushButton:hover {{
-                    background-color: #0a1812;
-                    color: {C_TEXT};
-                }}
-            """)
+            self.setStyleSheet(
+                "background-color: transparent; border-radius: 6px;")
+            self._text_lbl.setStyleSheet(f"color: {C_MUTED};")
+            self._icon_lbl.setStyleSheet(
+                f"font-size: 14px; color: {C_MUTED};")
 
+    def enterEvent(self, _):
+        if not self._active:
+            self.setStyleSheet(
+                f"background-color: {C_SURFACE2}; border-radius: 6px;")
+
+    def leaveEvent(self, _):
+        if not self._active:
+            self.setStyleSheet(
+                "background-color: transparent; border-radius: 6px;")
+
+    def mousePressEvent(self, _):
+        self.clicked.emit(self._page)
+
+
+# ── Sidebar ────────────────────────────────────────────────────────────────────
 
 class NavSidebar(QWidget):
     navigate         = pyqtSignal(int)
@@ -74,9 +105,10 @@ class NavSidebar(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setFixedWidth(230)
+        self.setFixedWidth(220)
         self.setStyleSheet(
             f"background-color: {C_SURFACE}; border-right: 1px solid {C_BORDER};")
+        self._items: dict[int, NavItem] = {}
         self._build()
 
     def _build(self):
@@ -85,125 +117,158 @@ class NavSidebar(QWidget):
         lay.setSpacing(0)
 
         # ── Logo ──
-        logo_widget = QWidget()
-        logo_widget.setFixedHeight(80)
-        logo_widget.setStyleSheet(
+        logo_box = QWidget()
+        logo_box.setFixedHeight(64)
+        logo_box.setStyleSheet(
             f"background-color: {C_SURFACE}; border-bottom: 1px solid {C_BORDER};")
-        logo_lay = QVBoxLayout(logo_widget)
-        logo_lay.setContentsMargins(20, 16, 20, 16)
-        logo_lay.setSpacing(2)
+        logo_lay = QHBoxLayout(logo_box)
+        logo_lay.setContentsMargins(16, 0, 16, 0)
+        logo_lay.setSpacing(10)
 
-        logo_title = QLabel("APERT VISION")
-        logo_title.setFont(QFont("Segoe UI", 14, QFont.Weight.ExtraBold))
-        logo_title.setStyleSheet(f"color: {C_GREEN}; letter-spacing: 2px;")
+        eye = QLabel("👁")
+        eye.setFixedSize(34, 34)
+        eye.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        eye.setStyleSheet(
+            f"background-color: {C_GREEN}; color: #000;"
+            f"border-radius: 8px; font-size: 16px;")
 
-        logo_sub = QLabel("RUGBY  ·  IA  ·  ANALYTICS")
-        logo_sub.setStyleSheet(
-            f"color: {C_MUTED2}; font-size: 8px; letter-spacing: 2px;")
+        brand_col = QVBoxLayout()
+        brand_col.setSpacing(0)
+        brand_name = QLabel("Apert Vision")
+        brand_name.setFont(QFont("Segoe UI", 13, QFont.Weight.ExtraBold))
+        brand_name.setStyleSheet(f"color: {C_TEXT};")
+        brand_sub = QLabel("RUGBY AI")
+        brand_sub.setStyleSheet(
+            f"color: {C_MUTED}; font-size: 9px; letter-spacing: 1.5px;")
+        brand_col.addWidget(brand_name)
+        brand_col.addWidget(brand_sub)
 
-        logo_lay.addWidget(logo_title)
-        logo_lay.addWidget(logo_sub)
-        lay.addWidget(logo_widget)
+        logo_lay.addWidget(eye)
+        logo_lay.addLayout(brand_col)
+        lay.addWidget(logo_box)
 
-        # ── Nav section label ──
-        def section_lbl(text):
-            lbl = QLabel(text)
-            lbl.setStyleSheet(
-                f"color: {C_MUTED2}; font-size: 8px; letter-spacing: 2px;"
-                f"padding: 16px 20px 6px 20px; text-transform: uppercase;")
-            return lbl
+        # ── Club pill ──
+        club_box = QWidget()
+        club_box.setFixedHeight(48)
+        club_box.setStyleSheet(
+            f"background-color: {C_SURFACE}; border-bottom: 1px solid {C_BORDER};")
+        club_lay = QHBoxLayout(club_box)
+        club_lay.setContentsMargins(12, 0, 12, 0)
 
-        lay.addWidget(section_lbl("MENÚ PRINCIPAL"))
+        club_pill = QFrame()
+        club_pill.setStyleSheet(
+            f"background-color: {C_SURFACE2}; border-radius: 16px;"
+            f"border: 1px solid {C_BORDER};")
+        cp_lay = QHBoxLayout(club_pill)
+        cp_lay.setContentsMargins(10, 4, 12, 4)
+        cp_lay.setSpacing(6)
+        dot = QLabel("●")
+        dot.setStyleSheet(f"color: {C_GREEN}; font-size: 9px;")
+        club_name = QLabel(mock.CLUB_NAME)
+        club_name.setStyleSheet(f"color: {C_TEXT}; font-size: 12px; font-weight: 600;")
+        cp_lay.addWidget(dot)
+        cp_lay.addWidget(club_name)
+        club_lay.addWidget(club_pill)
+        lay.addWidget(club_box)
 
-        self.btn_home     = NavItem("🏠", "Inicio")
-        self.btn_analysis = NavItem("▶", "Nuevo análisis")
+        # ── Nav items ──
+        nav_container = QWidget()
+        nav_container.setStyleSheet("background: transparent;")
+        nav_lay = QVBoxLayout(nav_container)
+        nav_lay.setContentsMargins(10, 12, 10, 12)
+        nav_lay.setSpacing(2)
 
-        self.btn_home.clicked.connect(lambda: self._activate(PAGE_HOME))
-        self.btn_analysis.clicked.connect(lambda: self._activate(PAGE_ANALYSIS))
+        nav_defs = [
+            (PAGE_DASHBOARD, "⊞", "Dashboard"),
+            (PAGE_ANALYSIS,  "▶", "Análisis"),
+            (PAGE_MATCHES,   "📅", "Partidos"),
+            (PAGE_PLAYERS,   "👤", "Jugadores"),
+            (PAGE_STATS,     "📊", "Estadísticas"),
+        ]
+        for page, icon, label in nav_defs:
+            item = NavItem(page, icon, label)
+            item.clicked.connect(self._on_nav_click)
+            nav_lay.addWidget(item)
+            self._items[page] = item
 
-        lay.addWidget(self.btn_home)
-        lay.addWidget(self.btn_analysis)
+        nav_lay.addSpacing(8)
 
-        # ── Próximamente ──
-        lay.addWidget(section_lbl("PRÓXIMAMENTE"))
+        # Configuración (disabled for now)
+        cfg_item = NavItem(99, "⚙", "Configuración")
+        cfg_item.setEnabled(False)
+        nav_lay.addWidget(cfg_item)
 
-        for icon, label in [("📊", "Estadísticas"), ("👥", "Jugadores"), ("📅", "Temporada")]:
-            btn = NavItem(icon, label)
-            btn.setEnabled(False)
-            btn.setStyleSheet(btn.styleSheet() + "QPushButton { opacity: 0.4; }")
-            lay.addWidget(btn)
+        nav_lay.addStretch()
+        lay.addWidget(nav_container, 1)
 
-        lay.addStretch()
-
-        # ── Divider ──
+        # ── Separator ──
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
         sep.setStyleSheet(f"background-color: {C_BORDER}; max-height: 1px;")
         lay.addWidget(sep)
 
-        # ── Usuario ──
-        user_widget = QWidget()
-        user_widget.setStyleSheet(f"background-color: {C_SURFACE};")
-        user_lay = QVBoxLayout(user_widget)
-        user_lay.setContentsMargins(20, 14, 20, 16)
-        user_lay.setSpacing(2)
+        # ── User ──
+        user_box = QWidget()
+        user_box.setStyleSheet(f"background-color: {C_SURFACE};")
+        user_box.setFixedHeight(70)
+        user_lay = QHBoxLayout(user_box)
+        user_lay.setContentsMargins(12, 0, 12, 0)
+        user_lay.setSpacing(10)
 
         u = user_state.get()
+        initials = (u["name"][0].upper() if u else "?")
 
-        # Avatar + nombre
-        avatar_row = QHBoxLayout()
-        avatar = QLabel(u["name"][0].upper() if u else "?")
-        avatar.setFixedSize(32, 32)
+        avatar = QLabel(initials)
+        avatar.setFixedSize(36, 36)
         avatar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         avatar.setStyleSheet(
-            f"background-color: {C_GREEN}; color: #000; border-radius: 16px;"
-            f"font-size: 14px; font-weight: 800;")
+            f"background-color: {C_GREEN}; color: #000;"
+            f"border-radius: 18px; font-size: 14px; font-weight: 800;")
 
-        name_col = QVBoxLayout()
-        name_col.setSpacing(0)
-        name_lbl  = QLabel(u["name"]  if u else "Invitado")
-        name_lbl.setStyleSheet(f"color: {C_TEXT}; font-size: 12px; font-weight: 600;")
-        email_lbl = QLabel(u["email"] if u else "")
-        email_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 9px;")
-        name_col.addWidget(name_lbl)
-        name_col.addWidget(email_lbl)
+        info_col = QVBoxLayout()
+        info_col.setSpacing(1)
+        name_lbl = QLabel(u["name"]  if u else "Invitado")
+        name_lbl.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
+        name_lbl.setStyleSheet(f"color: {C_TEXT};")
+        role_lbl = QLabel("Entrenador")
+        role_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 10px;")
+        info_col.addWidget(name_lbl)
+        info_col.addWidget(role_lbl)
 
-        avatar_row.addWidget(avatar)
-        avatar_row.addSpacing(10)
-        avatar_row.addLayout(name_col, 1)
-        user_lay.addLayout(avatar_row)
-        user_lay.addSpacing(10)
-
-        logout_btn = QPushButton("Cerrar sesión")
-        logout_btn.setObjectName("secondary")
-        logout_btn.setFixedHeight(30)
+        logout_btn = QPushButton("⇥")
+        logout_btn.setObjectName("ghost")
+        logout_btn.setFixedSize(30, 30)
+        logout_btn.setToolTip("Cerrar sesión")
         logout_btn.clicked.connect(self.logout_requested)
+
+        user_lay.addWidget(avatar)
+        user_lay.addLayout(info_col, 1)
         user_lay.addWidget(logout_btn)
+        lay.addWidget(user_box)
 
-        # Versión
-        ver_lbl = QLabel("v0.1.0-MVP  ·  BETA")
-        ver_lbl.setStyleSheet(
-            f"color: {C_MUTED2}; font-size: 9px; letter-spacing: 0.5px;"
-            f"padding-top: 6px;")
-        user_lay.addWidget(ver_lbl)
+        self._activate(PAGE_DASHBOARD)
 
-        lay.addWidget(user_widget)
-
-        self._activate(PAGE_HOME)
+    def _on_nav_click(self, page: int):
+        self._activate(page)
 
     def _activate(self, page: int):
-        self.btn_home.set_active(page == PAGE_HOME)
-        self.btn_analysis.set_active(page == PAGE_ANALYSIS)
+        for p, item in self._items.items():
+            item.set_active(p == page)
         self.navigate.emit(page)
 
+    def activate(self, page: int):
+        self._activate(page)
+
+
+# ── App Window ─────────────────────────────────────────────────────────────────
 
 class AppWindow(QMainWindow):
     logout_requested = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Apert Vision  —  Rugby Analytics")
-        self.setMinimumSize(1300, 820)
+        self.setWindowTitle("Apert Vision  —  Rugby AI")
+        self.setMinimumSize(1280, 800)
         self._build_ui()
 
     def _build_ui(self):
@@ -221,22 +286,47 @@ class AppWindow(QMainWindow):
         self.stack = QStackedWidget()
         self.stack.setStyleSheet(f"background-color: {C_BG};")
 
-        self.home_screen     = HomeScreen()
-        self.analysis_screen = AnalysisScreen()
+        self.dashboard  = DashboardScreen()
+        self.analysis   = AnalysisScreen()
+        self.viewer     = AnalysisViewerScreen()
+        self.matches    = MatchesScreen()
+        self.players    = PlayersScreen()
+        self.stats      = StatsScreen()
 
-        self.analysis_screen.analysis_saved.connect(self._on_analysis_saved)
-        self.home_screen.new_analysis_requested.connect(
-            lambda: self.nav.btn_analysis.click())
+        # Signals
+        self.dashboard.new_analysis_requested.connect(self._start_new_analysis)
+        self.dashboard.view_match_requested.connect(self._open_viewer)
+        self.analysis.analysis_saved.connect(self._on_analysis_saved)
+        self.matches.view_match_requested.connect(self._open_viewer)
 
-        self.stack.addWidget(self.home_screen)
-        self.stack.addWidget(self.analysis_screen)
+        self.stack.addWidget(self.dashboard)  # 0
+        self.stack.addWidget(self.analysis)   # 1
+        self.stack.addWidget(self.matches)    # 2
+        self.stack.addWidget(self.players)    # 3
+        self.stack.addWidget(self.stats)      # 4
+        self.stack.addWidget(self.viewer)     # 5
 
         root.addWidget(self.stack, 1)
 
     def _on_navigate(self, page: int):
         self.stack.setCurrentIndex(page)
 
+    def _start_new_analysis(self, video_path: str = ""):
+        """Abre la pantalla de análisis y precarga el video si se pasó uno."""
+        if video_path:
+            self.analysis.video_picker.set_path(video_path)
+        self.nav.activate(PAGE_ANALYSIS)
+
+    def _open_viewer(self, match_id: int):
+        match = next((m for m in mock.MATCHES if m["id"] == match_id), None)
+        if match:
+            self.viewer.load_match(match)
+            self.stack.setCurrentIndex(PAGE_VIEWER)
+            # Update nav to show Análisis active
+            for p, item in self.nav._items.items():
+                item.set_active(p == PAGE_ANALYSIS)
+
     def _on_analysis_saved(self, stats: dict, team_local: str, team_visit: str, video_name: str):
         history.save_match(stats, team_local, team_visit, video_name)
-        self.home_screen.refresh()
-        self.nav.btn_home.click()
+        self.dashboard.refresh()
+        self.nav.activate(PAGE_DASHBOARD)
