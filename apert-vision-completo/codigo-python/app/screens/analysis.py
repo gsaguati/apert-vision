@@ -1,29 +1,29 @@
-import sys
 import csv
 from pathlib import Path
 
 import cv2
 from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QProgressBar, QTableWidget, QTableWidgetItem, QSlider, QSplitter,
-    QFrame, QSizePolicy, QHeaderView, QGroupBox, QScrollArea, QMessageBox,
+    QFrame, QSizePolicy, QHeaderView, QGroupBox, QMessageBox,
     QRadioButton, QButtonGroup, QFileDialog,
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QImage, QPixmap, QFont, QColor
 
 from app.styles import C_BG, C_SURFACE, C_BORDER, C_GREEN, C_GREEN2, C_TEXT, C_MUTED, C_ORANGE, C_BLUE
 from app.widgets import StatCard, FilePicker, TeamColorPicker, VideoInfoBar, TimelineWidget, DetectionLogWidget
 from app.worker import DetectionWorker, SegmentationWorker
 
-MODEL_PATH = Path(__file__).parent.parent / "dataset" / "best.pt"
+MODEL_PATH = Path(__file__).parent.parent.parent / "dataset" / "best.pt"
 
 
-class MainWindow(QMainWindow):
+class AnalysisScreen(QWidget):
+    """Pantalla de análisis de video. Emite analysis_saved(stats, teams, video) al terminar."""
+    analysis_saved = pyqtSignal(dict, str, str, str)
+
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Apert Vision — Detección de Formaciones")
-        self.setMinimumSize(1200, 760)
         self.worker = None
         self._video_duration = 0.0
         self._build_ui()
@@ -32,13 +32,11 @@ class MainWindow(QMainWindow):
     # ── UI ────────────────────────────────────────────────────────────────────
 
     def _build_ui(self):
-        central = QWidget()
-        self.setCentralWidget(central)
-        root = QHBoxLayout(central)
+        root = QHBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        root.addWidget(self._make_sidebar())
+        root.addWidget(self._make_config_panel())
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.setStyleSheet("QSplitter::handle { background-color: #1a2530; width: 1px; }")
@@ -47,9 +45,7 @@ class MainWindow(QMainWindow):
         splitter.setSizes([680, 400])
         root.addWidget(splitter, 1)
 
-    # ── Sidebar ───────────────────────────────────────────────────────────────
-
-    def _make_sidebar(self) -> QWidget:
+    def _make_config_panel(self) -> QWidget:
         panel = QWidget()
         panel.setFixedWidth(290)
         panel.setStyleSheet(f"background-color: {C_SURFACE}; border-right: 1px solid {C_BORDER};")
@@ -58,15 +54,13 @@ class MainWindow(QMainWindow):
         lay.setContentsMargins(18, 20, 18, 20)
         lay.setSpacing(14)
 
-        # Logo
-        title = QLabel("APERT\nVISION")
-        title.setObjectName("title")
-        title.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        sub = QLabel("DETECCIÓN DE FORMACIONES")
+        # Título sección
+        title = QLabel("Nuevo Análisis")
+        title.setStyleSheet(f"color: {C_TEXT}; font-size: 18px; font-weight: 800; letter-spacing: 1px;")
+        sub = QLabel("CONFIGURACIÓN DEL ANÁLISIS")
         sub.setObjectName("subtitle")
         lay.addWidget(title)
         lay.addWidget(sub)
-
         lay.addWidget(self._divider())
 
         # Estado del modelo
@@ -78,10 +72,9 @@ class MainWindow(QMainWindow):
         model_lbl.setStyleSheet(
             f"color: {model_color}; font-size: 11px; font-weight: 600; padding: 4px 0;")
         lay.addWidget(model_lbl)
-
         lay.addWidget(self._divider())
 
-        # ── Paso 1: Video de entrada ──
+        # ① Video de entrada
         g_video = QGroupBox("① Video de entrada")
         gv_lay  = QVBoxLayout(g_video)
         gv_lay.setSpacing(6)
@@ -89,12 +82,11 @@ class MainWindow(QMainWindow):
                                        "Video (*.mp4 *.avi *.mov *.mkv)")
         self.video_picker.edit.textChanged.connect(self._on_video_selected)
         gv_lay.addWidget(self.video_picker)
-
         self.video_info = VideoInfoBar()
         gv_lay.addWidget(self.video_info)
         lay.addWidget(g_video)
 
-        # ── Paso 2: Video de salida ──
+        # ② Video de salida
         g_out  = QGroupBox("② Video de salida")
         go_lay = QVBoxLayout(g_out)
         go_lay.setSpacing(6)
@@ -103,17 +95,16 @@ class MainWindow(QMainWindow):
         go_lay.addWidget(self.output_picker)
         lay.addWidget(g_out)
 
-        # ── Paso 3: Configuración ──
+        # ③ Configuración
         g_cfg  = QGroupBox("③ Configuración")
         gc_lay = QVBoxLayout(g_cfg)
         gc_lay.setSpacing(10)
 
-        # Equipos
         teams_lbl = QLabel("Equipos")
-        teams_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;")
+        teams_lbl.setStyleSheet(
+            f"color: {C_MUTED}; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;")
         gc_lay.addWidget(teams_lbl)
-
-        self.team_local     = TeamColorPicker("Local", "#ffffff", "Nombre equipo local")
+        self.team_local     = TeamColorPicker("Local",  "#ffffff", "Nombre equipo local")
         self.team_visitante = TeamColorPicker("Visit.", "#ff4444", "Nombre equipo visitante")
         gc_lay.addWidget(self.team_local)
         gc_lay.addWidget(self.team_visitante)
@@ -122,7 +113,6 @@ class MainWindow(QMainWindow):
         sep.setStyleSheet(f"background-color: {C_BORDER}; max-height: 1px; margin: 2px 0;")
         gc_lay.addWidget(sep)
 
-        # Confianza
         conf_row = QHBoxLayout()
         conf_lbl = QLabel("Confianza mínima:")
         conf_lbl.setStyleSheet(f"color: {C_TEXT}; font-size: 12px;")
@@ -139,7 +129,6 @@ class MainWindow(QMainWindow):
         self.conf_slider.valueChanged.connect(lambda v: self.conf_val_lbl.setText(f"{v}%"))
         gc_lay.addWidget(self.conf_slider)
 
-        # Modo
         mode_lbl = QLabel("Modo de análisis:")
         mode_lbl.setStyleSheet(f"color: {C_TEXT}; font-size: 12px; margin-top: 4px;")
         gc_lay.addWidget(mode_lbl)
@@ -154,11 +143,10 @@ class MainWindow(QMainWindow):
         mode_row.addWidget(self.rb_detect)
         mode_row.addWidget(self.rb_seg)
         gc_lay.addLayout(mode_row)
-
         lay.addWidget(g_cfg)
         lay.addStretch()
 
-        # ── Botones de acción ──
+        # Botones
         self.run_btn = QPushButton("▶  PROCESAR VIDEO")
         self.run_btn.setFixedHeight(44)
         self.run_btn.setStyleSheet(
@@ -180,8 +168,6 @@ class MainWindow(QMainWindow):
 
         return panel
 
-    # ── Panel de preview ──────────────────────────────────────────────────────
-
     def _make_preview(self) -> QWidget:
         panel = QWidget()
         lay   = QVBoxLayout(panel)
@@ -202,7 +188,6 @@ class MainWindow(QMainWindow):
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         lay.addWidget(self.preview_lbl, 1)
 
-        # Barra de progreso
         progress_row = QHBoxLayout()
         self.progress_lbl = QLabel("—")
         self.progress_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 11px;")
@@ -214,11 +199,9 @@ class MainWindow(QMainWindow):
         progress_row.addWidget(self.progress_bar, 1)
         lay.addLayout(progress_row)
 
-        # Log en vivo
         self.det_log = DetectionLogWidget()
         lay.addWidget(self.det_log)
 
-        # Tarjetas de estadísticas
         stats_row = QHBoxLayout()
         stats_row.setSpacing(8)
         self.card_lineouts = StatCard("0", "Line-Outs", C_GREEN)
@@ -231,8 +214,6 @@ class MainWindow(QMainWindow):
 
         return panel
 
-    # ── Panel de resultados ───────────────────────────────────────────────────
-
     def _make_results(self) -> QWidget:
         panel = QWidget()
         lay   = QVBoxLayout(panel)
@@ -243,11 +224,9 @@ class MainWindow(QMainWindow):
         hdr.setStyleSheet(f"font-size: 10px; color: {C_MUTED}; letter-spacing: 2px;")
         lay.addWidget(hdr)
 
-        # Timeline visual
         self.timeline = TimelineWidget()
         lay.addWidget(self.timeline)
 
-        # Tabla
         self.table = QTableWidget(0, 4)
         self.table.setHorizontalHeaderLabels(["Tipo", "Min.", "Conf.", "Frame"])
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
@@ -263,21 +242,18 @@ class MainWindow(QMainWindow):
 
         return panel
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
-
     def _divider(self) -> QFrame:
         sep = QFrame()
         sep.setObjectName("divider")
         sep.setFrameShape(QFrame.Shape.HLine)
         return sep
 
-    # ── Lógica ────────────────────────────────────────────────────────────────
+    # ── Lógica ───────────────────────────────────────────────────────────────
 
     def _on_video_selected(self, path: str):
         self._auto_set_output()
         if path and Path(path).exists():
             self.video_info.load(path)
-            # Obtener duración para el timeline
             try:
                 cap = cv2.VideoCapture(path)
                 fps = cap.get(cv2.CAP_PROP_FPS) or 1
@@ -304,7 +280,6 @@ class MainWindow(QMainWindow):
             self._start_processing()
 
     def _start_processing(self):
-        model_path  = str(MODEL_PATH)
         video_path  = self.video_picker.path()
         output_path = self.output_picker.path()
 
@@ -346,10 +321,10 @@ class MainWindow(QMainWindow):
 
         team_a = self.team_local.team_name() or "Local"
         team_b = self.team_visitante.team_name() or "Visitante"
-        self.det_log.append(f"▶ Iniciando análisis — {team_a} vs {team_b}", C_GREEN)
+        self.det_log.append(f"▶ Iniciando — {team_a} vs {team_b}", C_GREEN)
         self.det_log.append(f"  Confianza: {int(conf*100)}%  |  Modo: {mode_name}", C_MUTED)
 
-        self.worker = WorkerCls(model_path, video_path, output_path, conf)
+        self.worker = WorkerCls(str(MODEL_PATH), video_path, output_path, conf)
         self.worker.progress.connect(self._on_progress)
         self.worker.frame_ready.connect(self._on_frame)
         self.worker.event_found.connect(self._on_event)
@@ -383,7 +358,7 @@ class MainWindow(QMainWindow):
         self.table.insertRow(row)
 
         color_map = {"lineout": C_GREEN, "scrum": C_BLUE, "kickoff": C_ORANGE}
-        c         = color_map.get(ev["type"], C_TEXT)
+        c = color_map.get(ev["type"], C_TEXT)
 
         type_item = QTableWidgetItem(ev["label"])
         type_item.setData(Qt.ItemDataRole.UserRole, ev["type"])
@@ -396,14 +371,11 @@ class MainWindow(QMainWindow):
         self.table.setItem(row, 3, QTableWidgetItem(str(ev["frame"])))
         self.table.scrollToBottom()
 
-        # Agregar al timeline
         self.timeline.add_event(ev.get("second", 0.0), ev["type"])
 
-        # Agregar al log
         icon_map = {"lineout": "🟢", "scrum": "🔵", "kickoff": "🟠"}
-        icon = icon_map.get(ev["type"], "⚪")
         self.det_log.append(
-            f"{icon} {ev['label']}  —  {ev['time_str']}  ({ev['confidence']:.0%})", c)
+            f"{icon_map.get(ev['type'], '⚪')} {ev['label']}  —  {ev['time_str']}  ({ev['confidence']:.0%})", c)
 
         self._update_cards_from_table()
 
@@ -438,6 +410,15 @@ class MainWindow(QMainWindow):
         self.status_lbl.setStyleSheet(f"color: {C_GREEN}; font-size: 11px;")
         self.det_log.append(
             f"✓ Análisis completo — {total} eventos en {elapsed:.0f}s", C_GREEN)
+
+        # Emitir para guardar en historial
+        video_name = Path(self.video_picker.path()).name
+        self.analysis_saved.emit(
+            stats,
+            self.team_local.team_name(),
+            self.team_visitante.team_name(),
+            video_name,
+        )
 
     def _on_error(self, msg: str):
         self._reset_run_button()
@@ -477,13 +458,14 @@ class MainWindow(QMainWindow):
                 writer.writerow(["Tipo", "Tiempo", "Confianza", "Frame",
                                  "Equipo Local", "Equipo Visitante"])
                 for row in range(self.table.rowCount()):
-                    tipo  = self.table.item(row, 0).text()
-                    time  = self.table.item(row, 1).text()
-                    conf  = self.table.item(row, 2).text()
-                    frame = self.table.item(row, 3).text()
-                    writer.writerow([tipo, time, conf, frame,
-                                     self.team_local.team_name(),
-                                     self.team_visitante.team_name()])
+                    writer.writerow([
+                        self.table.item(row, 0).text(),
+                        self.table.item(row, 1).text(),
+                        self.table.item(row, 2).text(),
+                        self.table.item(row, 3).text(),
+                        self.team_local.team_name(),
+                        self.team_visitante.team_name(),
+                    ])
             self.status_lbl.setText(f"CSV exportado: {Path(path).name}")
             self.status_lbl.setStyleSheet(f"color: {C_GREEN}; font-size: 11px;")
         except Exception as e:
