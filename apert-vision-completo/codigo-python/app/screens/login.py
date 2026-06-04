@@ -7,7 +7,7 @@ from PyQt6.QtGui import QFont, QLinearGradient, QBrush, QPainter, QColor, QPen
 
 from app.styles import (
     C_BG, C_SURFACE, C_BORDER, C_GREEN, C_GREEN2, C_GREEN3,
-    C_TEXT, C_MUTED, C_MUTED2, C_BORDER2,
+    C_TEXT, C_MUTED, C_MUTED2, C_BORDER2, C_RED,
 )
 import app.user_state as user_state
 
