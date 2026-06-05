@@ -32,9 +32,9 @@ CLASS_COLORS_BGR = {
     "scrum":   (246, 130, 59),
     "kickoff": (11, 158, 245),
 }
-MIN_GAP    = 15.0
-FRAME_SKIP = 3
-CLIP_SECS  = 8    # ± segundos alrededor de cada evento para los clips
+MIN_GAP    = 8.0   # segundos mínimos entre detecciones del mismo tipo
+FRAME_SKIP = 3     # analizar 1 de cada N frames (velocidad)
+CLIP_SECS  = 10    # segundos alrededor de cada evento para los clips
 
 
 # ── Extracción de clips por tipo ──────────────────────────────────────────────
