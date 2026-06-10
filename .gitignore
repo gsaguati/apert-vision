@@ -4,9 +4,6 @@
 *.mov
 *.mkv
 
-# Modelo entrenado (archivo pesado — subir por separado si se necesita)
-*.pt
-
 # Python
 __pycache__/
 *.pyc
