@@ -55,7 +55,7 @@ function createWindow() {
     // Limpiar caché en dev para siempre ver los últimos cambios
     mainWindow.webContents.session.clearCache()
     mainWindow.loadURL('http://localhost:5173')
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
   }
@@ -186,6 +186,16 @@ ipcMain.handle('stop-analysis', () => {
 // ── IPC: Utilidades ───────────────────────────────────────────────────────────
 ipcMain.handle('open-external', async (_, filePath) => {
   await shell.openPath(filePath)
+})
+
+ipcMain.handle('read-file', async (_, filePath) => {
+  try {
+    const buf = await fs.promises.readFile(filePath)
+    // Devolver como Uint8Array para que sea transferible al renderer
+    return { ok: true, data: buf }
+  } catch (e) {
+    return { ok: false, error: String(e) }
+  }
 })
 
 ipcMain.handle('get-python-info', () => ({

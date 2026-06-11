@@ -4,14 +4,14 @@ const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_KEY
 
 if (!url || !key) {
-  console.error("⚠️ Faltan variables de entorno de Supabase. Revisá el archivo .env")
+  // No tirar excepción para evitar pantalla en negro — sólo loguear
+  console.error("⚠️ Faltan VITE_SUPABASE_URL / VITE_SUPABASE_KEY en .env")
 }
 
-export const supabase = createClient(url, key, {
+export const supabase = createClient(url || "https://placeholder.supabase.co", key || "placeholder", {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    storage: window.localStorage,
   },
 })
 

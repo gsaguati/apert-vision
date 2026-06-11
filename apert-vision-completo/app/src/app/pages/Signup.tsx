@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import { supabase } from "../lib/supabase"
+import { useAuth } from "../context/AuthContext"
 
 type Mode = "choose" | "create-club" | "join-club"
 
@@ -16,20 +17,25 @@ export default function Signup() {
   const [error, setError]       = useState("")
   const [loading, setLoading]   = useState(false)
   const navigate = useNavigate()
+  const { session, refresh } = useAuth()
+
+  // Si el usuario ya tiene sesión, no le pedimos email/password de nuevo
+  const alreadyAuthed = !!session
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(""); setLoading(true)
 
-    // 1) Sign up en Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({ email, password })
-    if (authError) {
-      setError(authError.message); setLoading(false); return
-    }
-    if (!authData.session) {
-      // Si la confirmación por email está activada
-      setError("Tenés que confirmar tu email antes de continuar.")
-      setLoading(false); return
+    // 1) Si no hay sesión, crear cuenta primero
+    if (!alreadyAuthed) {
+      const { data: authData, error: authError } = await supabase.auth.signUp({ email, password })
+      if (authError) {
+        setError(authError.message); setLoading(false); return
+      }
+      if (!authData.session) {
+        setError("Tenés que confirmar tu email antes de continuar. Revisá tu bandeja de entrada y volvé a esta pantalla.")
+        setLoading(false); return
+      }
     }
 
     // 2) Crear club o unirse, según el modo
@@ -55,6 +61,8 @@ export default function Signup() {
       }
     }
 
+    // 3) Refrescar el AuthContext y entrar
+    await refresh()
     navigate("/")
   }
 
@@ -78,10 +86,12 @@ export default function Signup() {
           </div>
 
           <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--foreground)", marginBottom: 6 }}>
-            Empezar
+            {alreadyAuthed ? "Falta un paso" : "Empezar"}
           </h2>
           <p style={{ fontSize: 13, color: "var(--muted-foreground)", marginBottom: 32 }}>
-            ¿Cómo querés entrar?
+            {alreadyAuthed
+              ? "Tu cuenta está creada. Ahora elegí cómo entrás al sistema."
+              : "¿Cómo querés entrar?"}
           </p>
 
           <div className="space-y-3">
@@ -143,20 +153,24 @@ export default function Signup() {
             : <Field label="Código de entrenador" value={codigo} onChange={v => setCodigo(v.toUpperCase())} placeholder="PUMAS-E-A8K2" required mono />
           }
 
-          <Field label="Correo electrónico" type="email" value={email} onChange={setEmail} placeholder="entrenador@club.com" required />
-
-          <div>
-            <label style={{ fontSize: 12, fontWeight: 500, color: "var(--muted-foreground)", display: "block", marginBottom: 6 }}>Contraseña</label>
-            <div style={{ position: "relative" }}>
-              <input type={showPass ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres" required minLength={6}
-                style={inputStyle("padding-right")} />
-              <button type="button" onClick={() => setShowPass(!showPass)}
-                style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 4 }}>
-                {showPass ? <EyeOff size={15} style={{ color: "var(--muted-foreground)" }} /> : <Eye size={15} style={{ color: "var(--muted-foreground)" }} />}
-              </button>
-            </div>
-          </div>
+          {/* Email + password solo si no hay sesión todavía */}
+          {!alreadyAuthed && (
+            <>
+              <Field label="Correo electrónico" type="email" value={email} onChange={setEmail} placeholder="entrenador@club.com" required />
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 500, color: "var(--muted-foreground)", display: "block", marginBottom: 6 }}>Contraseña</label>
+                <div style={{ position: "relative" }}>
+                  <input type={showPass ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)}
+                    placeholder="Mínimo 6 caracteres" required minLength={6}
+                    style={inputStyle("padding-right")} />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+                    {showPass ? <EyeOff size={15} style={{ color: "var(--muted-foreground)" }} /> : <Eye size={15} style={{ color: "var(--muted-foreground)" }} />}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
 
           {error && (
             <div style={{ fontSize: 12, color: "#ef4444", padding: "8px 12px", backgroundColor: "rgba(239,68,68,0.08)", borderRadius: 6, border: "1px solid rgba(239,68,68,0.2)" }}>
@@ -169,7 +183,7 @@ export default function Signup() {
               backgroundColor: loading ? "rgba(57,224,122,0.6)" : "var(--primary)",
               color: "var(--primary-foreground)", border: "none", borderRadius: 8,
               fontSize: 14, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer", transition: "opacity 0.15s" }}>
-            {loading ? "Creando cuenta..." : (isCreate ? "Crear club y entrar" : "Sumarme y entrar")}
+            {loading ? "Procesando..." : (isCreate ? "Crear club y entrar" : "Sumarme y entrar")}
           </button>
         </form>
       </div>

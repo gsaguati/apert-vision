@@ -5,12 +5,13 @@ import {
   ResponsiveContainer, CartesianGrid,
 } from "recharts"
 import {
-  Play, Pause, Download, Zap, Upload,
-  FolderOpen, CheckCircle2, AlertCircle, Square,
+  Play, Pause, Download, Zap, Upload, Home, Plane,
+  FolderOpen, CheckCircle2, AlertCircle, Square, Cloud, CloudOff, RefreshCw,
 } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { useAnalysis } from "../context/AnalysisContext"
 import type { MatchInfo } from "../context/AnalysisContext"
+import { useAuth } from "../context/AuthContext"
 import jsPDF from "jspdf"
 
 const typeColor: Record<string, string> = {
@@ -21,8 +22,9 @@ const typeColor: Record<string, string> = {
 
 // ── Match info modal ────────────────────────────────────────────────────────
 function MatchModal({ onConfirm, onCancel }: { onConfirm: (info: MatchInfo) => void; onCancel: () => void }) {
+  const today = new Date().toISOString().split("T")[0]
   const [form, setForm] = useState<MatchInfo>({
-    rival: "", date: new Date().toLocaleDateString("es-AR"), result: "W", score: "",
+    rival: "", fecha: today, es_local: true, resultado: "W", marcador: "",
   })
   const inputStyle: React.CSSProperties = {
     width: "100%", height: 40,
@@ -37,35 +39,60 @@ function MatchModal({ onConfirm, onCancel }: { onConfirm: (info: MatchInfo) => v
         style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}
       >
         <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--foreground)", marginBottom: 4 }}>Datos del partido</h3>
-        <p style={{ fontSize: 12, color: "var(--muted-foreground)", marginBottom: 20 }}>Para archivar el análisis en tus registros.</p>
+        <p style={{ fontSize: 12, color: "var(--muted-foreground)", marginBottom: 20 }}>Estos datos se guardan en la nube junto con los clips.</p>
         <div className="space-y-3">
           <div>
             <label style={{ fontSize: 11, color: "var(--muted-foreground)", display: "block", marginBottom: 5 }}>Club rival *</label>
             <input style={inputStyle} placeholder="Ej: Córdoba Bears" value={form.rival}
               onChange={e => setForm(f => ({ ...f, rival: e.target.value }))}
               onFocus={e => e.target.style.borderColor = "var(--primary)"}
-              onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.07)"}
-            />
+              onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.07)"} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label style={{ fontSize: 11, color: "var(--muted-foreground)", display: "block", marginBottom: 5 }}>Fecha</label>
-              <input style={inputStyle} placeholder="DD/MM/AAAA" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+              <input type="date" style={inputStyle} value={form.fecha}
+                onChange={e => setForm(f => ({ ...f, fecha: e.target.value }))} />
             </div>
             <div>
               <label style={{ fontSize: 11, color: "var(--muted-foreground)", display: "block", marginBottom: 5 }}>Marcador</label>
-              <input style={inputStyle} placeholder="Ej: 28-14" value={form.score} onChange={e => setForm(f => ({ ...f, score: e.target.value }))} />
+              <input style={inputStyle} placeholder="Ej: 28-14" value={form.marcador}
+                onChange={e => setForm(f => ({ ...f, marcador: e.target.value }))} />
             </div>
           </div>
+
+          {/* Local / Visitante */}
+          <div>
+            <label style={{ fontSize: 11, color: "var(--muted-foreground)", display: "block", marginBottom: 5 }}>Jugamos de</label>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => setForm(f => ({ ...f, es_local: true }))}
+                className="flex items-center justify-center gap-1.5"
+                style={{ flex: 1, height: 40, borderRadius: 8, fontSize: 13, fontWeight: 500, border: "1px solid",
+                  backgroundColor: form.es_local ? "rgba(57,224,122,0.15)" : "var(--secondary)",
+                  borderColor: form.es_local ? "#39e07a" : "rgba(255,255,255,0.07)",
+                  color: form.es_local ? "#39e07a" : "var(--muted-foreground)", cursor: "pointer" }}>
+                <Home size={13} /> Local
+              </button>
+              <button type="button" onClick={() => setForm(f => ({ ...f, es_local: false }))}
+                className="flex items-center justify-center gap-1.5"
+                style={{ flex: 1, height: 40, borderRadius: 8, fontSize: 13, fontWeight: 500, border: "1px solid",
+                  backgroundColor: !form.es_local ? "rgba(59,130,246,0.15)" : "var(--secondary)",
+                  borderColor: !form.es_local ? "#3b82f6" : "rgba(255,255,255,0.07)",
+                  color: !form.es_local ? "#3b82f6" : "var(--muted-foreground)", cursor: "pointer" }}>
+                <Plane size={13} /> Visitante
+              </button>
+            </div>
+          </div>
+
           <div>
             <label style={{ fontSize: 11, color: "var(--muted-foreground)", display: "block", marginBottom: 5 }}>Resultado</label>
             <div className="flex gap-2">
               {(["W", "L", "D"] as const).map(r => (
-                <button key={r} onClick={() => setForm(f => ({ ...f, result: r }))} style={{
+                <button key={r} onClick={() => setForm(f => ({ ...f, resultado: r }))} style={{
                   flex: 1, height: 40, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid",
-                  backgroundColor: form.result === r ? (r === "W" ? "rgba(57,224,122,0.15)" : r === "L" ? "rgba(239,68,68,0.15)" : "rgba(107,122,153,0.15)") : "var(--secondary)",
-                  borderColor: form.result === r ? (r === "W" ? "#39e07a" : r === "L" ? "#ef4444" : "#6b7a99") : "rgba(255,255,255,0.07)",
-                  color: form.result === r ? (r === "W" ? "#39e07a" : r === "L" ? "#ef4444" : "#6b7a99") : "var(--muted-foreground)",
+                  backgroundColor: form.resultado === r ? (r === "W" ? "rgba(57,224,122,0.15)" : r === "L" ? "rgba(239,68,68,0.15)" : "rgba(107,122,153,0.15)") : "var(--secondary)",
+                  borderColor: form.resultado === r ? (r === "W" ? "#39e07a" : r === "L" ? "#ef4444" : "#6b7a99") : "rgba(255,255,255,0.07)",
+                  color: form.resultado === r ? (r === "W" ? "#39e07a" : r === "L" ? "#ef4444" : "#6b7a99") : "var(--muted-foreground)",
                 }}>
                   {r === "W" ? "Victoria" : r === "L" ? "Derrota" : "Empate"}
                 </button>
@@ -75,7 +102,10 @@ function MatchModal({ onConfirm, onCancel }: { onConfirm: (info: MatchInfo) => v
         </div>
         <div className="flex gap-3 mt-6">
           <button onClick={onCancel} style={{ flex: 1, height: 40, borderRadius: 8, fontSize: 13, backgroundColor: "var(--secondary)", color: "var(--muted-foreground)", border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }}>Cancelar</button>
-          <button onClick={() => form.rival && onConfirm(form)} disabled={!form.rival} style={{ flex: 2, height: 40, borderRadius: 8, fontSize: 13, fontWeight: 600, backgroundColor: form.rival ? "var(--primary)" : "rgba(57,224,122,0.3)", color: "var(--primary-foreground)", border: "none", cursor: form.rival ? "pointer" : "not-allowed" }}>
+          <button onClick={() => form.rival && form.fecha && onConfirm(form)} disabled={!form.rival || !form.fecha}
+            style={{ flex: 2, height: 40, borderRadius: 8, fontSize: 13, fontWeight: 600,
+              backgroundColor: form.rival && form.fecha ? "var(--primary)" : "rgba(57,224,122,0.3)",
+              color: "var(--primary-foreground)", border: "none", cursor: form.rival && form.fecha ? "pointer" : "not-allowed" }}>
             Iniciar análisis →
           </button>
         </div>
@@ -104,12 +134,11 @@ function VideoPlayer({ src, events = [] }: { src: string; events?: { second: num
 
   const fmt = (s: number) => `${Math.floor(s/60).toString().padStart(2,"0")}:${Math.floor(s%60).toString().padStart(2,"0")}`
 
-  // Atajos de teclado
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const v = videoRef.current
       if (!v) return
-      if (e.code === "Space") { e.preventDefault(); togglePlay() }
+      if (e.code === "Space")      { e.preventDefault(); togglePlay() }
       if (e.code === "ArrowLeft")  { v.currentTime = Math.max(0, v.currentTime - 10) }
       if (e.code === "ArrowRight") { v.currentTime = Math.min(v.duration, v.currentTime + 10) }
     }
@@ -117,44 +146,34 @@ function VideoPlayer({ src, events = [] }: { src: string; events?: { second: num
     return () => window.removeEventListener("keydown", handler)
   }, [])
 
-  // file:// URL para videos locales en Electron
   const videoSrc = src.startsWith("file://") ? src : `file:///${src.replace(/\\/g, "/")}`
 
   return (
     <div className="rounded-xl overflow-hidden border" style={{ backgroundColor: "#000", borderColor: "rgba(255,255,255,0.07)" }}>
-      <video
-        ref={videoRef}
-        src={videoSrc}
+      <video ref={videoRef} src={videoSrc}
         style={{ width: "100%", display: "block", maxHeight: 340, backgroundColor: "#000" }}
         onTimeUpdate={e => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
         onLoadedMetadata={e => setDuration((e.target as HTMLVideoElement).duration)}
         onEnded={() => setPlaying(false)}
       />
-      {/* Controls */}
       <div className="px-4 py-3 border-t" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
-        {/* Timeline con marcadores de eventos */}
-        <div
-          className="relative h-1.5 rounded-full mb-3 cursor-pointer"
+        <div className="relative h-1.5 rounded-full mb-3 cursor-pointer"
           style={{ backgroundColor: "var(--secondary)" }}
           onClick={e => {
             const rect = e.currentTarget.getBoundingClientRect()
             const pct = (e.clientX - rect.left) / rect.width
             seekTo(pct * duration)
-          }}
-        >
-          <div className="absolute h-full rounded-full left-0 top-0" style={{ width: duration ? `${(currentTime/duration)*100}%` : "0%", backgroundColor: "var(--primary)", transition: "width 0.1s" }} />
+          }}>
+          <div className="absolute h-full rounded-full left-0 top-0"
+            style={{ width: duration ? `${(currentTime/duration)*100}%` : "0%",
+              backgroundColor: "var(--primary)", transition: "width 0.1s" }} />
           {duration > 0 && events.map((ev, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 rounded-full -top-0.5 cursor-pointer hover:scale-150 transition-transform"
-              style={{
-                left: `calc(${(ev.second / duration) * 100}% - 4px)`,
+            <div key={i} className="absolute w-2 h-2 rounded-full -top-0.5 cursor-pointer hover:scale-150 transition-transform"
+              style={{ left: `calc(${(ev.second / duration) * 100}% - 4px)`,
                 backgroundColor: ev.event_type === "lineout" ? "#39e07a" : ev.event_type === "scrum" ? "#3b82f6" : "#f59e0b",
-                zIndex: 2,
-              }}
+                zIndex: 2 }}
               onClick={e => { e.stopPropagation(); seekTo(ev.second) }}
-              title={`${ev.label} - ${Math.floor(ev.second/60).toString().padStart(2,"0")}:${Math.floor(ev.second%60).toString().padStart(2,"0")}`}
-            />
+              title={`${ev.label} - ${Math.floor(ev.second/60).toString().padStart(2,"0")}:${Math.floor(ev.second%60).toString().padStart(2,"0")}`} />
           ))}
         </div>
         <div className="flex items-center gap-4">
@@ -175,7 +194,6 @@ function VideoPlayer({ src, events = [] }: { src: string; events?: { second: num
   )
 }
 
-// ── Tooltip ─────────────────────────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
@@ -187,11 +205,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   )
 }
 
-// ── GPU Badge ────────────────────────────────────────────────────────────────
 function GPUBadge() {
   const [gpu, setGpu] = useState<string | null>(null)
   useEffect(() => {
-    // Detecta GPU disponible via WebGL
     try {
       const canvas = document.createElement("canvas")
       const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl") as WebGLRenderingContext | null
@@ -201,34 +217,79 @@ function GPUBadge() {
           const renderer = gl.getParameter(dbgInfo.UNMASKED_RENDERER_WEBGL) as string
           if (renderer.toLowerCase().includes("nvidia") || renderer.toLowerCase().includes("amd") || renderer.toLowerCase().includes("radeon")) {
             setGpu("GPU")
-          } else {
-            setGpu("CPU")
-          }
-        } else {
-          setGpu("CPU")
-        }
+          } else { setGpu("CPU") }
+        } else { setGpu("CPU") }
       }
     } catch { setGpu("CPU") }
   }, [])
-
   if (!gpu) return null
   const isGpu = gpu === "GPU"
   return (
-    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, backgroundColor: isGpu ? "rgba(57,224,122,0.12)" : "rgba(107,122,153,0.15)", color: isGpu ? "#39e07a" : "#6b7a99", border: `1px solid ${isGpu ? "rgba(57,224,122,0.3)" : "rgba(107,122,153,0.3)"}` }}>
+    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10,
+      backgroundColor: isGpu ? "rgba(57,224,122,0.12)" : "rgba(107,122,153,0.15)",
+      color: isGpu ? "#39e07a" : "#6b7a99",
+      border: `1px solid ${isGpu ? "rgba(57,224,122,0.3)" : "rgba(107,122,153,0.3)"}` }}>
       {isGpu ? "⚡ GPU" : "🖥 CPU"}
     </span>
   )
 }
 
+// ── Banner de upload ───────────────────────────────────────────────────────
+function UploadBanner() {
+  const { uploadPhase, uploadProgress, uploadPhaseLabel, uploadError, saveToCloud } = useAnalysis()
+  if (uploadPhase === "idle") return null
+
+  const styles = {
+    uploading: { bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.3)", color: "#3b82f6", icon: <Cloud size={16} /> },
+    uploaded:  { bg: "rgba(57,224,122,0.08)", border: "rgba(57,224,122,0.3)", color: "#39e07a", icon: <CheckCircle2 size={16} /> },
+    error:     { bg: "rgba(239,68,68,0.08)",  border: "rgba(239,68,68,0.3)",  color: "#ef4444", icon: <CloudOff size={16} /> },
+  }[uploadPhase]
+
+  return (
+    <div className="rounded-xl border p-4" style={{ backgroundColor: styles.bg, borderColor: styles.border }}>
+      <div className="flex items-center gap-3">
+        <div style={{ color: styles.color }}>{styles.icon}</div>
+        <div className="flex-1">
+          <div style={{ fontSize: 13, fontWeight: 600, color: styles.color, marginBottom: 2 }}>
+            {uploadPhase === "uploading" && "Subiendo a la nube..."}
+            {uploadPhase === "uploaded" && "Guardado en la nube"}
+            {uploadPhase === "error" && "Error al subir"}
+          </div>
+          <div style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
+            {uploadPhase === "error" ? uploadError : uploadPhaseLabel}
+          </div>
+        </div>
+        {uploadPhase === "uploading" && (
+          <span className="font-mono" style={{ fontSize: 13, fontWeight: 600, color: styles.color }}>{uploadProgress}%</span>
+        )}
+        {uploadPhase === "error" && (
+          <button onClick={saveToCloud}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+            style={{ backgroundColor: "var(--card)", border: `1px solid ${styles.border}`, color: styles.color,
+              fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
+            <RefreshCw size={12} /> Reintentar
+          </button>
+        )}
+      </div>
+      {uploadPhase === "uploading" && (
+        <div className="h-1 rounded-full mt-3" style={{ backgroundColor: "rgba(59,130,246,0.15)" }}>
+          <motion.div className="h-full rounded-full" style={{ backgroundColor: "#3b82f6" }}
+            animate={{ width: `${uploadProgress}%` }} transition={{ duration: 0.3 }} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 export default function Analysis() {
-  const location = useLocation()
+  const location  = useLocation()
   const navigate  = useNavigate()
   const analysis  = useAnalysis()
+  const { club } = useAuth()
 
   const [showModal, setShowModal] = useState(false)
 
-  // Video path: desde navegación, contexto, o localStorage
   const navVideoPath: string = location.state?.videoPath || ""
   useEffect(() => {
     if (navVideoPath) analysis.setVideoPath(navVideoPath)
@@ -237,7 +298,7 @@ export default function Analysis() {
   const videoPath = analysis.videoPath || localStorage.getItem("apert_pending_video") || ""
   const videoName = videoPath.split(/[\\/]/).pop() ?? ""
 
-  // ── Thumbnail del primer frame ─────────────────────────────────────────────
+  // Thumbnail
   const [thumbnail, setThumbnail] = useState<string>("")
   useEffect(() => {
     if (!videoPath) { setThumbnail(""); return }
@@ -253,7 +314,6 @@ export default function Analysis() {
     video.onerror = () => setThumbnail("")
   }, [videoPath])
 
-  // ── Drag & drop global en esta pantalla ────────────────────────────────────
   const handleDragOver = (e: React.DragEvent) => e.preventDefault()
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault()
@@ -265,7 +325,6 @@ export default function Analysis() {
     }
   }
 
-  // ── Acciones ──────────────────────────────────────────────────────────────
   const pickVideo = async () => {
     if (window.apertAPI) {
       const p = await window.apertAPI.openFileDialog()
@@ -273,12 +332,9 @@ export default function Analysis() {
     }
   }
 
-  const clearVideo = () => {
-    analysis.clearAnalysis()
-  }
+  const clearVideo = () => analysis.clearAnalysis()
 
   const handleStart = async (info: MatchInfo) => {
-    // Leer umbral desde settings
     let conf = 0.45
     if (window.apertAPI) {
       const settings = await window.apertAPI.getSettings()
@@ -290,11 +346,9 @@ export default function Analysis() {
     setShowModal(false)
   }
 
-  const handleStop = async () => {
-    await analysis.stopAnalysis()
-  }
+  const handleStop = async () => { await analysis.stopAnalysis() }
 
-  // ── PDF export ─────────────────────────────────────────────────────────────
+  // ── PDF export ──────────────────────────────────────────────────────────────
   const exportPDF = async () => {
     const { result, matchInfo } = analysis
     if (!result || !matchInfo) return
@@ -302,38 +356,31 @@ export default function Analysis() {
     const green: [number,number,number] = [57, 224, 122]
     const dark:  [number,number,number] = [8,  12,  20]
     const gray:  [number,number,number] = [107, 122, 153]
+    const clubName = club?.nombre ?? "Mi Club"
 
-    // Fondo
     doc.setFillColor(...dark)
     doc.rect(0, 0, 210, 297, "F")
-
-    // Header
     doc.setFillColor(...green)
     doc.rect(0, 0, 210, 40, "F")
     doc.setTextColor(8, 12, 20)
-    doc.setFontSize(20)
-    doc.setFont("helvetica", "bold")
+    doc.setFontSize(20).setFont("helvetica", "bold")
     doc.text("APERT VISION", 15, 18)
     doc.setFontSize(10)
     doc.text("Rugby Analytics — Reporte de partido", 15, 27)
     doc.setFontSize(11)
-    doc.text(`Los Pumas RC vs. ${matchInfo.rival}`, 15, 35)
+    doc.text(`${clubName} vs. ${matchInfo.rival}`, 15, 35)
 
-    // Info partido
-    doc.setTextColor(232, 234, 240)
-    doc.setFontSize(13)
-    doc.text(`Los Pumas RC vs. ${matchInfo.rival}`, 15, 55)
-    doc.setFontSize(10)
-    doc.setTextColor(...gray)
-    doc.text(`Fecha: ${matchInfo.date}   Resultado: ${matchInfo.result === "W" ? "Victoria" : matchInfo.result === "L" ? "Derrota" : "Empate"} ${matchInfo.score}`, 15, 63)
+    doc.setTextColor(232, 234, 240).setFontSize(13)
+    doc.text(`${clubName} vs. ${matchInfo.rival}`, 15, 55)
+    doc.setFontSize(10).setTextColor(...gray)
+    const res = matchInfo.resultado === "W" ? "Victoria" : matchInfo.resultado === "L" ? "Derrota" : "Empate"
+    const ven = matchInfo.es_local ? "Local" : "Visitante"
+    doc.text(`Fecha: ${matchInfo.fecha}   ${ven}   Resultado: ${res} ${matchInfo.marcador}`, 15, 63)
     doc.text(`Duración: ${Math.floor(result.video_duration_sec/60)}:${String(Math.round(result.video_duration_sec%60)).padStart(2,"0")}   Procesado en: ${result.processing_time_sec.toFixed(0)}s`, 15, 70)
 
-    // Stats
-    doc.setDrawColor(...(green as [number,number,number]))
-    doc.setLineWidth(0.5)
+    doc.setDrawColor(...green).setLineWidth(0.5)
     doc.line(15, 78, 195, 78)
-    doc.setTextColor(232, 234, 240)
-    doc.setFontSize(12)
+    doc.setTextColor(232, 234, 240).setFontSize(12)
     doc.text("Estadísticas del partido", 15, 86)
 
     const counts = result.event_counts
@@ -346,52 +393,37 @@ export default function Analysis() {
     ]
     doc.setFontSize(10)
     statsData.forEach(([label, value], i) => {
-      doc.setTextColor(...gray)
-      doc.text(label, 15, 96 + i * 8)
-      doc.setTextColor(...(green as [number,number,number]))
-      doc.setFont("helvetica", "bold")
+      doc.setTextColor(...gray); doc.text(label, 15, 96 + i * 8)
+      doc.setTextColor(...green).setFont("helvetica", "bold")
       doc.text(value, 100, 96 + i * 8)
       doc.setFont("helvetica", "normal")
     })
 
-    // Tabla de eventos
     doc.line(15, 140, 195, 140)
-    doc.setTextColor(232, 234, 240)
-    doc.setFontSize(12)
+    doc.setTextColor(232, 234, 240).setFontSize(12)
     doc.text("Timeline de eventos", 15, 149)
-
     const headers = ["Minuto", "Tipo", "Confianza"]
     const colX    = [15, 55, 130]
-    doc.setTextColor(...gray)
-    doc.setFontSize(9)
+    doc.setTextColor(...gray).setFontSize(9)
     headers.forEach((h, i) => doc.text(h, colX[i], 158))
     doc.line(15, 161, 195, 161)
-
-    const eventsToShow = result.events.slice(0, 20)
-    eventsToShow.forEach((ev, i) => {
+    result.events.slice(0, 20).forEach((ev, i) => {
       const y = 169 + i * 8
       if (y > 280) return
-      doc.setTextColor(232, 234, 240)
-      doc.text(ev.time_str, colX[0], y)
+      doc.setTextColor(232, 234, 240); doc.text(ev.time_str, colX[0], y)
       const c = ev.event_type === "lineout" ? [57,224,122] : ev.event_type === "scrum" ? [59,130,246] : [245,158,11]
-      doc.setTextColor(...(c as [number,number,number]))
-      doc.text(ev.label, colX[1], y)
-      doc.setTextColor(...gray)
-      doc.text(`${(ev.confidence*100).toFixed(0)}%`, colX[2], y)
+      doc.setTextColor(...(c as [number,number,number])); doc.text(ev.label, colX[1], y)
+      doc.setTextColor(...gray); doc.text(`${(ev.confidence*100).toFixed(0)}%`, colX[2], y)
     })
 
-    // Footer
-    doc.setFillColor(...dark)
-    doc.rect(0, 285, 210, 12, "F")
-    doc.setTextColor(...gray)
-    doc.setFontSize(8)
+    doc.setFillColor(...dark).rect(0, 285, 210, 12, "F")
+    doc.setTextColor(...gray).setFontSize(8)
     doc.text(`Generado por Apert Vision · ${new Date().toLocaleDateString("es-AR")}`, 15, 292)
 
-    const rival = matchInfo.rival.replace(/\s/g,"_")
-    doc.save(`partido_${rival}_${matchInfo.date.replace(/\//g,"-")}.pdf`)
+    doc.save(`partido_${matchInfo.rival.replace(/\s/g,"_")}_${matchInfo.fecha}.pdf`)
   }
 
-  // ── Top bar reutilizable ────────────────────────────────────────────────────
+  // ── Helpers ──────────────────────────────────────────────────────────────
   const TopBar = ({ title = "Análisis", subtitle = "", children }: { title?: string; subtitle?: string; children?: React.ReactNode }) => (
     <div className="flex items-center justify-between px-6 py-3 border-b shrink-0" style={{ backgroundColor: "var(--background)", borderColor: "rgba(255,255,255,0.07)", minHeight: 52 }}>
       <div>
@@ -453,7 +485,6 @@ export default function Analysis() {
         <div className="flex-1 overflow-auto p-6">
           <div className="max-w-2xl mx-auto mt-8">
             <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
-              {/* Thumbnail */}
               {thumbnail ? (
                 <div style={{ position: "relative" }}>
                   <img src={thumbnail} alt="Preview" style={{ width: "100%", display: "block", maxHeight: 280, objectFit: "cover" }} />
@@ -470,14 +501,15 @@ export default function Analysis() {
               )}
               <div className="p-6">
                 <div className="font-mono text-center mb-2" style={{ fontSize: 12, color: "var(--muted-foreground)" }}>📹 {videoName}</div>
-                {/* Indicador de clases detectables */}
                 <div className="flex justify-center gap-3 mb-5">
                   {[
                     { label: "Line-outs", color: "#39e07a", ready: true },
                     { label: "Scrums",    color: "#3b82f6", ready: false },
                     { label: "Salidas",   color: "#f59e0b", ready: false },
                   ].map(({ label, color, ready }) => (
-                    <div key={label} className="flex items-center gap-1.5 px-3 py-1 rounded-lg" style={{ backgroundColor: ready ? `${color}12` : "var(--secondary)", border: `1px solid ${ready ? color + "40" : "rgba(255,255,255,0.07)"}` }}>
+                    <div key={label} className="flex items-center gap-1.5 px-3 py-1 rounded-lg"
+                      style={{ backgroundColor: ready ? `${color}12` : "var(--secondary)",
+                        border: `1px solid ${ready ? color + "40" : "rgba(255,255,255,0.07)"}` }}>
                       <span style={{ fontSize: 10 }}>{ready ? "✅" : "⏳"}</span>
                       <span style={{ fontSize: 11, color: ready ? color : "var(--muted-foreground)" }}>{label}</span>
                     </div>
@@ -503,28 +535,28 @@ export default function Analysis() {
   if (analysis.phase === "analyzing") {
     return (
       <div className="flex flex-col h-full">
-        <TopBar title="Análisis en curso" subtitle={`${analysis.matchInfo?.date} · Los Pumas RC vs. ${analysis.matchInfo?.rival}`}>
-          <button
-            onClick={handleStop}
-            className="flex items-center gap-2"
-            style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, backgroundColor: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)", cursor: "pointer" }}
-          >
+        <TopBar title="Análisis en curso"
+          subtitle={`${analysis.matchInfo?.fecha} · ${club?.nombre ?? "Mi Club"} vs. ${analysis.matchInfo?.rival}`}>
+          <button onClick={handleStop} className="flex items-center gap-2"
+            style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600,
+              backgroundColor: "rgba(239,68,68,0.15)", color: "#ef4444",
+              border: "1px solid rgba(239,68,68,0.3)", cursor: "pointer" }}>
             <Square size={12} /> Cancelar análisis
           </button>
         </TopBar>
         <div className="flex-1 overflow-auto p-6 space-y-5">
-          {/* Progress */}
           <div className="rounded-2xl border p-6" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
             <div className="flex items-center justify-between mb-3">
               <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>{analysis.progressPhase}</span>
               <span className="font-mono" style={{ fontSize: 14, color: "var(--primary)", fontWeight: 700 }}>{analysis.progress}%</span>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--secondary)" }}>
-              <motion.div className="h-full rounded-full" style={{ backgroundColor: "var(--primary)" }} animate={{ width: `${analysis.progress}%` }} transition={{ duration: 0.4 }} />
+              <motion.div className="h-full rounded-full" style={{ backgroundColor: "var(--primary)" }}
+                animate={{ width: `${analysis.progress}%` }} transition={{ duration: 0.4 }} />
             </div>
             <div className="flex items-center justify-between mt-2">
               <div className="font-mono" style={{ fontSize: 10, color: "var(--muted-foreground)" }}>
-                YOLO v8 · Rugby Formation Model · v2.1.4 · {videoName}
+                YOLO v8 · apert-vision-lines-out · {videoName}
               </div>
               <GPUBadge />
             </div>
@@ -532,7 +564,6 @@ export default function Analysis() {
               💡 Podés navegar a otras pantallas — el análisis sigue corriendo en segundo plano.
             </p>
           </div>
-          {/* Live events */}
           {analysis.events.length > 0 && (
             <div className="rounded-xl border p-4" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
               <p style={{ fontSize: 12, fontWeight: 600, color: "var(--foreground)", marginBottom: 10 }}>
@@ -542,7 +573,9 @@ export default function Analysis() {
                 {[...analysis.events].reverse().map((ev, i) => (
                   <div key={i} className="flex items-center gap-3 py-1.5 border-b" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
                     <span className="font-mono shrink-0" style={{ fontSize: 11, color: "var(--muted-foreground)", width: 40 }}>{ev.time_str}</span>
-                    <span className="px-2 py-0.5 rounded font-mono shrink-0" style={{ fontSize: 10, backgroundColor: `${typeColor[ev.label] ?? "#6b7a99"}18`, color: typeColor[ev.label] ?? "#6b7a99", fontWeight: 600 }}>{ev.label}</span>
+                    <span className="px-2 py-0.5 rounded font-mono shrink-0"
+                      style={{ fontSize: 10, backgroundColor: `${typeColor[ev.label] ?? "#6b7a99"}18`,
+                        color: typeColor[ev.label] ?? "#6b7a99", fontWeight: 600 }}>{ev.label}</span>
                     <span className="font-mono ml-auto" style={{ fontSize: 11, color: "var(--muted-foreground)" }}>{Math.round(ev.confidence * 100)}%</span>
                   </div>
                 ))}
@@ -568,18 +601,22 @@ export default function Analysis() {
   return (
     <div className="flex flex-col h-full">
       <TopBar
-        title={`Los Pumas RC vs. ${matchInfo?.rival}`}
-        subtitle={`${matchInfo?.date} · ${result?.total_events} formaciones · ${result?.processing_time_sec?.toFixed(0)}s`}
+        title={`${club?.nombre ?? "Mi Club"} vs. ${matchInfo?.rival}`}
+        subtitle={`${matchInfo?.fecha} · ${matchInfo?.es_local ? "Local" : "Visitante"} · ${result?.total_events} formaciones · ${result?.processing_time_sec?.toFixed(0)}s`}
       >
         {analysis.phase === "error" && <span style={{ fontSize: 12, color: "#ef4444" }}>{analysis.error}</span>}
         <BtnSecondary onClick={() => { analysis.clearAnalysis(); pickVideo() }}>Nuevo análisis</BtnSecondary>
         <BtnSecondary onClick={() => navigate("/matches")}>Ver partidos</BtnSecondary>
-        <button onClick={exportPDF} className="flex items-center gap-2" style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, backgroundColor: "var(--primary)", color: "var(--primary-foreground)", border: "none", cursor: "pointer" }}>
+        <button onClick={exportPDF} className="flex items-center gap-2"
+          style={{ padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600,
+            backgroundColor: "var(--primary)", color: "var(--primary-foreground)", border: "none", cursor: "pointer" }}>
           <Download size={13} /> Exportar PDF
         </button>
       </TopBar>
 
       <div className="flex-1 overflow-auto p-6 space-y-5">
+        <UploadBanner />
+
         {/* Clips */}
         <div className="rounded-xl border p-4" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)", marginBottom: 12 }}>Videos generados</div>
@@ -592,9 +629,12 @@ export default function Analysis() {
               const clipPath = result?.clips?.[key]
               const hasClip = !!clipPath
               return (
-                <button key={key} onClick={() => hasClip && window.apertAPI?.openExternal(clipPath!)} disabled={!hasClip || count === 0}
-                  style={{ padding: 14, borderRadius: 10, cursor: hasClip && count > 0 ? "pointer" : "default", backgroundColor: hasClip && count > 0 ? `${color}10` : "var(--secondary)", border: `1px solid ${hasClip && count > 0 ? color + "40" : "rgba(255,255,255,0.07)"}`, textAlign: "left" }}
-                >
+                <button key={key} onClick={() => hasClip && window.apertAPI?.openExternal(clipPath!)}
+                  disabled={!hasClip || count === 0}
+                  style={{ padding: 14, borderRadius: 10, cursor: hasClip && count > 0 ? "pointer" : "default",
+                    backgroundColor: hasClip && count > 0 ? `${color}10` : "var(--secondary)",
+                    border: `1px solid ${hasClip && count > 0 ? color + "40" : "rgba(255,255,255,0.07)"}`,
+                    textAlign: "left" }}>
                   <div className="flex items-center justify-between mb-2">
                     <FolderOpen size={16} style={{ color: count > 0 ? color : "var(--muted-foreground)" }} />
                     {hasClip && count > 0 && <CheckCircle2 size={13} style={{ color }} />}
@@ -602,7 +642,7 @@ export default function Analysis() {
                   <div style={{ fontSize: 20, fontWeight: 700, color: count > 0 ? color : "var(--muted-foreground)" }}>{count}</div>
                   <div style={{ fontSize: 11, color: "var(--muted-foreground)" }}>{label}</div>
                   <div style={{ fontSize: 10, color: hasClip && count > 0 ? color : "var(--muted-foreground)", marginTop: 4 }}>
-                    {hasClip && count > 0 ? "▶ Abrir video" : count === 0 ? "Sin detecciones" : "Sin dataset aún"}
+                    {hasClip && count > 0 ? "▶ Abrir local" : count === 0 ? "Sin detecciones" : "Sin dataset aún"}
                   </div>
                 </button>
               )
@@ -615,8 +655,10 @@ export default function Analysis() {
           <div className="col-span-2">
             {result?.output_path
               ? <VideoPlayer src={result.output_path} events={result.events} />
-              : <div className="rounded-xl border flex items-center justify-center" style={{ height: 300, backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)", color: "var(--muted-foreground)", fontSize: 13 }}>Video no disponible</div>
-            }
+              : <div className="rounded-xl border flex items-center justify-center"
+                  style={{ height: 300, backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)", color: "var(--muted-foreground)", fontSize: 13 }}>
+                  Video no disponible
+                </div>}
           </div>
           <div className="space-y-3">
             {[
@@ -626,7 +668,8 @@ export default function Analysis() {
               { label: "Duración del partido", value: `${Math.floor((result?.video_duration_sec??0)/60)}:${String(Math.round((result?.video_duration_sec??0)%60)).padStart(2,"0")}`, color: "#6b7a99" },
               { label: "Confianza promedio",   value: result?.events?.length ? `${(result.events.reduce((a,e)=>a+e.confidence,0)/result.events.length*100).toFixed(1)}%` : "—", color: "#39e07a" },
             ].map(({ label, value, color }) => (
-              <div key={label} className="flex items-center gap-3 p-3 rounded-xl border" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
+              <div key={label} className="flex items-center gap-3 p-3 rounded-xl border"
+                style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${color}15` }}>
                   <Zap size={14} style={{ color }} />
                 </div>
@@ -664,8 +707,9 @@ export default function Analysis() {
               {(result?.events ?? []).map((ev, i) => (
                 <div key={i} className="flex items-center gap-3 py-1.5 border-b" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
                   <span className="font-mono shrink-0" style={{ fontSize: 11, color: "var(--muted-foreground)", width: 40 }}>{ev.time_str}</span>
-                  <div className="px-2 py-0.5 rounded text-xs font-mono shrink-0" style={{ backgroundColor: `${typeColor[ev.label] ?? "#6b7a99"}18`, color: typeColor[ev.label] ?? "#6b7a99", fontWeight: 500 }}>{ev.label}</div>
-                  <span style={{ fontSize: 11, color: "var(--foreground)", flex: 1 }}>Local</span>
+                  <div className="px-2 py-0.5 rounded text-xs font-mono shrink-0"
+                    style={{ backgroundColor: `${typeColor[ev.label] ?? "#6b7a99"}18`, color: typeColor[ev.label] ?? "#6b7a99", fontWeight: 500 }}>{ev.label}</div>
+                  <span style={{ fontSize: 11, color: "var(--foreground)", flex: 1 }}>{matchInfo?.es_local ? "Local" : "Visitante"}</span>
                   <span className="font-mono shrink-0" style={{ fontSize: 11, color: "var(--muted-foreground)" }}>{Math.round(ev.confidence * 100)}%</span>
                 </div>
               ))}

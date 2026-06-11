@@ -20,6 +20,7 @@ export interface ApertAPI {
   showNotification: (title: string, body: string) => Promise<void>
   getSettings:      ()                           => Promise<Record<string, any>>
   saveSettings:     (s: Record<string, any>)     => Promise<{ ok: boolean }>
+  readFile:         (filePath: string)           => Promise<{ ok: true; data: Uint8Array } | { ok: false; error: string }>
 }
 
 declare global {

@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('apertAPI', {
   saveFileDialog:  (defaultPath)   => ipcRenderer.invoke('save-file-dialog', defaultPath),
   openExternal:    (filePath)      => ipcRenderer.invoke('open-external', filePath),
   getPythonInfo:   ()              => ipcRenderer.invoke('get-python-info'),
+  readFile:        (filePath)      => ipcRenderer.invoke('read-file', filePath),
 
   // ── Análisis ──────────────────────────────────────────────────
   analyzeVideo: (params)  => ipcRenderer.invoke('analyze-video', params),
