@@ -7,6 +7,46 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from "react"
 import { useAuth } from "./AuthContext"
 import { supabase } from "../lib/supabase"
+import * as tus from "tus-js-client"
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+
+// ── Upload resumible vía TUS (necesario para clips >50MB) ───────────────────
+async function uploadResumable(
+  bucket: string,
+  storagePath: string,
+  blob: Blob,
+  onProgress?: (pct: number) => void
+): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new Error("Sin sesión activa")
+
+  return new Promise((resolve, reject) => {
+    const upload = new tus.Upload(blob, {
+      endpoint: `${SUPABASE_URL}/storage/v1/upload/resumable`,
+      retryDelays: [0, 3000, 5000, 10000, 20000],
+      headers: {
+        authorization: `Bearer ${session.access_token}`,
+        "x-upsert": "true",
+      },
+      uploadDataDuringCreation: true,
+      removeFingerprintOnSuccess: true,
+      metadata: {
+        bucketName: bucket,
+        objectName: storagePath,
+        contentType: "video/mp4",
+        cacheControl: "3600",
+      },
+      chunkSize: 6 * 1024 * 1024, // 6MB chunks
+      onError: (e) => reject(e),
+      onProgress: (uploaded, total) => {
+        if (onProgress) onProgress(Math.round((uploaded / total) * 100))
+      },
+      onSuccess: () => resolve(),
+    })
+    upload.start()
+  })
+}
 
 export interface DetectedEvent {
   event_type: string
@@ -163,23 +203,26 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       for (let i = 0; i < tiposConClip.length; i++) {
         const tipo = tiposConClip[i]
         const localPath = result.clips[tipo]
-        setUploadPhaseLabel(`Subiendo clip ${i + 1}/${tiposConClip.length}: ${tipo}...`)
 
         // Leer archivo local vía IPC (devuelve Buffer)
         if (!window.apertAPI?.readFile) {
           throw new Error("readFile no disponible (modo browser)")
         }
+        setUploadPhaseLabel(`Leyendo clip ${i + 1}/${tiposConClip.length}: ${tipo}...`)
         const fileRes = await window.apertAPI.readFile(localPath)
         if (!fileRes.ok) throw new Error(`Error leyendo clip ${tipo}: ${fileRes.error}`)
 
-        // Buffer/Uint8Array -> Blob para Supabase
+        const sizeMb = (fileRes.data.length / 1024 / 1024).toFixed(0)
         const blob = new Blob([fileRes.data], { type: "video/mp4" })
         const storagePath = `${club.id}/${pid}/${tipo}.mp4`
 
-        const { error: upErr } = await supabase.storage
-          .from("clips")
-          .upload(storagePath, blob, { contentType: "video/mp4", upsert: true })
-        if (upErr) throw upErr
+        // Upload resumible (TUS) — soporta archivos grandes
+        const baseProgress = 20 + Math.round((i / totalClips) * 75)
+        const slice = 75 / totalClips
+        await uploadResumable("clips", storagePath, blob, (pct) => {
+          setUploadPhaseLabel(`Subiendo ${tipo}.mp4 (${sizeMb} MB) — ${pct}%`)
+          setUploadProgress(baseProgress + Math.round((pct / 100) * slice))
+        })
 
         // Registrar el clip en la tabla
         const { error: cErr } = await supabase.from("clips").insert({
@@ -188,8 +231,6 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
           url_storage: storagePath,
         })
         if (cErr) throw cErr
-
-        setUploadProgress(20 + Math.round(((i + 1) / totalClips) * 75))
       }
 
       setUploadProgress(100)
