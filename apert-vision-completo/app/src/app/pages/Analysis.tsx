@@ -150,12 +150,14 @@ function VideoPlayer({ src, events = [] }: { src: string; events?: { second: num
 
   return (
     <div className="rounded-xl overflow-hidden border" style={{ backgroundColor: "#000", borderColor: "rgba(255,255,255,0.07)" }}>
-      <video ref={videoRef} src={videoSrc}
-        style={{ width: "100%", display: "block", maxHeight: 340, backgroundColor: "#000" }}
-        onTimeUpdate={e => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
-        onLoadedMetadata={e => setDuration((e.target as HTMLVideoElement).duration)}
-        onEnded={() => setPlaying(false)}
-      />
+      <div style={{ width: "100%", aspectRatio: "16/9", backgroundColor: "#000", overflow: "hidden" }}>
+        <video ref={videoRef} src={videoSrc}
+          style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", backgroundColor: "#000" }}
+          onTimeUpdate={e => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
+          onLoadedMetadata={e => setDuration((e.target as HTMLVideoElement).duration)}
+          onEnded={() => setPlaying(false)}
+        />
+      </div>
       <div className="px-4 py-3 border-t" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
         <div className="relative h-1.5 rounded-full mb-3 cursor-pointer"
           style={{ backgroundColor: "var(--secondary)" }}

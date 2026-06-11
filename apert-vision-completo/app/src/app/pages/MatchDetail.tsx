@@ -60,11 +60,13 @@ function VideoPlayer({ src, events, seekable }: {
 
   return (
     <div className="rounded-xl overflow-hidden border" style={{ backgroundColor: "#000", borderColor: "rgba(255,255,255,0.07)" }}>
-      <video ref={videoRef} src={src} key={src}
-        style={{ width: "100%", display: "block", maxHeight: 400, backgroundColor: "#000" }}
-        onTimeUpdate={e => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
-        onLoadedMetadata={e => setDuration((e.target as HTMLVideoElement).duration)}
-        onEnded={() => setPlaying(false)} controls={false} />
+      <div style={{ width: "100%", aspectRatio: "16/9", backgroundColor: "#000", overflow: "hidden" }}>
+        <video ref={videoRef} src={src} key={src}
+          style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", backgroundColor: "#000" }}
+          onTimeUpdate={e => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
+          onLoadedMetadata={e => setDuration((e.target as HTMLVideoElement).duration)}
+          onEnded={() => setPlaying(false)} controls={false} />
+      </div>
       <div className="px-4 py-3 border-t" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
         <div className="relative h-1.5 rounded-full mb-3 cursor-pointer"
           style={{ backgroundColor: "var(--secondary)" }}
@@ -320,13 +322,13 @@ export default function MatchDetail() {
           <div className="col-span-2">
             {videoStatus === "loading" && (
               <div className="rounded-xl border flex items-center justify-center"
-                style={{ height: 350, backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
+                style={{ aspectRatio: "16/9", backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
                 <span style={{ fontSize: 13, color: "var(--muted-foreground)" }}>Cargando video...</span>
               </div>
             )}
             {videoStatus === "missing" && (
               <div className="rounded-xl border flex flex-col items-center justify-center gap-3"
-                style={{ height: 350, backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
+                style={{ aspectRatio: "16/9", backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
                 <Film size={40} style={{ color: "var(--muted-foreground)", opacity: 0.4 }} />
                 <div style={{ fontSize: 14, color: "var(--foreground)" }}>
                   {videoSource === "full"
