@@ -112,31 +112,34 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     if (!result || !matchInfo) { setUploadError("Sin datos para guardar"); setUploadPhase("error"); return }
 
     setUploadPhase("uploading"); setUploadError(null); setUploadProgress(0)
-    setUploadPhaseLabel("Creando partido en la nube...")
 
     try {
-      // 1) Crear partido
-      const { data: partidoData, error: pErr } = await supabase
-        .from("partidos")
-        .insert({
-          club_id:    club.id,
-          creado_por: miembro.id,
-          rival:      matchInfo.rival,
-          fecha:      matchInfo.fecha,
-          es_local:   matchInfo.es_local,
-          resultado:  matchInfo.resultado,
-          marcador:   matchInfo.marcador || null,
-        })
-        .select("id")
-        .single()
-      if (pErr) throw pErr
-
-      const pid = partidoData.id as string
-      setPartidoId(pid)
+      // 1) Crear partido — o reutilizar si ya existe (retry)
+      let pid = partidoId
+      if (!pid) {
+        setUploadPhaseLabel("Creando partido en la nube...")
+        const { data: partidoData, error: pErr } = await supabase
+          .from("partidos")
+          .insert({
+            club_id:    club.id,
+            creado_por: miembro.id,
+            rival:      matchInfo.rival,
+            fecha:      matchInfo.fecha,
+            es_local:   matchInfo.es_local,
+            resultado:  matchInfo.resultado,
+            marcador:   matchInfo.marcador || null,
+          })
+          .select("id")
+          .single()
+        if (pErr) throw pErr
+        pid = partidoData.id as string
+        setPartidoId(pid)
+      }
       setUploadProgress(10)
 
-      // 2) Insertar eventos en bloque
+      // 2) Insertar eventos — borrar previos y reinsertar (idempotente)
       setUploadPhaseLabel(`Guardando ${result.events.length} eventos...`)
+      await supabase.from("eventos").delete().eq("partido_id", pid)
       if (result.events.length > 0) {
         const eventosRows = result.events.map(ev => ({
           partido_id:    pid,
@@ -148,6 +151,9 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         if (eErr) throw eErr
       }
       setUploadProgress(20)
+
+      // Limpiar entradas viejas en tabla clips (storage usa upsert)
+      await supabase.from("clips").delete().eq("partido_id", pid)
 
       // 3) Subir clips uno por uno
       const tipos: Array<"lineout" | "scrum" | "kickoff"> = ["lineout", "scrum", "kickoff"]
@@ -194,7 +200,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       setUploadError(e?.message ?? String(e))
       setUploadPhase("error")
     }
-  }, [club, miembro, result, matchInfo])
+  }, [club, miembro, result, matchInfo, partidoId])
 
   // Auto-subir cuando termina el análisis
   useEffect(() => {
