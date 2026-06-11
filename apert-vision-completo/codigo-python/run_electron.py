@@ -37,6 +37,48 @@ FRAME_SKIP = 3     # analizar 1 de cada N frames (velocidad)
 CLIP_SECS  = 10    # segundos alrededor de cada evento para los clips
 
 
+# ── Compresión con ffmpeg ─────────────────────────────────────────────────────
+def compress_clip(input_path: str) -> str:
+    """
+    Re-encodea un clip con H.264 480p para reducir tamaño ~10x.
+    Necesario para que entre en el límite de Supabase Storage (50MB free plan).
+    Si ffmpeg no está disponible, devuelve el original.
+    """
+    try:
+        import imageio_ffmpeg, subprocess
+        ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+    except (ImportError, Exception):
+        emit({"type": "progress", "current": 0, "total": 0, "pct": -1,
+              "warning": "imageio-ffmpeg no instalado, clips sin comprimir"})
+        return input_path
+
+    temp_path = input_path + ".tmp.mp4"
+    try:
+        result = subprocess.run([
+            ffmpeg, "-y", "-i", input_path,
+            "-c:v", "libx264",
+            "-preset", "fast",
+            "-crf", "28",
+            "-vf", "scale='min(854,iw)':-2",  # max width 854 (480p), height auto par
+            "-an",                              # sin audio
+            "-movflags", "+faststart",
+            temp_path
+        ], capture_output=True, timeout=900)
+
+        if result.returncode == 0 and os.path.exists(temp_path) and os.path.getsize(temp_path) > 0:
+            os.replace(temp_path, input_path)
+            return input_path
+
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        return input_path
+    except Exception:
+        if os.path.exists(temp_path):
+            try: os.remove(temp_path)
+            except: pass
+        return input_path
+
+
 # ── Extracción de clips por tipo ──────────────────────────────────────────────
 def extract_clips(video_path: str, events: list, output_dir: str, fps: float,
                   width: int, height: int) -> dict:
@@ -98,10 +140,25 @@ def extract_clips(video_path: str, events: list, output_dir: str, fps: float,
 
         cap.release()
         out.release()
-        clips[event_type] = out_path
+
+        # Comprimir clip a 480p H.264 para que entre en Supabase
         emit({"type": "clip_progress", "event_type": event_type,
               "label": CLASS_LABELS.get(event_type, event_type),
-              "done": total_evs, "total": total_evs})
+              "done": total_evs, "total": total_evs, "phase": "compressing"})
+        try:
+            size_before = os.path.getsize(out_path) / 1024 / 1024
+        except: size_before = 0
+        out_path = compress_clip(out_path)
+        try:
+            size_after = os.path.getsize(out_path) / 1024 / 1024
+        except: size_after = 0
+        emit({"type": "clip_progress", "event_type": event_type,
+              "label": CLASS_LABELS.get(event_type, event_type),
+              "done": total_evs, "total": total_evs, "phase": "compressed",
+              "size_before_mb": round(size_before, 1),
+              "size_after_mb":  round(size_after, 1)})
+
+        clips[event_type] = out_path
 
     return clips
 
