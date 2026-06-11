@@ -255,7 +255,13 @@ export default function Matches() {
             const hasClips = m.clips && Object.keys(m.clips).length > 0
             return (
               <div key={m.id} className="rounded-xl border" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
-                <div className="flex items-center gap-4 p-4">
+                <div className="flex items-center gap-4 p-4 cursor-pointer hover:bg-secondary/30 transition-colors"
+                  onClick={(e) => {
+                    // Solo navega si no se clickeó un botón hijo
+                    if ((e.target as HTMLElement).closest("button")) return
+                    navigate(`/matches/${m.id}`)
+                  }}>
+
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-mono"
                     style={{ backgroundColor: rs.bg, color: rs.color, fontWeight: 700, fontSize: 14 }}>
                     {m.resultado ?? "—"}

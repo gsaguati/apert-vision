@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Analysis  from "./pages/Analysis";
 import Players   from "./pages/Players";
 import Matches   from "./pages/Matches";
+import MatchDetail from "./pages/MatchDetail";
 import Stats     from "./pages/Stats";
 import Settings  from "./pages/Settings";
 
@@ -19,7 +20,8 @@ export const router = createBrowserRouter([
       { index: true,      Component: Dashboard },
       { path: "analysis", Component: Analysis  },
       { path: "players",  Component: Players   },
-      { path: "matches",  Component: Matches   },
+      { path: "matches",      Component: Matches     },
+      { path: "matches/:id",  Component: MatchDetail },
       { path: "stats",    Component: Stats     },
       { path: "settings", Component: Settings  },
     ],

@@ -168,6 +168,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
             es_local:   matchInfo.es_local,
             resultado:  matchInfo.resultado,
             marcador:   matchInfo.marcador || null,
+            video_path: videoPath || null,
           })
           .select("id")
           .single()

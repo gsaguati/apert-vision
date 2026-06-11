@@ -48,6 +48,7 @@ export interface Partido {
   resultado: "W" | "L" | "D" | null
   marcador: string | null
   es_local: boolean
+  video_path: string | null
   created_at: string
 }
 
