@@ -34,76 +34,11 @@ function CancharSVG() {
   return (
     <svg viewBox="0 0 400 230" xmlns="http://www.w3.org/2000/svg"
       style={{ width:'100%', height:'100%', position:'absolute', inset:0 }}>
-      {/* Fondo */}
-      <rect width="400" height="230" fill="#061a06"/>
-
-      {/* Franjas alternadas de césped */}
-      {[0,1,2,3,4,5,6].map(i => (
-        <rect key={i} x={i*57} y="0" width="57" height="230"
-          fill={i%2===0 ? '#071e07' : '#082208'} opacity=".6"/>
-      ))}
-
-      {/* Borde exterior */}
-      <rect x="10" y="10" width="380" height="210" fill="none"
-        stroke="rgba(255,255,255,.35)" strokeWidth="1.5"/>
-
-      {/* In-goal areas */}
-      <rect x="10" y="10" width="46" height="210" fill="none"
-        stroke="rgba(255,255,255,.25)" strokeWidth="1"/>
-      <rect x="344" y="10" width="46" height="210" fill="none"
-        stroke="rgba(255,255,255,.25)" strokeWidth="1"/>
-
-      {/* Línea central */}
-      <line x1="200" y1="10" x2="200" y2="220"
-        stroke="rgba(255,255,255,.3)" strokeWidth="1.5"/>
-
-      {/* Líneas de 22m */}
-      <line x1="110" y1="10" x2="110" y2="220"
-        stroke="rgba(255,255,255,.2)" strokeWidth="1"/>
-      <line x1="290" y1="10" x2="290" y2="220"
-        stroke="rgba(255,255,255,.2)" strokeWidth="1"/>
-
-      {/* Líneas de 10m */}
-      <line x1="155" y1="10" x2="155" y2="220"
-        stroke="rgba(255,255,255,.12)" strokeWidth=".8" strokeDasharray="4 4"/>
-      <line x1="245" y1="10" x2="245" y2="220"
-        stroke="rgba(255,255,255,.12)" strokeWidth=".8" strokeDasharray="4 4"/>
-
-      {/* Líneas de 5m */}
-      <line x1="56" y1="10" x2="56" y2="220"
-        stroke="rgba(255,255,255,.1)" strokeWidth=".6" strokeDasharray="3 6"/>
-      <line x1="344" y1="10" x2="344" y2="220"
-        stroke="rgba(255,255,255,.1)" strokeWidth=".6" strokeDasharray="3 6"/>
-
-      {/* Líneas horizontales de line-out */}
-      {[55,115,175].map(y => (
-        <line key={y} x1="56" y1={y} x2="344" y2={y}
-          stroke="rgba(255,255,255,.12)" strokeWidth=".7" strokeDasharray="5 8"/>
-      ))}
-
-      {/* Postes izquierda */}
-      <line x1="56" y1="90" x2="56" y2="10"
-        stroke="rgba(255,255,255,.5)" strokeWidth="1.5"/>
-      <line x1="46" y1="90" x2="66" y2="90"
-        stroke="rgba(255,255,255,.5)" strokeWidth="1.5"/>
-      <line x1="46" y1="90" x2="46" y2="80"
-        stroke="rgba(255,255,255,.4)" strokeWidth="1"/>
-      <line x1="66" y1="90" x2="66" y2="80"
-        stroke="rgba(255,255,255,.4)" strokeWidth="1"/>
-
-      {/* Postes derecha */}
-      <line x1="344" y1="90" x2="344" y2="10"
-        stroke="rgba(255,255,255,.5)" strokeWidth="1.5"/>
-      <line x1="334" y1="90" x2="354" y2="90"
-        stroke="rgba(255,255,255,.5)" strokeWidth="1.5"/>
-      <line x1="334" y1="90" x2="334" y2="80"
-        stroke="rgba(255,255,255,.4)" strokeWidth="1"/>
-      <line x1="354" y1="90" x2="354" y2="80"
-        stroke="rgba(255,255,255,.4)" strokeWidth="1"/>
-
-      {/* Círculo central */}
-      <circle cx="200" cy="115" r="18"
-        fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="1"/>
+      {/* Cancha real (imagen) */}
+      <image href={canchaImg} x="0" y="0" width="400" height="230"
+        preserveAspectRatio="xMidYMid slice"/>
+      {/* Velo oscuro sutil para que el bbox y los jugadores resalten */}
+      <rect width="400" height="230" fill="rgba(0,0,0,0.18)"/>
 
       {/* Bounding box animado — Line-out */}
       <rect x="130" y="60" width="90" height="60" rx="3"
@@ -159,73 +94,15 @@ function CancharSVG() {
 // ── Cancha de rugby como fondo del Hero ────────────────
 function HeroFieldBg() {
   return (
-    <svg
-      viewBox="0 0 1200 700"
-      preserveAspectRatio="xMidYMid slice"
+    <div
       style={{
-        position: 'absolute', inset: 0, width: '100%', height: '100%',
-        zIndex: 0, pointerEvents: 'none',
+        position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
+        backgroundImage: `url(${canchaImg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Fondo: gradiente verde muy oscuro */}
-      <defs>
-        <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#0a2a0a" />
-          <stop offset="50%"  stopColor="#0c2e0c" />
-          <stop offset="100%" stopColor="#082208" />
-        </linearGradient>
-        <pattern id="stripes" x="0" y="0" width="171" height="700" patternUnits="userSpaceOnUse">
-          <rect width="171" height="700" fill="rgba(255,255,255,0.018)"/>
-        </pattern>
-      </defs>
-      <rect width="1200" height="700" fill="url(#grass)"/>
-
-      {/* Franjas tipo césped cortado */}
-      {[0, 2, 4, 6].map(i => (
-        <rect key={i} x={i * 171.4} y="0" width="171.4" height="700"
-          fill="rgba(255,255,255,0.012)"/>
-      ))}
-
-      {/* Borde del campo */}
-      <rect x="20" y="20" width="1160" height="660" fill="none"
-        stroke="rgba(255,255,255,0.10)" strokeWidth="2"/>
-
-      {/* In-goals (zonas de marca) */}
-      <rect x="20"   y="20" width="140" height="660" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5"/>
-      <rect x="1040" y="20" width="140" height="660" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5"/>
-
-      {/* Línea de media cancha */}
-      <line x1="600" y1="20" x2="600" y2="680" stroke="rgba(255,255,255,0.12)" strokeWidth="2"/>
-
-      {/* Líneas de 22m */}
-      <line x1="380" y1="20" x2="380" y2="680" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5"/>
-      <line x1="820" y1="20" x2="820" y2="680" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5"/>
-
-      {/* Líneas de 10m punteadas */}
-      <line x1="490" y1="20" x2="490" y2="680" stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="14 14"/>
-      <line x1="710" y1="20" x2="710" y2="680" stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="14 14"/>
-
-      {/* Líneas de 5m */}
-      <line x1="180" y1="20" x2="180" y2="680" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="6 14"/>
-      <line x1="1020" y1="20" x2="1020" y2="680" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="6 14"/>
-
-      {/* Líneas de 5m horizontales (lado interior del touche) */}
-      <line x1="20" y1="70"  x2="1180" y2="70"  stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="6 14"/>
-      <line x1="20" y1="630" x2="1180" y2="630" stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="6 14"/>
-
-      {/* Postes (H) — lado izquierdo */}
-      <line x1="160" y1="320" x2="160" y2="380" stroke="rgba(255,255,255,0.18)" strokeWidth="2.5"/>
-      <line x1="150" y1="350" x2="170" y2="350" stroke="rgba(255,255,255,0.18)" strokeWidth="2"/>
-      <line x1="150" y1="320" x2="150" y2="380" stroke="rgba(255,255,255,0.14)" strokeWidth="2"/>
-      <line x1="170" y1="320" x2="170" y2="380" stroke="rgba(255,255,255,0.14)" strokeWidth="2"/>
-
-      {/* Postes — lado derecho */}
-      <line x1="1040" y1="320" x2="1040" y2="380" stroke="rgba(255,255,255,0.18)" strokeWidth="2.5"/>
-      <line x1="1030" y1="350" x2="1050" y2="350" stroke="rgba(255,255,255,0.18)" strokeWidth="2"/>
-      <line x1="1030" y1="320" x2="1030" y2="380" stroke="rgba(255,255,255,0.14)" strokeWidth="2"/>
-      <line x1="1050" y1="320" x2="1050" y2="380" stroke="rgba(255,255,255,0.14)" strokeWidth="2"/>
-    </svg>
+    />
   )
 }
 
