@@ -3,6 +3,7 @@ import { useScrolled } from '../hooks/useScrolled'
 
 const LINKS = [
   ['#solucion',  'Funcionalidades'],
+  ['#preview',   'El producto'],
   ['#flujo',     'Cómo funciona'],
   ['#audiencia', 'Para quién'],
   ['#faq',       'FAQ'],

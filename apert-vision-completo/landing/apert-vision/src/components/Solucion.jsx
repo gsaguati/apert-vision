@@ -44,7 +44,7 @@ export default function Solucion({ data }) {
       </div>
 
       {/* Métricas */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', className:'grid-4', gap:1, background:'var(--gris2)', border:'1px solid var(--gris2)', borderRadius:16, overflow:'hidden', marginBottom:72 }}>
+      <div style={{ display:'grid', gridTemplateColumns:`repeat(${data.metricas.length},1fr)`, gap:1, background:'var(--gris2)', border:'1px solid var(--gris2)', borderRadius:16, overflow:'hidden', marginBottom:72 }}>
         {data.metricas.map((m, i) => (
           <MetricaCard key={i} {...m} delay={i*80} inView={inView} />
         ))}

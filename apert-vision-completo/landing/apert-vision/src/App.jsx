@@ -6,6 +6,7 @@ import Navbar         from './components/Navbar'
 import HeroVersionB, { GlobalBgB } from './components/HeroVersionB'
 import Problema       from './components/Problema'
 import Solucion       from './components/Solucion'
+import Preview        from './components/Preview'
 import Flujo          from './components/Flujo'
 import Audiencia      from './components/Audiencia'
 import Tecnologia     from './components/Tecnologia'
@@ -101,6 +102,7 @@ export default function App() {
         <HeroVersionB data={data.hero} />
         <Problema     data={data.problema} />
         <Solucion     data={data.solucion} />
+        <Preview />
         <Flujo        data={data.flujo} />
         <Audiencia    data={data.audiencia} />
         <Tecnologia   data={data.tecnologia} />
