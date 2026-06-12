@@ -156,6 +156,79 @@ function CancharSVG() {
   )
 }
 
+// ── Cancha de rugby como fondo del Hero ────────────────
+function HeroFieldBg() {
+  return (
+    <svg
+      viewBox="0 0 1200 700"
+      preserveAspectRatio="xMidYMid slice"
+      style={{
+        position: 'absolute', inset: 0, width: '100%', height: '100%',
+        zIndex: 0, pointerEvents: 'none',
+      }}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Fondo: gradiente verde muy oscuro */}
+      <defs>
+        <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="#0a2a0a" />
+          <stop offset="50%"  stopColor="#0c2e0c" />
+          <stop offset="100%" stopColor="#082208" />
+        </linearGradient>
+        <pattern id="stripes" x="0" y="0" width="171" height="700" patternUnits="userSpaceOnUse">
+          <rect width="171" height="700" fill="rgba(255,255,255,0.018)"/>
+        </pattern>
+      </defs>
+      <rect width="1200" height="700" fill="url(#grass)"/>
+
+      {/* Franjas tipo césped cortado */}
+      {[0, 2, 4, 6].map(i => (
+        <rect key={i} x={i * 171.4} y="0" width="171.4" height="700"
+          fill="rgba(255,255,255,0.012)"/>
+      ))}
+
+      {/* Borde del campo */}
+      <rect x="20" y="20" width="1160" height="660" fill="none"
+        stroke="rgba(255,255,255,0.10)" strokeWidth="2"/>
+
+      {/* In-goals (zonas de marca) */}
+      <rect x="20"   y="20" width="140" height="660" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5"/>
+      <rect x="1040" y="20" width="140" height="660" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5"/>
+
+      {/* Línea de media cancha */}
+      <line x1="600" y1="20" x2="600" y2="680" stroke="rgba(255,255,255,0.12)" strokeWidth="2"/>
+
+      {/* Líneas de 22m */}
+      <line x1="380" y1="20" x2="380" y2="680" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5"/>
+      <line x1="820" y1="20" x2="820" y2="680" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5"/>
+
+      {/* Líneas de 10m punteadas */}
+      <line x1="490" y1="20" x2="490" y2="680" stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="14 14"/>
+      <line x1="710" y1="20" x2="710" y2="680" stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="14 14"/>
+
+      {/* Líneas de 5m */}
+      <line x1="180" y1="20" x2="180" y2="680" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="6 14"/>
+      <line x1="1020" y1="20" x2="1020" y2="680" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="6 14"/>
+
+      {/* Líneas de 5m horizontales (lado interior del touche) */}
+      <line x1="20" y1="70"  x2="1180" y2="70"  stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="6 14"/>
+      <line x1="20" y1="630" x2="1180" y2="630" stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="6 14"/>
+
+      {/* Postes (H) — lado izquierdo */}
+      <line x1="160" y1="320" x2="160" y2="380" stroke="rgba(255,255,255,0.18)" strokeWidth="2.5"/>
+      <line x1="150" y1="350" x2="170" y2="350" stroke="rgba(255,255,255,0.18)" strokeWidth="2"/>
+      <line x1="150" y1="320" x2="150" y2="380" stroke="rgba(255,255,255,0.14)" strokeWidth="2"/>
+      <line x1="170" y1="320" x2="170" y2="380" stroke="rgba(255,255,255,0.14)" strokeWidth="2"/>
+
+      {/* Postes — lado derecho */}
+      <line x1="1040" y1="320" x2="1040" y2="380" stroke="rgba(255,255,255,0.18)" strokeWidth="2.5"/>
+      <line x1="1030" y1="350" x2="1050" y2="350" stroke="rgba(255,255,255,0.18)" strokeWidth="2"/>
+      <line x1="1030" y1="320" x2="1030" y2="380" stroke="rgba(255,255,255,0.14)" strokeWidth="2"/>
+      <line x1="1050" y1="320" x2="1050" y2="380" stroke="rgba(255,255,255,0.14)" strokeWidth="2"/>
+    </svg>
+  )
+}
+
 function HeroMockup() {
   return (
     <div style={{ background:'rgba(4,5,6,.9)', border:'1px solid rgba(0,230,118,.15)', borderRadius:16, overflow:'hidden', boxShadow:'0 40px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(0,230,118,.07)', backdropFilter:'blur(12px)' }}>
@@ -217,9 +290,16 @@ export default function HeroVersionB({ data }) {
 
   return (
     <section id="hero" style={{ minHeight:'100vh', display:'flex', alignItems:'center', position:'relative', overflow:'hidden', padding:'140px 72px 100px' }}>
+      {/* Cancha de rugby de fondo */}
+      <HeroFieldBg />
+      {/* Overlay para legibilidad del texto */}
+      <div style={{
+        position:'absolute', inset:0, zIndex:1, pointerEvents:'none',
+        background:'linear-gradient(90deg, rgba(4,5,6,.96) 0%, rgba(4,5,6,.88) 40%, rgba(4,5,6,.70) 100%)',
+      }}/>
       {/* Glows */}
-      <div style={{ position:'absolute', width:800, height:800, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,230,118,.07) 0%,transparent 70%)', top:-150, right:-100, pointerEvents:'none', zIndex:0 }}/>
-      <div style={{ position:'absolute', width:500, height:500, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,200,83,.05) 0%,transparent 70%)', bottom:-50, left:'5%', pointerEvents:'none', zIndex:0 }}/>
+      <div style={{ position:'absolute', width:800, height:800, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,230,118,.07) 0%,transparent 70%)', top:-150, right:-100, pointerEvents:'none', zIndex:1 }}/>
+      <div style={{ position:'absolute', width:500, height:500, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,200,83,.05) 0%,transparent 70%)', bottom:-50, left:'5%', pointerEvents:'none', zIndex:1 }}/>
 
       {/* Contenido */}
       <div style={{ position:'relative', zIndex:2, maxWidth:640 }}>
