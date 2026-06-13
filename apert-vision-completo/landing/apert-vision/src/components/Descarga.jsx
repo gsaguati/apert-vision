@@ -1,7 +1,8 @@
 import { useState } from 'react'
 
 export default function Descarga({ data }) {
-  const [hov, setHov] = useState(false)
+  const [hovWin, setHovWin] = useState(false)
+  const [hovApk, setHovApk] = useState(false)
 
   return (
     <section id="descarga" className="section-pad" style={{ background:'var(--negro)', textAlign:'center' }}>
@@ -23,19 +24,28 @@ export default function Descarga({ data }) {
           <div style={{ fontFamily:'var(--display)', fontWeight:800, fontSize:28, textTransform:'uppercase', marginBottom:8 }}>{data.appName}</div>
           <div style={{ fontSize:13, color:'var(--gris)', marginBottom:36 }}>{data.meta}</div>
 
-          <div style={{ display:'flex', justifyContent:'center', gap:14, flexWrap:'wrap', marginBottom:28 }}>
+          <div style={{ display:'flex', justifyContent:'center', gap:14, flexWrap:'wrap', marginBottom:14 }}>
             <button
               className="btn btn-solid"
-              onMouseEnter={() => setHov(true)}
-              onMouseLeave={() => setHov(false)}
-              style={{ background: hov ? 'var(--verde2)' : 'var(--verde)', transform: hov ? 'translateY(-2px)' : 'none', boxShadow: hov ? '0 8px 28px var(--verde-glow)' : 'none' }}
+              onMouseEnter={() => setHovWin(true)}
+              onMouseLeave={() => setHovWin(false)}
+              style={{ background: hovWin ? 'var(--verde2)' : 'var(--verde)', transform: hovWin ? 'translateY(-2px)' : 'none', boxShadow: hovWin ? '0 8px 28px var(--verde-glow)' : 'none' }}
             >🪟 Windows 10 / 11</button>
+            <button
+              className="btn btn-solid"
+              onMouseEnter={() => setHovApk(true)}
+              onMouseLeave={() => setHovApk(false)}
+              style={{ background: hovApk ? 'var(--verde2)' : 'var(--verde)', transform: hovApk ? 'translateY(-2px)' : 'none', boxShadow: hovApk ? '0 8px 28px var(--verde-glow)' : 'none' }}
+            >🤖 Descargar APK</button>
+          </div>
+
+          <div style={{ display:'flex', justifyContent:'center', gap:14, flexWrap:'wrap', marginBottom:28 }}>
             {['🍎 macOS — Próximamente','🐧 Linux — Próximamente'].map((l,i)=>(
               <button key={i} className="btn" style={{ background:'transparent', color:'var(--gris)', border:'1.5px solid var(--gris2)', cursor:'not-allowed', opacity:.5 }}>{l}</button>
             ))}
           </div>
 
-          <div style={{ fontSize:12, color:'var(--gris)', marginBottom:24 }}>Versión beta — algunos features pueden estar en desarrollo.</div>
+          <div style={{ fontSize:12, color:'var(--gris)', marginBottom:24 }}>Mobile compatible con Android 8.0 o superior · Desktop requiere Windows 10/11 64-bit.</div>
 
           <div style={{ display:'flex', justifyContent:'center', gap:24, flexWrap:'wrap', paddingTop:24, borderTop:'1px solid var(--gris2)' }}>
             {data.reqs.map((r,i)=>(
