@@ -14,60 +14,10 @@ import Descarga       from './components/Descarga'
 import Faq            from './components/Faq'
 import Footer         from './components/Footer'
 import GestionPanel   from './components/GestionPanel'
-import pelotaImg      from './assets/pelota.png'
 
 function Toast({ message, visible }) {
   if (!visible) return null
   return <div className="toast">{message}</div>
-}
-
-// ── Cursor personalizado con la pelota ───────────────
-function BallCursor() {
-  useEffect(() => {
-    const cursor = document.createElement('div')
-    cursor.id = 'ball-cursor'
-    cursor.style.cssText = `
-      width:40px; height:40px;
-      position:fixed; pointer-events:none; z-index:9999;
-      transform:translate(-50%,-50%);
-      transition:transform .08s ease;
-      will-change:transform;
-      background:url(${pelotaImg}) center/contain no-repeat;
-    `
-    document.body.appendChild(cursor)
-    document.body.style.cursor = 'none'
-
-    let raf
-    let mx = 0, my = 0
-
-    const onMove = (e) => {
-      mx = e.clientX; my = e.clientY
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => {
-        cursor.style.left = mx + 'px'
-        cursor.style.top  = my + 'px'
-      })
-    }
-
-    // Agrandar en hover de elementos interactivos
-    const onEnter = () => { cursor.style.width = '56px'; cursor.style.height = '56px' }
-    const onLeave = () => { cursor.style.width = '40px'; cursor.style.height = '40px' }
-
-    document.addEventListener('mousemove', onMove, { passive: true })
-    document.querySelectorAll('a, button').forEach(el => {
-      el.addEventListener('mouseenter', onEnter)
-      el.addEventListener('mouseleave', onLeave)
-    })
-
-    return () => {
-      document.removeEventListener('mousemove', onMove)
-      document.body.removeChild(cursor)
-      document.body.style.cursor = ''
-      cancelAnimationFrame(raf)
-    }
-  }, [])
-
-  return null
 }
 
 export default function App() {
@@ -94,7 +44,6 @@ export default function App() {
   return (
     <>
       <GlobalBgB />
-      <BallCursor />
 
       <Navbar onOpenPanel={() => setPanelOpen(true)} />
 

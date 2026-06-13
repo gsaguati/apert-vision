@@ -9,7 +9,7 @@ export const INITIAL_DATA = {
     titleGreen: 'VISION',
     subtitle:
       'El primer asistente con IA para análisis de rugby amateur. Subí el video del partido y obtené formaciones detectadas, clips automáticos y estadísticas en minutos.',
-    ctaPrimary: 'Solicitar acceso',
+    ctaPrimary: 'Descargar gratis',
     ctaSecondary: 'Ver cómo funciona',
     stats: [
       { val: '10×',  label: 'Más rápido que análisis manual' },
@@ -126,11 +126,11 @@ export const INITIAL_DATA = {
   },
 
   descarga: {
-    tag: 'Acceso anticipado',
-    title: 'PEDÍ TU',
-    titleGreen: 'ACCESO',
-    desc: 'Apert Vision está en beta privada. Si entrenás o dirigís un club, dejanos tus datos y te contactamos para coordinar la prueba.',
-    version: 'v0.2.0-MVP · BETA PRIVADA',
+    tag: 'Disponible ahora',
+    title: 'DESCARGÁ',
+    titleGreen: 'GRATIS',
+    desc: 'Descargá la app Desktop para Windows y el APK del Mobile para Android. Empezá a analizar partidos en minutos — el primer análisis va por nuestra cuenta.',
+    version: 'v1.0.0 · Estable',
     appName: 'Apert Vision · Desktop + Mobile',
     meta:    'Desktop para Windows · App Android para el club',
     reqs: [
@@ -151,7 +151,7 @@ export const INITIAL_DATA = {
       { q: '¿El video del partido se sube a la nube?',                  a: 'No, el video original nunca se sube. El análisis YOLO corre 100% en tu PC. Lo que sí se sube son los 3 clips comprimidos (line-outs, scrums, salidas) y las estadísticas, así el resto del club los puede ver desde el celular.' },
       { q: '¿Qué formatos de video acepta?',                            a: 'MP4, MOV, AVI y MKV. Cualquier resolución funciona; 1080p o 720p son ideales. Videos grabados con cámara fija desde el lateral del campo dan los mejores resultados.' },
       { q: '¿Cómo se reparten los códigos de acceso?',                  a: 'Cuando creás tu club, el sistema genera 3 códigos: uno para entrenadores, uno para dirigentes y uno para jugadores. Se los compartís por WhatsApp o email — al registrarse en la app Mobile el rol se asigna automáticamente.' },
-      { q: '¿Cuánto cuesta por partido?',                               a: 'El modelo es de pago por uso — pagás por cada partido analizado, sin suscripción fija. Esto le permite a clubes con presupuesto ajustado usar el servicio solo cuando lo necesitan. Durante la beta privada el uso es gratuito.' },
+      { q: '¿Cuánto cuesta por partido?',                               a: 'El modelo es de pago por uso — pagás por cada partido analizado, sin suscripción fija. Esto le permite a clubes con presupuesto ajustado usar el servicio solo cuando lo necesitan. El primer análisis es gratis para que pruebes.' },
       { q: '¿Para qué sirve la app Mobile?',                            a: 'Es la forma de que todo el club acceda a los clips: jugadores ven Line-outs, Scrums y Salidas para revisar jugadas; dirigentes pueden mirar el estado del análisis; entrenadores también la usan para ver clips fuera del entrenamiento.' },
     ],
   },

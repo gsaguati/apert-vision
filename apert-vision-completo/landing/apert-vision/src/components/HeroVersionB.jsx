@@ -6,7 +6,6 @@ export function GlobalBgB() {
   return (
     <style>{`
       body {
-        cursor: none;
         background-color: var(--negro);
         background-image: url(${canchaImg});
         background-size: 900px auto;
@@ -24,7 +23,6 @@ export function GlobalBgB() {
         z-index: 0;
       }
       body > #root { position: relative; z-index: 1; }
-      * { cursor: none !important; }
     `}</style>
   )
 }
