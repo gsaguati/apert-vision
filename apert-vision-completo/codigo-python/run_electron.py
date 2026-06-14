@@ -221,12 +221,23 @@ def run(video_path: str, output_path: str, conf: float, mode: str):
             second = frame_n / fps
 
             if frame_n % FRAME_SKIP == 0:
-                results    = model(frame, conf=conf, verbose=False, device=device)[0]
-                last_boxes = []
+                results = model(frame, conf=conf, verbose=False, device=device)[0]
+
+                # ── Solo 1 detección por clase por frame ──
+                # En un partido real nunca hay 2 line-outs (ni 2 scrums, ni 2 salidas)
+                # simultáneos. Si YOLO devuelve más de una caja del mismo tipo en el
+                # mismo frame, nos quedamos con la de mayor confianza y descartamos
+                # el resto como falso positivo.
+                best_per_class: dict[str, tuple] = {}
                 for box in results.boxes:
                     conf_val   = float(box.conf[0])
                     raw_name   = model.names[int(box.cls[0])].lower()
                     class_name = CLASS_ALIASES.get(raw_name, raw_name)
+                    if class_name not in best_per_class or conf_val > best_per_class[class_name][0]:
+                        best_per_class[class_name] = (conf_val, box)
+
+                last_boxes = []
+                for class_name, (conf_val, box) in best_per_class.items():
                     color      = CLASS_COLORS_BGR.get(class_name, (180, 180, 180))
                     label_text = f"{CLASS_LABELS.get(class_name, class_name)} {conf_val:.0%}"
                     x1, y1, x2, y2 = map(int, box.xyxy[0])
