@@ -179,3 +179,15 @@
     line-height: 1.5;
   }
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   Electron Window Controls Overlay
+   Reservamos espacio a la derecha en las TopBars para que los botones
+   minimizar/maximizar/cerrar (~138px) no tapen contenido de la app.
+   Solo afecta al primer hijo de cada página (que SIEMPRE es la TopBar).
+   ──────────────────────────────────────────────────────────────────────── */
+.h-full > .border-b:first-child,
+.flex-col > .border-b:first-child {
+  padding-right: 150px !important;
+}
+
