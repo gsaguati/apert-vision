@@ -39,6 +39,13 @@ function createWindow() {
     backgroundColor: '#080c14',
     title: 'Apert Vision',
     autoHideMenuBar: true,
+    // Barra superior pintada del color del tema, botones de Windows quedan integrados
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#080c14',       // fondo del título (mismo que background)
+      symbolColor: '#e8eaf0', // color de los botones (foreground)
+      height: 32,
+    },
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
