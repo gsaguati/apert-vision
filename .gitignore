@@ -25,6 +25,8 @@ apert-vision-completo/codigo-python/dataset/test/
 # Logs de entrenamiento
 *.txt
 runs/
+# Excepción: requirements.txt de Python sí se sube
+!apert-vision-completo/codigo-python/requirements.txt
 
 # Node
 node_modules/
