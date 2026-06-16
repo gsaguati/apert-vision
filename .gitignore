@@ -30,6 +30,9 @@ runs/
 node_modules/
 dist/
 .env
+# Excepción: el .env del Desktop se sube porque tiene la publishable key de
+# Supabase (key pública por diseño — la seguridad va por RLS).
+!apert-vision-completo/app/.env
 
 # OS
 .DS_Store
