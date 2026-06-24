@@ -23,10 +23,10 @@ export const INITIAL_DATA = {
     title: 'El análisis amateur',
     titleGreen: 'está roto',
     cards: [
-      { icon: '⏱', title: 'Horas de video manual',     desc: 'Revisar un partido de principio a fin puede llevar entre 2 y 4 horas. Lento, tedioso y propenso a errores.' },
-      { icon: '📊', title: 'Sin estadísticas reales',   desc: 'Las decisiones tácticas se toman por memoria y observación subjetiva, sin datos que las respalden.' },
-      { icon: '🎬', title: 'Clips imposibles de armar',  desc: 'Editar los momentos clave por jugador o jugada lleva más tiempo que el partido mismo. Casi nadie lo hace.' },
-      { icon: '💸', title: 'Tecnología solo para élite', desc: 'Las herramientas profesionales de análisis cuestan miles de dólares. Inaccesibles para clubes amateurs.' },
+      { icon: 'clock',  title: 'Horas de video manual',     desc: 'Revisar un partido de principio a fin puede llevar entre 2 y 4 horas. Lento, tedioso y propenso a errores.' },
+      { icon: 'chart',  title: 'Sin estadísticas reales',   desc: 'Las decisiones tácticas se toman por memoria y observación subjetiva, sin datos que las respalden.' },
+      { icon: 'film',   title: 'Clips imposibles de armar',  desc: 'Editar los momentos clave por jugador o jugada lleva más tiempo que el partido mismo. Casi nadie lo hace.' },
+      { icon: 'wallet', title: 'Tecnología solo para élite', desc: 'Las herramientas profesionales de análisis cuestan miles de dólares. Inaccesibles para clubes amateurs.' },
     ],
     quote: {
       text: 'Los jugadores me piden videos de sus jugadas, pero no tengo tiempo ni recursos para editarlos. Anoto las estadísticas a mano y en ese proceso pierdo detalles importantes.',
@@ -42,9 +42,9 @@ export const INITIAL_DATA = {
     subtitle:
       'Apert Vision analiza el video con IA local y genera el video anotado, los clips por tipo y las estadísticas. Los clips quedan en la nube para que cada miembro del club los vea desde el celular.',
     metricas: [
-      { icon: '🏉', name: 'Line-Out', desc: 'YOLO detecta cada formación de line-out con su minuto exacto y nivel de confianza.' },
-      { icon: '💪', name: 'Scrum',    desc: 'Identifica scrums y los marca en el timeline para revisión rápida.' },
-      { icon: '🚀', name: 'Salida',   desc: 'Detecta kick-offs al inicio del partido y después de cada try.' },
+      { icon: 'lineout', name: 'Line-Out', desc: 'YOLO detecta cada formación de line-out con su minuto exacto y nivel de confianza.' },
+      { icon: 'scrum',   name: 'Scrum',    desc: 'Identifica scrums y los marca en el timeline para revisión rápida.' },
+      { icon: 'kickoff', name: 'Salida',   desc: 'Detecta kick-offs al inicio del partido y después de cada try.' },
     ],
     features: [
       { num: '01', title: 'Análisis en una sola pantalla',     desc: 'Cargás el video, completás los datos del partido (rival, local/visitante, marcador) y el sistema hace el resto.' },
@@ -75,7 +75,7 @@ export const INITIAL_DATA = {
     titleGreen: 'quién es?',
     cards: [
       {
-        emoji: '🏆',
+        emoji: 'trophy',
         title: 'Entrenadores',
         desc:  'Sube los partidos desde el Desktop, accede a estadísticas globales y comparte los clips con el club. También los ve en el celular.',
         items: [
@@ -86,7 +86,7 @@ export const INITIAL_DATA = {
         ],
       },
       {
-        emoji: '🏃',
+        emoji: 'player',
         title: 'Jugadores',
         desc:  'Reciben un código de invitación y entran a la app Android. Ven los clips de todos los partidos del club analizados.',
         items: [
@@ -97,7 +97,7 @@ export const INITIAL_DATA = {
         ],
       },
       {
-        emoji: '🏟️',
+        emoji: 'building',
         title: 'Dirigentes y clubes',
         desc:  'Visibilidad sobre el trabajo del cuerpo técnico. Modelo de pago por partido analizado — sin compromiso mensual.',
         items: [
@@ -116,12 +116,12 @@ export const INITIAL_DATA = {
     titleGreen: 'moderna',
     subtitle: 'Las mismas herramientas open-source que usan los equipos profesionales, integradas en un producto end-to-end.',
     items: [
-      { icon: '🧠', name: 'YOLO v8',         role: 'Detección con IA' },
-      { icon: '📹', name: 'OpenCV + ffmpeg', role: 'Procesamiento y compresión' },
-      { icon: '🐍', name: 'Python',          role: 'Motor del análisis' },
-      { icon: '⚡', name: 'Electron + React', role: 'App Desktop' },
-      { icon: '📱', name: 'Kotlin + Compose', role: 'App Android' },
-      { icon: '☁️', name: 'Supabase',         role: 'Auth, DB y Storage' },
+      { icon: 'cpu',        name: 'YOLO v8',         role: 'Detección con IA' },
+      { icon: 'video',      name: 'OpenCV + ffmpeg', role: 'Procesamiento y compresión' },
+      { icon: 'terminal',   name: 'Python',          role: 'Motor del análisis' },
+      { icon: 'zap',        name: 'Electron + React', role: 'App Desktop' },
+      { icon: 'smartphone', name: 'Kotlin + Compose', role: 'App Android' },
+      { icon: 'cloud',      name: 'Supabase',         role: 'Auth, DB y Storage' },
     ],
   },
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import canchaImg from '../assets/cancha.png'
+import Icon, { CvCorners } from './Icon'
 
 export function GlobalBgB() {
   return (
@@ -192,14 +193,14 @@ export default function HeroVersionB({ data }) {
 
         <div style={{ width:60, height:3, background:'var(--verde)', borderRadius:2, margin:'24px 0' }}/>
 
-        <p ref={subRef} style={{ fontSize:18, color:'var(--gris)', maxWidth:460, lineHeight:1.75, marginBottom:42, opacity:0 }}>
+        <p ref={subRef} style={{ fontSize:18, color:'var(--texto)', maxWidth:470, lineHeight:1.75, marginBottom:42, opacity:0 }}>
           {data.subtitle}
         </p>
 
         {/* CTAs */}
         <div ref={actRef} style={{ display:'flex', gap:14, flexWrap:'wrap', opacity:0 }}>
-          <a href="#descarga" className="btn btn-solid">⬇ {data.ctaPrimary}</a>
-          <a href="#flujo"    className="btn btn-outline">{data.ctaSecondary} →</a>
+          <a href="#descarga" className="btn btn-solid"><Icon name="download" size={18} strokeWidth={2} /> {data.ctaPrimary}</a>
+          <a href="#flujo"    className="btn btn-outline">{data.ctaSecondary} <Icon name="arrowRight" size={17} /></a>
         </div>
 
         {/* Stats */}
@@ -214,7 +215,8 @@ export default function HeroVersionB({ data }) {
       </div>
 
       {/* Mockup */}
-      <div ref={visualRef} className="hero-visual" style={{ position:'absolute', right:72, top:'50%', transform:'translateY(-50%)', width:470, opacity:0, zIndex:2 }}>
+      <div ref={visualRef} className="hero-visual cv-frame" style={{ position:'absolute', right:72, top:'50%', transform:'translateY(-50%)', width:470, opacity:0, zIndex:2 }}>
+        <CvCorners />
         <HeroMockup/>
       </div>
 

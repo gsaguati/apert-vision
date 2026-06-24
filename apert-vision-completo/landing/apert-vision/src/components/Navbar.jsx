@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useScrolled } from '../hooks/useScrolled'
+import Icon from './Icon'
 
 const LINKS = [
   ['#solucion',  'Funcionalidades'],
@@ -17,8 +18,10 @@ export default function Navbar() {
     <>
       <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
         {/* Logo */}
-        <a href="#hero" style={{ fontFamily:'var(--display)', fontWeight:800, fontSize:22, letterSpacing:3, color:'var(--blanco)', textDecoration:'none', display:'flex', alignItems:'center', gap:10, textTransform:'uppercase' }}>
-          <span style={{ width:28, height:28, background:'var(--verde)', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}>🏉</span>
+        <a href="#hero" style={{ fontFamily:'var(--display)', fontWeight:800, fontSize:21, letterSpacing:2, color:'var(--blanco)', textDecoration:'none', display:'flex', alignItems:'center', gap:10, textTransform:'uppercase' }}>
+          <span style={{ width:30, height:30, background:'var(--verde)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', color:'#04140b' }}>
+            <Icon name="scan" size={18} strokeWidth={2} />
+          </span>
           Apert<span style={{ color:'var(--verde)' }}>Vision</span>
         </a>
 
@@ -37,7 +40,8 @@ export default function Navbar() {
 
         {/* CTA + hamburguesa */}
         <div style={{ display:'flex', gap:10, alignItems:'center' }}>
-          <a href="#descarga" className="btn btn-solid" style={{ padding:'9px 22px', fontSize:13 }}>
+          <a href="#descarga" className="btn btn-solid" style={{ padding:'10px 20px', fontSize:13 }}>
+            <Icon name="download" size={15} strokeWidth={2} />
             Descargar
           </a>
           {/* Hamburguesa mobile */}

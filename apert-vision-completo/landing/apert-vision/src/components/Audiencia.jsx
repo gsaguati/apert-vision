@@ -1,20 +1,20 @@
 import { useInView } from '../hooks/useInView'
+import Icon from './Icon'
 
 function AudienceCard({ emoji, title, desc, items, delay, inView }) {
   return (
     <div
-      style={{ background:'var(--negro2)', border:'1px solid var(--gris2)', borderRadius:16, padding:'44px 34px', position:'relative', overflow:'hidden', transition:'border-color .3s, transform .3s', cursor:'default', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(30px)', transitionDelay:`${delay}ms, ${delay}ms` }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(0,230,118,.22)'; e.currentTarget.style.transform='translateY(-6px)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--gris2)'; e.currentTarget.style.transform='' }}
+      className="card"
+      style={{ padding:'40px 34px', position:'relative', cursor:'default', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(30px)', transition:'opacity .55s, transform .55s, border-color .3s, box-shadow .3s', transitionDelay:`${delay}ms` }}
     >
-      <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,var(--verde),transparent)' }}/>
-      <span style={{ fontSize:40, marginBottom:20, display:'block' }}>{emoji}</span>
-      <h3 style={{ fontFamily:'var(--display)', fontWeight:800, fontSize:28, textTransform:'uppercase', marginBottom:14 }}>{title}</h3>
-      <p style={{ fontSize:14, color:'var(--gris)', lineHeight:1.65, marginBottom:24 }}>{desc}</p>
-      <ul style={{ listStyle:'none', display:'flex', flexDirection:'column', gap:10 }}>
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,var(--verde),transparent)' }}/>
+      <div className="icon-box" style={{ width:54, height:54, marginBottom:22 }}><Icon name={emoji} size={26} /></div>
+      <h3 style={{ fontFamily:'var(--display)', fontWeight:800, fontSize:28, textTransform:'uppercase', marginBottom:14, color:'var(--blanco)', letterSpacing:.3 }}>{title}</h3>
+      <p style={{ fontSize:14.5, color:'var(--gris)', lineHeight:1.7, marginBottom:26 }}>{desc}</p>
+      <ul style={{ listStyle:'none', display:'flex', flexDirection:'column', gap:12 }}>
         {items.map((item, i) => (
-          <li key={i} style={{ fontSize:13, color:'var(--gris)', display:'flex', alignItems:'flex-start', gap:10 }}>
-            <span style={{ color:'var(--verde)', flexShrink:0, fontWeight:700 }}>→</span>{item}
+          <li key={i} style={{ fontSize:13.5, color:'var(--texto)', display:'flex', alignItems:'flex-start', gap:11, lineHeight:1.55 }}>
+            <Icon name="check" size={16} strokeWidth={2.2} style={{ color:'var(--verde)', flexShrink:0, marginTop:2 }} />{item}
           </li>
         ))}
       </ul>

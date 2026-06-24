@@ -1,15 +1,16 @@
 import { useInView } from '../hooks/useInView'
+import Icon from './Icon'
 
 function MetricaCard({ icon, name, desc, delay, inView }) {
   return (
     <div
-      style={{ background:'var(--negro2)', padding:'44px 32px', textAlign:'center', cursor:'default', transition:'background .3s', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(24px)', transitionDelay:`${delay}ms, ${delay}ms` }}
+      style={{ background:'var(--negro2)', padding:'46px 32px', textAlign:'center', cursor:'default', transition:'background .3s', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(24px)', transitionDelay:`${delay}ms` }}
       onMouseEnter={e => e.currentTarget.style.background='var(--negro3)'}
       onMouseLeave={e => e.currentTarget.style.background='var(--negro2)'}
     >
-      <div style={{ fontSize:34, marginBottom:16 }}>{icon}</div>
-      <div style={{ fontFamily:'var(--display)', fontWeight:900, fontSize:32, color:'var(--verde)', letterSpacing:1, textTransform:'uppercase', marginBottom:10 }}>{name}</div>
-      <div style={{ fontSize:13, color:'var(--gris)', lineHeight:1.6 }}>{desc}</div>
+      <div className="icon-box" style={{ width:56, height:56, margin:'0 auto 18px' }}><Icon name={icon} size={26} /></div>
+      <div style={{ fontFamily:'var(--display)', fontWeight:900, fontSize:32, color:'var(--blanco)', letterSpacing:1, textTransform:'uppercase', marginBottom:10 }}>{name}</div>
+      <div style={{ fontSize:13.5, color:'var(--gris)', lineHeight:1.65 }}>{desc}</div>
     </div>
   )
 }
@@ -17,15 +18,14 @@ function MetricaCard({ icon, name, desc, delay, inView }) {
 function FeatureCard({ num, title, desc, delay, inView }) {
   return (
     <div
-      style={{ background:'var(--negro2)', border:'1px solid var(--gris2)', borderRadius:14, padding:32, transition:'border-color .3s, transform .3s', cursor:'default', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(20px)', transitionDelay:`${delay}ms, ${delay}ms` }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(0,230,118,.22)'; e.currentTarget.style.transform='translateY(-4px)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--gris2)'; e.currentTarget.style.transform='' }}
+      className="card"
+      style={{ padding:32, cursor:'default', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(20px)', transition:'opacity .5s, transform .5s, border-color .3s, box-shadow .3s', transitionDelay:`${delay}ms` }}
     >
-      <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-        <span style={{ fontFamily:'var(--mono)', fontSize:11, color:'var(--verde)', background:'var(--verde-dim)', border:'1px solid rgba(0,230,118,.14)', padding:'3px 12px', borderRadius:100 }}>{num}</span>
-        <h3 style={{ fontFamily:'var(--display)', fontWeight:700, fontSize:18, textTransform:'uppercase' }}>{title}</h3>
+      <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
+        <span style={{ fontFamily:'var(--mono)', fontSize:12, fontWeight:600, color:'var(--verde)', background:'var(--verde-dim)', border:'1px solid rgba(0,230,118,.16)', padding:'4px 11px', borderRadius:8 }}>{num}</span>
+        <h3 style={{ fontFamily:'var(--display)', fontWeight:700, fontSize:19, textTransform:'uppercase', color:'var(--blanco)', letterSpacing:.3 }}>{title}</h3>
       </div>
-      <p style={{ fontSize:14, color:'var(--gris)', lineHeight:1.65 }}>{desc}</p>
+      <p style={{ fontSize:14.5, color:'var(--gris)', lineHeight:1.7 }}>{desc}</p>
     </div>
   )
 }
@@ -40,7 +40,7 @@ export default function Solucion({ data }) {
         <h2 className="display-lg" style={{ opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(20px)', transition:'opacity .6s, transform .6s' }}>
           {data.title}<br/><span className="green">{data.titleGreen}</span>
         </h2>
-        <p style={{ fontSize:17, color:'var(--gris)', lineHeight:1.75, marginTop:24 }}>{data.subtitle}</p>
+        <p style={{ fontSize:17, color:'var(--texto)', lineHeight:1.75, marginTop:24 }}>{data.subtitle}</p>
       </div>
 
       {/* Métricas */}

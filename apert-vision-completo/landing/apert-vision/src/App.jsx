@@ -21,7 +21,7 @@ function Toast({ message, visible }) {
 }
 
 export default function App() {
-  const [data, setData]           = useLocalStorage('apertVisionData', INITIAL_DATA)
+  const [data, setData]           = useLocalStorage('apertVisionData_v2', INITIAL_DATA)
   const [panelOpen, setPanelOpen] = useState(false)
   const [toast, setToast]         = useState({ visible: false, message: '' })
 

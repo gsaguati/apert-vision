@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Icon, { CvCorners } from './Icon'
 
 export default function Descarga({ data }) {
   const [hovWin, setHovWin] = useState(false)
@@ -15,13 +16,14 @@ export default function Descarga({ data }) {
         <h2 className="display-xl" style={{ marginBottom:8 }}>{data.title}</h2>
         <h2 className="display-xl green" style={{ marginBottom:32 }}>{data.titleGreen}</h2>
 
-        <p style={{ fontSize:17, color:'var(--gris)', lineHeight:1.75, marginBottom:52, maxWidth:560, margin:'0 auto 52px' }}>{data.desc}</p>
+        <p style={{ fontSize:17, color:'var(--texto)', lineHeight:1.75, marginBottom:52, maxWidth:560, margin:'0 auto 52px' }}>{data.desc}</p>
 
-        <div style={{ background:'var(--negro3)', border:'1px solid var(--gris2)', borderRadius:20, padding:56, position:'relative', overflow:'hidden' }}>
+        <div className="cv-frame" style={{ background:'var(--negro3)', border:'1px solid var(--gris2)', borderRadius:20, padding:56, position:'relative', overflow:'hidden' }}>
+          <CvCorners />
           <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,transparent,var(--verde),transparent)' }}/>
 
           <div style={{ fontFamily:'var(--mono)', fontSize:12, color:'var(--verde)', marginBottom:18, letterSpacing:1 }}>APERT VISION · {data.version}</div>
-          <div style={{ fontFamily:'var(--display)', fontWeight:800, fontSize:28, textTransform:'uppercase', marginBottom:8 }}>{data.appName}</div>
+          <div style={{ fontFamily:'var(--display)', fontWeight:800, fontSize:28, textTransform:'uppercase', marginBottom:8, color:'var(--blanco)' }}>{data.appName}</div>
           <div style={{ fontSize:13, color:'var(--gris)', marginBottom:36 }}>{data.meta}</div>
 
           <div style={{ display:'flex', justifyContent:'center', gap:14, flexWrap:'wrap', marginBottom:14 }}>
@@ -29,28 +31,28 @@ export default function Descarga({ data }) {
               className="btn btn-solid"
               onMouseEnter={() => setHovWin(true)}
               onMouseLeave={() => setHovWin(false)}
-              style={{ background: hovWin ? 'var(--verde2)' : 'var(--verde)', transform: hovWin ? 'translateY(-2px)' : 'none', boxShadow: hovWin ? '0 8px 28px var(--verde-glow)' : 'none' }}
-            >🪟 Windows 10 / 11</button>
+              style={{ background: hovWin ? 'var(--mint)' : 'var(--verde)', transform: hovWin ? 'translateY(-2px)' : 'none', boxShadow: hovWin ? '0 8px 28px var(--verde-glow)' : 'none' }}
+            ><Icon name="windows" size={18} strokeWidth={1.4} /> Windows 10 / 11</button>
             <button
               className="btn btn-solid"
               onMouseEnter={() => setHovApk(true)}
               onMouseLeave={() => setHovApk(false)}
-              style={{ background: hovApk ? 'var(--verde2)' : 'var(--verde)', transform: hovApk ? 'translateY(-2px)' : 'none', boxShadow: hovApk ? '0 8px 28px var(--verde-glow)' : 'none' }}
-            >🤖 Descargar APK</button>
+              style={{ background: hovApk ? 'var(--mint)' : 'var(--verde)', transform: hovApk ? 'translateY(-2px)' : 'none', boxShadow: hovApk ? '0 8px 28px var(--verde-glow)' : 'none' }}
+            ><Icon name="android" size={18} strokeWidth={1.6} /> Descargar APK</button>
           </div>
 
           <div style={{ display:'flex', justifyContent:'center', gap:14, flexWrap:'wrap', marginBottom:28 }}>
-            {['🍎 macOS — Próximamente','🐧 Linux — Próximamente'].map((l,i)=>(
-              <button key={i} className="btn" style={{ background:'transparent', color:'var(--gris)', border:'1.5px solid var(--gris2)', cursor:'not-allowed', opacity:.5 }}>{l}</button>
+            {[['apple','macOS — Próximamente'],['linux','Linux — Próximamente']].map(([ic,l],i)=>(
+              <button key={i} className="btn" style={{ background:'transparent', color:'var(--gris)', border:'1px solid var(--gris2)', cursor:'not-allowed', opacity:.5 }}><Icon name={ic} size={17} strokeWidth={1.5} /> {l}</button>
             ))}
           </div>
 
           <div style={{ fontSize:12, color:'var(--gris)', marginBottom:24 }}>Mobile compatible con Android 8.0 o superior · Desktop requiere Windows 10/11 64-bit.</div>
 
-          <div style={{ display:'flex', justifyContent:'center', gap:24, flexWrap:'wrap', paddingTop:24, borderTop:'1px solid var(--gris2)' }}>
+          <div style={{ display:'flex', justifyContent:'center', gap:'12px 24px', flexWrap:'wrap', paddingTop:24, borderTop:'1px solid var(--gris2)' }}>
             {data.reqs.map((r,i)=>(
-              <div key={i} style={{ fontSize:12, color:'var(--gris)', display:'flex', alignItems:'center', gap:6 }}>
-                <span style={{ color:'var(--verde)' }}>✓</span>{r}
+              <div key={i} style={{ fontSize:12, color:'var(--gris)', display:'flex', alignItems:'center', gap:7 }}>
+                <Icon name="check" size={14} strokeWidth={2.2} style={{ color:'var(--verde)', flexShrink:0 }} />{r}
               </div>
             ))}
           </div>

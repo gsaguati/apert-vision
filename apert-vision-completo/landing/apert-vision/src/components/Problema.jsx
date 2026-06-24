@@ -2,20 +2,20 @@ import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useInView } from '../hooks/useInView'
+import Icon from './Icon'
 
 gsap.registerPlugin(ScrollTrigger)
 
 function ProblemaCard({ icon, title, desc, delay, inView }) {
   return (
     <div
-      style={{ background:'var(--negro3)', border:'1px solid var(--gris2)', borderRadius:12, padding:28, display:'flex', gap:20, alignItems:'flex-start', transition:'border-color .3s, transform .3s', cursor:'default', opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(20px)', transitionDelay:`${delay}ms, ${delay}ms` }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(0,230,118,.25)'; e.currentTarget.style.transform='translateY(-3px)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--gris2)'; e.currentTarget.style.transform='' }}
+      className="card"
+      style={{ padding:28, display:'flex', gap:20, alignItems:'flex-start', cursor:'default', opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(20px)', transition:'opacity .5s, transform .5s, border-color .3s, box-shadow .3s', transitionDelay:`${delay}ms` }}
     >
-      <div style={{ width:48, height:48, background:'var(--verde-dim)', border:'1px solid rgba(0,230,118,.12)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>{icon}</div>
+      <div className="icon-box" style={{ width:48, height:48 }}><Icon name={icon} size={22} /></div>
       <div>
-        <h3 style={{ fontFamily:'var(--display)', fontWeight:700, fontSize:20, textTransform:'uppercase', marginBottom:8 }}>{title}</h3>
-        <p style={{ fontSize:14, color:'var(--gris)', lineHeight:1.65 }}>{desc}</p>
+        <h3 style={{ fontFamily:'var(--display)', fontWeight:700, fontSize:21, textTransform:'uppercase', marginBottom:8, color:'var(--blanco)', letterSpacing:.3 }}>{title}</h3>
+        <p style={{ fontSize:14.5, color:'var(--gris)', lineHeight:1.7 }}>{desc}</p>
       </div>
     </div>
   )
