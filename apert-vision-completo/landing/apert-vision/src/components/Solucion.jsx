@@ -1,13 +1,21 @@
+import { Target, Layers, Rocket } from 'lucide-react'
 import { useInView } from '../hooks/useInView'
 
+const METRIC_ICONS = { target: Target, layers: Layers, rocket: Rocket }
+
 function MetricaCard({ icon, name, desc, delay, inView }) {
+  const Icon = METRIC_ICONS[icon] || Target
   return (
     <div
       style={{ background:'var(--negro2)', padding:'44px 32px', textAlign:'center', cursor:'default', transition:'background .3s', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(24px)', transitionDelay:`${delay}ms, ${delay}ms` }}
       onMouseEnter={e => e.currentTarget.style.background='var(--negro3)'}
       onMouseLeave={e => e.currentTarget.style.background='var(--negro2)'}
     >
-      <div style={{ fontSize:34, marginBottom:16 }}>{icon}</div>
+      <div style={{ display:'flex', justifyContent:'center', marginBottom:16 }}>
+        <div style={{ width:64, height:64, borderRadius:16, background:'var(--verde-dim)', border:'1px solid rgba(0,230,118,.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon size={28} color="var(--verde)" strokeWidth={2} />
+        </div>
+      </div>
       <div style={{ fontFamily:'var(--display)', fontWeight:900, fontSize:32, color:'var(--verde)', letterSpacing:1, textTransform:'uppercase', marginBottom:10 }}>{name}</div>
       <div style={{ fontSize:13, color:'var(--gris)', lineHeight:1.6 }}>{desc}</div>
     </div>

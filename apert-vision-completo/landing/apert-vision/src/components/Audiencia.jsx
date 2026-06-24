@@ -1,14 +1,20 @@
+import { Trophy, Activity, Building2 } from 'lucide-react'
 import { useInView } from '../hooks/useInView'
 
+const AUDIENCE_ICONS = { trophy: Trophy, activity: Activity, building: Building2 }
+
 function AudienceCard({ emoji, title, desc, items, delay, inView }) {
+  const Icon = AUDIENCE_ICONS[emoji] || Trophy
   return (
     <div
-      style={{ background:'var(--negro2)', border:'1px solid var(--gris2)', borderRadius:16, padding:'44px 34px', position:'relative', overflow:'hidden', transition:'border-color .3s, transform .3s', cursor:'default', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(30px)', transitionDelay:`${delay}ms, ${delay}ms` }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(0,230,118,.22)'; e.currentTarget.style.transform='translateY(-6px)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--gris2)'; e.currentTarget.style.transform='' }}
+      style={{ background:'var(--negro2)', border:'1px solid var(--gris2)', borderRadius:16, padding:'44px 34px', position:'relative', overflow:'hidden', transition:'border-color .3s, transform .3s, box-shadow .3s', cursor:'default', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(30px)', transitionDelay:`${delay}ms, ${delay}ms` }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(0,230,118,.22)'; e.currentTarget.style.transform='translateY(-6px)'; e.currentTarget.style.boxShadow='var(--shadow-lg)' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--gris2)'; e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='none' }}
     >
       <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,var(--verde),transparent)' }}/>
-      <span style={{ fontSize:40, marginBottom:20, display:'block' }}>{emoji}</span>
+      <div style={{ width:68, height:68, borderRadius:16, background:'var(--verde-dim)', border:'1px solid rgba(0,230,118,.2)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:20 }}>
+        <Icon size={32} color="var(--verde)" strokeWidth={2} />
+      </div>
       <h3 style={{ fontFamily:'var(--display)', fontWeight:800, fontSize:28, textTransform:'uppercase', marginBottom:14 }}>{title}</h3>
       <p style={{ fontSize:14, color:'var(--gris)', lineHeight:1.65, marginBottom:24 }}>{desc}</p>
       <ul style={{ listStyle:'none', display:'flex', flexDirection:'column', gap:10 }}>

@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+/* Fira Sans (body, mood: data/analytics/precise) + Barlow Condensed (display, mantenido por personalidad) + Fira Code (números, mono) */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Fira+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap');
 
 :root {
   --negro:     #040506;
@@ -14,10 +15,28 @@
   --gris:      #6a8070;
   --gris2:     #1a2218;
   --gris3:     #283226;
-  --display:   'Barlow Condensed', sans-serif;
-  --body:      'Barlow', sans-serif;
-  --mono:      'JetBrains Mono', monospace;
+
+  /* Tipografía — Fira Sans para body (mood data/analytics), Barlow Condensed para titulares grandes */
+  --display:   'Barlow Condensed', 'Fira Sans', sans-serif;
+  --body:      'Fira Sans', system-ui, -apple-system, sans-serif;
+  --mono:      'Fira Code', 'JetBrains Mono', monospace;
+
   --section-pad: 130px 72px;
+
+  /* Spacing tokens (UI/UX Pro Max) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* Shadows (dark mode adapted) */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.6);
+  --shadow-glow: 0 0 24px var(--verde-glow);
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -56,6 +75,19 @@ body{background:var(--negro);color:var(--blanco);font-family:var(--body);font-si
 .btn-solid:hover{background:var(--verde2);transform:translateY(-2px);box-shadow:0 8px 28px var(--verde-glow)}
 .btn-outline{background:transparent;color:var(--blanco);border:1.5px solid rgba(240,244,240,.22)}
 .btn-outline:hover{border-color:var(--verde);color:var(--verde);transform:translateY(-2px)}
+.btn:focus-visible{outline:2px solid var(--verde);outline-offset:3px}
+.btn:active{transform:translateY(0)}
+
+/* Accesibilidad — Focus visible global */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--verde);outline-offset:2px;border-radius:4px}
+
+/* Respeta prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+}
+
+/* Tabular nums para números */
+.tabular{font-variant-numeric:tabular-nums}
 
 /* SECTION TAG */
 .section-tag{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;color:var(--verde);letter-spacing:2px;text-transform:uppercase;margin-bottom:22px}

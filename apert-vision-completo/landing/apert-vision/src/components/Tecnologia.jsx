@@ -1,13 +1,21 @@
+import { Brain, Video, Code, Zap, Smartphone, Cloud } from 'lucide-react'
 import { useInView } from '../hooks/useInView'
 
+const TECH_ICONS = { brain: Brain, video: Video, code: Code, zap: Zap, smartphone: Smartphone, cloud: Cloud }
+
 function TechCard({ icon, name, role, delay, inView }) {
+  const Icon = TECH_ICONS[icon] || Code
   return (
     <div
-      style={{ background:'var(--negro3)', border:'1px solid var(--gris2)', borderRadius:12, padding:'28px 18px', textAlign:'center', transition:'border-color .3s, transform .3s', cursor:'default', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(20px)', transitionDelay:`${delay}ms, ${delay}ms` }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(0,230,118,.3)'; e.currentTarget.style.transform='translateY(-4px)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--gris2)'; e.currentTarget.style.transform='' }}
+      style={{ background:'var(--negro3)', border:'1px solid var(--gris2)', borderRadius:12, padding:'28px 18px', textAlign:'center', transition:'border-color .3s, transform .3s, box-shadow .3s', cursor:'default', opacity: inView?1:0, transform: inView?'translateY(0)':'translateY(20px)', transitionDelay:`${delay}ms, ${delay}ms` }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(0,230,118,.3)'; e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='var(--shadow-md)' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor='var(--gris2)'; e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='none' }}
     >
-      <div style={{ fontSize:30, marginBottom:12 }}>{icon}</div>
+      <div style={{ display:'flex', justifyContent:'center', marginBottom:12 }}>
+        <div style={{ width:52, height:52, borderRadius:12, background:'var(--verde-dim)', border:'1px solid rgba(0,230,118,.18)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon size={24} color="var(--verde)" strokeWidth={2} />
+        </div>
+      </div>
       <div style={{ fontFamily:'var(--display)', fontWeight:700, fontSize:18, textTransform:'uppercase', marginBottom:4 }}>{name}</div>
       <div style={{ fontSize:11, color:'var(--gris)', fontFamily:'var(--mono)' }}>{role}</div>
     </div>
