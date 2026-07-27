@@ -70,8 +70,11 @@ fun MatchesScreen(
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             when {
                 loading && matches.isEmpty() -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Primary)
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        repeat(4) { SkeletonMatchCard() }
                     }
                 }
                 error != null && matches.isEmpty() -> {
@@ -112,8 +115,21 @@ private fun EmptyState() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("🏉", fontSize = 56.sp)
-        Spacer(Modifier.height(16.dp))
+        Box(
+            modifier = Modifier
+                .size(72.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Primary.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                Icons.Default.Sports,
+                contentDescription = null,
+                tint = Primary,
+                modifier = Modifier.size(36.dp),
+            )
+        }
+        Spacer(Modifier.height(20.dp))
         Text("Todavía no hay partidos", color = OnBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Text("Cuando tu entrenador suba un partido analizado, aparece acá.",
@@ -199,6 +215,67 @@ private fun LocalVisitanteBadge(esLocal: Boolean) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(9.dp))
         Spacer(Modifier.width(3.dp))
         Text(label, color = color, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun SkeletonMatchCard() {
+    val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "shimmer")
+    val alpha by transition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 0.7f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(900, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+        label = "shimmer-alpha",
+    )
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Surface,
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, Border),
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Muted.copy(alpha = alpha * 0.4f)),
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f)
+                        .height(14.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Muted.copy(alpha = alpha * 0.4f)),
+                )
+                Spacer(Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.4f)
+                        .height(10.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Muted.copy(alpha = alpha * 0.3f)),
+                )
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    repeat(2) {
+                        Box(
+                            modifier = Modifier
+                                .size(width = 48.dp, height = 16.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Muted.copy(alpha = alpha * 0.3f)),
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

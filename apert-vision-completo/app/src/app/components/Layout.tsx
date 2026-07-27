@@ -145,7 +145,8 @@ export default function Layout() {
               <div className="text-sm truncate" style={{ fontWeight: 500, color: "var(--foreground)" }}>{miembro.nombre}</div>
               <div style={{ fontSize: 11, color: "var(--muted-foreground)", textTransform: "capitalize" }}>{miembro.rol}</div>
             </div>
-            <button onClick={handleLogout} title="Cerrar sesión" style={{ background: "none", border: "none", cursor: "pointer", padding: 4, borderRadius: 6 }}>
+            <button onClick={handleLogout} title="Cerrar sesión" aria-label="Cerrar sesión"
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <LogOut size={14} style={{ color: "var(--muted-foreground)" }} />
             </button>
           </div>

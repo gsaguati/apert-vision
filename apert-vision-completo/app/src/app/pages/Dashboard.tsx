@@ -122,9 +122,11 @@ export default function Dashboard() {
                   <Video size={16} style={{ color }} />
                 </div>
               </div>
-              <div className="text-foreground font-mono mb-0.5" style={{ fontSize: 24, fontWeight: 700 }}>
-                {loading ? "—" : value}
-              </div>
+              {loading ? (
+                <div className="mb-1.5" style={{ height: 28, width: 60, background: "linear-gradient(90deg, var(--secondary) 0%, var(--accent) 50%, var(--secondary) 100%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s ease-in-out infinite", borderRadius: 6 }} />
+              ) : (
+                <div className="text-foreground font-mono mb-0.5 tabular" style={{ fontSize: 24, fontWeight: 700 }}>{value}</div>
+              )}
               <div style={{ fontSize: 12, color: "var(--muted-foreground)" }}>{label}</div>
             </div>
           ))}
@@ -183,10 +185,18 @@ export default function Dashboard() {
 
             <div className="space-y-2">
               {loading && (
-                <div className="p-4 rounded-xl border text-center"
-                  style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
-                  <p style={{ fontSize: 12, color: "var(--muted-foreground)" }}>Cargando...</p>
-                </div>
+                <>
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className="flex items-center gap-4 p-3 rounded-xl border"
+                      style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(90deg, var(--secondary) 0%, var(--accent) 50%, var(--secondary) 100%)", backgroundSize: "200% 100%", animation: `shimmer 1.5s ease-in-out ${i * 0.15}s infinite` }} />
+                      <div className="flex-1 space-y-2">
+                        <div style={{ height: 12, width: "70%", borderRadius: 4, background: "linear-gradient(90deg, var(--secondary) 0%, var(--accent) 50%, var(--secondary) 100%)", backgroundSize: "200% 100%", animation: `shimmer 1.5s ease-in-out ${i * 0.15}s infinite` }} />
+                        <div style={{ height: 10, width: "45%", borderRadius: 4, background: "linear-gradient(90deg, var(--secondary) 0%, var(--accent) 50%, var(--secondary) 100%)", backgroundSize: "200% 100%", animation: `shimmer 1.5s ease-in-out ${i * 0.15}s infinite` }} />
+                      </div>
+                    </div>
+                  ))}
+                </>
               )}
 
               {!loading && matches.length === 0 && (

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Target, BarChart3, Film, Lock } from "lucide-react"
 import { supabase } from "../lib/supabase"
 
 export default function Login() {
@@ -54,18 +54,21 @@ export default function Login() {
 
         <div className="space-y-4">
           {[
-            ["🏉", "Detección automática de Line-Outs, Scrums y Salidas"],
-            ["📊", "Dashboard de posesión y estadísticas por partido"],
-            ["🎬", "Clips automáticos de cada formación detectada"],
-            ["🔒", "Procesamiento 100% local — tu video no sale del equipo"],
-          ].map(([icon, text]) => (
+            { Icon: Target,     text: "Detección automática de Line-Outs, Scrums y Salidas" },
+            { Icon: BarChart3,  text: "Dashboard de posesión y estadísticas por partido" },
+            { Icon: Film,       text: "Clips automáticos de cada formación detectada" },
+            { Icon: Lock,       text: "Procesamiento 100% local — tu video no sale del equipo" },
+          ].map(({ Icon, text }) => (
             <div key={text} className="flex items-start gap-3">
-              <span style={{ fontSize: 16, lineHeight: 1 }}>{icon}</span>
-              <span style={{ fontSize: 13, color: "var(--muted-foreground)", lineHeight: 1.5 }}>{text}</span>
+              <div className="flex items-center justify-center shrink-0"
+                style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: "rgba(57,224,122,0.1)", border: "1px solid rgba(57,224,122,0.18)" }}>
+                <Icon size={14} style={{ color: "var(--primary)" }} strokeWidth={2} />
+              </div>
+              <span style={{ fontSize: 13, color: "var(--muted-foreground)", lineHeight: 1.5, paddingTop: 5 }}>{text}</span>
             </div>
           ))}
-          <div className="pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 11, color: "var(--muted-foreground)" }}>
-            v0.2.0-MVP · BETA · Da Vinci 2025
+          <div className="pt-4 font-mono" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 11, color: "var(--muted-foreground)", letterSpacing: "0.02em" }}>
+            v1.0.0 · Estable · Da Vinci 2025
           </div>
         </div>
       </div>
@@ -114,6 +117,7 @@ export default function Login() {
                   onFocus={e => e.target.style.borderColor = "var(--primary)"}
                   onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.07)"} />
                 <button type="button" onClick={() => setShowPass(!showPass)}
+                  aria-label={showPass ? "Ocultar contraseña" : "Mostrar contraseña"}
                   style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 4 }}>
                   {showPass
                     ? <EyeOff size={15} style={{ color: "var(--muted-foreground)" }} />
