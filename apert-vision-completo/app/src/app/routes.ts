@@ -9,6 +9,7 @@ import Matches   from "./pages/Matches";
 import MatchDetail from "./pages/MatchDetail";
 import Stats     from "./pages/Stats";
 import Settings  from "./pages/Settings";
+import Creditos  from "./pages/Creditos";
 
 export const router = createBrowserRouter([
   { path: "/login",  Component: Login  },
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
       { path: "matches",      Component: Matches     },
       { path: "matches/:id",  Component: MatchDetail },
       { path: "stats",    Component: Stats     },
+      { path: "creditos", Component: Creditos  },
       { path: "settings", Component: Settings  },
     ],
   },

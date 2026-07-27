@@ -191,8 +191,13 @@ ipcMain.handle('stop-analysis', () => {
 })
 
 // ── IPC: Utilidades ───────────────────────────────────────────────────────────
-ipcMain.handle('open-external', async (_, filePath) => {
-  await shell.openPath(filePath)
+ipcMain.handle('open-external', async (_, target) => {
+  // Si es URL (http/https) → navegador. Si no → archivo/carpeta local.
+  if (/^https?:\/\//i.test(target)) {
+    await shell.openExternal(target)
+  } else {
+    await shell.openPath(target)
+  }
 })
 
 ipcMain.handle('read-file', async (_, filePath) => {

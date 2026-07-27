@@ -67,6 +67,58 @@ export interface Clip {
   url_storage: string
 }
 
+// ─── Créditos & Mercado Pago ───────────────────────────────────
+export interface PlanCreditos {
+  id:         string
+  nombre:     string
+  creditos:   number
+  precio_usd: number
+  precio_ars: number
+  destacado:  boolean
+  orden:      number
+}
+
+export type TipoMovimiento = "bienvenida" | "compra" | "consumo" | "ajuste"
+
+export interface CreditoMovimiento {
+  id:            string
+  club_id:       string
+  tipo:          TipoMovimiento
+  cantidad:      number
+  descripcion:   string | null
+  plan_id:       string | null
+  mp_payment_id: string | null
+  mp_status:     string | null
+  monto_ars:     number | null
+  monto_usd:     number | null
+  partido_id:    string | null
+  creado_por:    string | null
+  created_at:    string
+}
+
+export interface SaldoCreditos {
+  club_id:              string
+  club_nombre:          string
+  saldo:                number
+  partidos_consumidos:  number
+  compras_realizadas:   number
+}
+
+export async function getSaldoCreditos(clubId: string): Promise<number> {
+  const { data, error } = await supabase.rpc("saldo_del_club", { p_club_id: clubId })
+  if (error) { console.error(error); return 0 }
+  return data ?? 0
+}
+
+export async function consumirCredito(clubId: string, partidoId: string | null = null) {
+  const { data, error } = await supabase.rpc("consumir_credito", {
+    p_club_id: clubId,
+    p_partido_id: partidoId,
+  })
+  if (error) throw error
+  return data?.[0] ?? { nuevo_saldo: 0, movimiento_id: null }
+}
+
 // ─── Helpers ───────────────────────────────────────────────────
 export async function getCurrentMiembro(): Promise<Miembro | null> {
   const { data: { user } } = await supabase.auth.getUser()

@@ -7,11 +7,13 @@ import {
 import {
   Play, Pause, Download, Zap, Upload, Home, Plane,
   FolderOpen, CheckCircle2, AlertCircle, Square, Cloud, CloudOff, RefreshCw,
+  CreditCard, X,
 } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { useAnalysis } from "../context/AnalysisContext"
 import type { MatchInfo } from "../context/AnalysisContext"
 import { useAuth } from "../context/AuthContext"
+import { supabase, getSaldoCreditos, consumirCredito } from "../lib/supabase"
 import jsPDF from "jspdf"
 
 const typeColor: Record<string, string> = {
@@ -236,6 +238,64 @@ function GPUBadge() {
   )
 }
 
+// ── Modal Sin Créditos ─────────────────────────────────────────────────────
+function NoCreditsModal({ onCancel, onComprar }: { onCancel: () => void; onComprar: () => void }) {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50"
+      style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+      onClick={onCancel}>
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+        className="rounded-2xl border p-6 w-full max-w-md"
+        style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}
+        onClick={e => e.stopPropagation()}>
+        <div className="flex items-start gap-4 mb-4">
+          <div className="flex items-center justify-center shrink-0"
+            style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: "rgba(245,158,11,0.12)" }}>
+            <CreditCard size={22} style={{ color: "#f59e0b" }} />
+          </div>
+          <div className="flex-1">
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--foreground)", marginBottom: 4 }}>
+              Sin créditos disponibles
+            </h3>
+            <p style={{ fontSize: 13, color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+              Necesitás al menos 1 crédito para analizar un partido. Comprá un plan y volvé a intentarlo.
+            </p>
+          </div>
+          <button onClick={onCancel} aria-label="Cerrar"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "var(--muted-foreground)" }}>
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="rounded-lg border p-3 mb-5"
+          style={{ backgroundColor: "var(--secondary)", borderColor: "rgba(255,255,255,0.06)" }}>
+          <div style={{ fontSize: 11, color: "var(--muted-foreground)", marginBottom: 6 }}>Planes disponibles</div>
+          <div className="space-y-1.5" style={{ fontSize: 12 }}>
+            <div className="flex justify-between"><span style={{ color: "var(--foreground)" }}>1 partido</span><span className="font-mono tabular" style={{ color: "var(--primary)" }}>US$ 8</span></div>
+            <div className="flex justify-between"><span style={{ color: "var(--foreground)" }}>10 partidos</span><span className="font-mono tabular" style={{ color: "var(--primary)" }}>US$ 64</span></div>
+            <div className="flex justify-between"><span style={{ color: "var(--foreground)" }}>26 partidos</span><span className="font-mono tabular" style={{ color: "var(--primary)" }}>US$ 164</span></div>
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <button onClick={onCancel}
+            style={{ flex: 1, height: 42, borderRadius: 8, fontSize: 13,
+              backgroundColor: "var(--secondary)", color: "var(--muted-foreground)",
+              border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }}>
+            Cancelar
+          </button>
+          <button onClick={onComprar} className="flex items-center justify-center gap-2"
+            style={{ flex: 2, height: 42, borderRadius: 8, fontSize: 13, fontWeight: 600,
+              backgroundColor: "var(--primary)", color: "var(--primary-foreground)",
+              border: "none", cursor: "pointer" }}>
+            <CreditCard size={14} /> Comprar créditos
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
 // ── Banner de upload ───────────────────────────────────────────────────────
 function UploadBanner() {
   const { uploadPhase, uploadProgress, uploadPhaseLabel, uploadError, saveToCloud } = useAnalysis()
@@ -290,7 +350,35 @@ export default function Analysis() {
   const analysis  = useAnalysis()
   const { club } = useAuth()
 
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal]         = useState(false)
+  const [showNoCredits, setShowNoCredits] = useState(false)
+  const [saldo, setSaldo]                 = useState<number | null>(null)
+  const consumedRef = useRef<string | null>(null)  // partido_id ya consumido
+
+  // Cargar saldo + suscripción realtime
+  useEffect(() => {
+    if (!club?.id) return
+    getSaldoCreditos(club.id).then(setSaldo)
+    const ch = supabase
+      .channel(`saldo-analysis-${club.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "creditos_movimientos", filter: `club_id=eq.${club.id}` },
+        () => getSaldoCreditos(club.id).then(setSaldo),
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(ch) }
+  }, [club?.id])
+
+  // Consumir crédito al terminar exitoso — usa el partidoId ya creado por saveToCloud
+  useEffect(() => {
+    if (analysis.phase !== "done" || !club?.id || !analysis.partidoId) return
+    if (consumedRef.current === analysis.partidoId) return
+    consumedRef.current = analysis.partidoId
+    consumirCredito(club.id, analysis.partidoId).catch(err => {
+      console.warn("No se pudo consumir el crédito:", err.message)
+    })
+  }, [analysis.phase, analysis.partidoId, club?.id])
 
   const navVideoPath: string = location.state?.videoPath || ""
   useEffect(() => {
@@ -335,6 +423,16 @@ export default function Analysis() {
   }
 
   const clearVideo = () => analysis.clearAnalysis()
+
+  const handleOpenAnalysisModal = async () => {
+    // Verificar saldo antes de mostrar el modal de datos
+    if (club?.id) {
+      const s = await getSaldoCreditos(club.id)
+      setSaldo(s)
+      if (s < 1) { setShowNoCredits(true); return }
+    }
+    setShowModal(true)
+  }
 
   const handleStart = async (info: MatchInfo) => {
     let conf = 0.45
@@ -454,6 +552,7 @@ export default function Analysis() {
   if (!videoPath && analysis.phase === "idle") {
     return (
       <div className="flex flex-col h-full" onDragOver={handleDragOver} onDrop={handleDrop}>
+        <AnimatePresence>{showNoCredits && <NoCreditsModal onCancel={() => setShowNoCredits(false)} onComprar={() => { setShowNoCredits(false); navigate("/creditos") }} />}</AnimatePresence>
         <TopBar title="Análisis">
           <BtnPrimary onClick={pickVideo}><Upload size={14} /> Cargar video</BtnPrimary>
         </TopBar>
@@ -478,11 +577,14 @@ export default function Analysis() {
   if (analysis.phase === "idle") {
     return (
       <div className="flex flex-col h-full" onDragOver={handleDragOver} onDrop={handleDrop}>
-        <AnimatePresence>{showModal && <MatchModal onConfirm={handleStart} onCancel={() => setShowModal(false)} />}</AnimatePresence>
+        <AnimatePresence>
+          {showModal && <MatchModal onConfirm={handleStart} onCancel={() => setShowModal(false)} />}
+          {showNoCredits && <NoCreditsModal onCancel={() => setShowNoCredits(false)} onComprar={() => { setShowNoCredits(false); navigate("/creditos") }} />}
+        </AnimatePresence>
         <TopBar title="Análisis" subtitle={videoName}>
           <BtnSecondary onClick={clearVideo}>✕ Quitar video</BtnSecondary>
           <BtnSecondary onClick={pickVideo}>Cambiar video</BtnSecondary>
-          <BtnPrimary onClick={() => setShowModal(true)}><Play size={13} /> Iniciar análisis</BtnPrimary>
+          <BtnPrimary onClick={handleOpenAnalysisModal}><Play size={13} /> Iniciar análisis</BtnPrimary>
         </TopBar>
         <div className="flex-1 overflow-auto p-6">
           <div className="max-w-2xl mx-auto mt-8">
@@ -523,7 +625,7 @@ export default function Analysis() {
                   </div>
                 )}
                 <div className="flex justify-center">
-                  <BtnPrimary onClick={() => setShowModal(true)}>Iniciar análisis →</BtnPrimary>
+                  <BtnPrimary onClick={handleOpenAnalysisModal}>Iniciar análisis →</BtnPrimary>
                 </div>
               </div>
             </div>

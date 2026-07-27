@@ -1,10 +1,12 @@
+import { useEffect, useState } from "react"
 import { NavLink, Outlet, useNavigate, Navigate } from "react-router"
 import {
   LayoutDashboard, Video, Users,
-  Calendar, BarChart2, Settings, LogOut, Eye,
+  Calendar, BarChart2, Settings, LogOut, Eye, Zap,
 } from "lucide-react"
 import { useAnalysis } from "../context/AnalysisContext"
 import { useAuth } from "../context/AuthContext"
+import { supabase, getSaldoCreditos } from "../lib/supabase"
 
 const navItems = [
   { to: "/",         icon: LayoutDashboard, label: "Dashboard"     },
@@ -12,6 +14,7 @@ const navItems = [
   { to: "/matches",  icon: Calendar,        label: "Partidos"      },
   { to: "/players",  icon: Users,           label: "Jugadores"     },
   { to: "/stats",    icon: BarChart2,       label: "Estadísticas"  },
+  { to: "/creditos", icon: Zap,             label: "Créditos"      },
   { to: "/settings", icon: Settings,        label: "Configuración" },
 ]
 
@@ -20,6 +23,22 @@ export default function Layout() {
   const { session, miembro, club, loading, signOut } = useAuth()
   const { phase, progress } = useAnalysis()
   const isAnalyzing = phase === "analyzing"
+
+  const [saldo, setSaldo] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!club?.id) { setSaldo(null); return }
+    getSaldoCreditos(club.id).then(setSaldo)
+    const ch = supabase
+      .channel(`saldo-layout-${club.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "creditos_movimientos", filter: `club_id=eq.${club.id}` },
+        () => getSaldoCreditos(club.id).then(setSaldo),
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(ch) }
+  }, [club?.id])
 
   // Mientras se valida la sesión, evitamos parpadeos
   if (loading) {
@@ -81,11 +100,25 @@ export default function Layout() {
           </div>
         </div>
 
-        {/* Club badge */}
+        {/* Club badge + créditos */}
         <div className="px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: "var(--sidebar-accent)" }}>
-            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "var(--primary)" }} />
-            <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>{club?.nombre ?? "Mi Club"}</span>
+          <div className="flex flex-col gap-1.5 px-3 py-2.5 rounded-lg" style={{ backgroundColor: "var(--sidebar-accent)" }}>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "var(--primary)" }} />
+              <span className="truncate" style={{ fontSize: 12, color: "var(--muted-foreground)" }}>{club?.nombre ?? "Mi Club"}</span>
+            </div>
+            <NavLink to="/creditos"
+              className="flex items-center gap-1.5"
+              style={{ textDecoration: "none", cursor: "pointer" }}
+              title="Ver créditos">
+              <Zap size={11} style={{ color: "var(--primary)" }} strokeWidth={2.5} />
+              <span className="font-mono tabular" style={{ fontSize: 11, fontWeight: 600, color: "var(--primary)" }}>
+                {saldo ?? "—"}
+              </span>
+              <span style={{ fontSize: 10, color: "var(--muted-foreground)" }}>
+                crédito{saldo === 1 ? "" : "s"}
+              </span>
+            </NavLink>
           </div>
         </div>
 
