@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
-import { Search, Trash2, ChevronUp, ChevronDown, Users, Copy, Check, RefreshCw, Share2 } from "lucide-react"
+import { Search, Trash2, ChevronUp, ChevronDown, Users, Copy, Check, RefreshCw, Share2, Shield, Zap, X, TrendingUp } from "lucide-react"
 import { supabase, Miembro } from "../lib/supabase"
 import { useAuth } from "../context/AuthContext"
+import { getPlayerStats } from "../lib/playerStats"
 
 const POSITIONS = ["Todos","Pilier","Hooker","Lock","Flanker","Nº 8","Medio Scrum","Apertura","Wing","Centro","Fullback"]
 const AVATAR_COLORS = ["#39e07a","#3b82f6","#f59e0b","#a855f7","#ef4444","#06b6d4","#ec4899","#14b8a6"]
@@ -25,6 +26,7 @@ export default function Players() {
   const [sort, setSort]         = useState<{ key: string; dir: "asc" | "desc" }>({ key: "dorsal", dir: "asc" })
   const [copied, setCopied]     = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const [selectedPlayer, setSelectedPlayer] = useState<Miembro | null>(null)
 
   const loadPlayers = async () => {
     setRefreshing(true)
@@ -50,7 +52,17 @@ export default function Players() {
     })
     .sort((a, b) => {
       const v = sort.dir === "asc" ? 1 : -1
-      const av = (a as any)[sort.key]; const bv = (b as any)[sort.key]
+      let av: any, bv: any
+      if (sort.key === "tackles") {
+        av = getPlayerStats(a.id, a.posicion).tacklesEfectivos
+        bv = getPlayerStats(b.id, b.posicion).tacklesEfectivos
+      } else if (sort.key === "metros") {
+        av = getPlayerStats(a.id, a.posicion).metrosGanados
+        bv = getPlayerStats(b.id, b.posicion).metrosGanados
+      } else {
+        av = (a as any)[sort.key]
+        bv = (b as any)[sort.key]
+      }
       if (av == null) return 1
       if (bv == null) return -1
       return av > bv ? v : -v
@@ -174,7 +186,7 @@ export default function Players() {
               <table className="w-full">
                 <thead>
                   <tr style={{ backgroundColor: "var(--secondary)" }}>
-                    {[["#","dorsal"],["Jugador","nombre"],["Posición","posicion"],["Edad","edad"]].map(([label, key]) => (
+                    {[["#","dorsal"],["Jugador","nombre"],["Posición","posicion"],["Edad","edad"],["Tackles ef.","tackles"],["Metros/pt","metros"]].map(([label, key]) => (
                       <th key={key} onClick={() => toggleSort(key)} className="text-left px-4 py-3 cursor-pointer select-none"
                         style={{ fontSize: 11, color: "var(--muted-foreground)", fontWeight: 500, letterSpacing: "0.05em" }}>
                         <div className="flex items-center gap-1">{label.toUpperCase()}<SortIcon col={key} /></div>
@@ -184,9 +196,14 @@ export default function Players() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((p, i) => (
-                    <tr key={p.id} className="border-t"
-                      style={{ borderColor: "rgba(255,255,255,0.06)", backgroundColor: i % 2 === 0 ? "var(--card)" : "transparent" }}>
+                  {filtered.map((p, i) => {
+                    const stats = getPlayerStats(p.id, p.posicion)
+                    return (
+                    <tr key={p.id} onClick={() => setSelectedPlayer(p)} className="border-t transition-colors"
+                      style={{ borderColor: "rgba(255,255,255,0.06)", backgroundColor: i % 2 === 0 ? "var(--card)" : "transparent", cursor: "pointer" }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--secondary)"}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = i % 2 === 0 ? "var(--card)" : "transparent"}
+                      >
                       <td className="px-4 py-3 font-mono" style={{ fontSize: 13, color: "var(--muted-foreground)", width: 48 }}>
                         {p.dorsal ?? "—"}
                       </td>
@@ -209,15 +226,35 @@ export default function Players() {
                         {p.edad ?? "—"}
                       </td>
                       <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="font-mono tabular" style={{ fontSize: 13, fontWeight: 600, color: stats.tacklesEfectivos >= 85 ? "var(--primary)" : "var(--foreground)", minWidth: 32 }}>
+                            {stats.tacklesEfectivos}%
+                          </div>
+                          <div style={{ width: 42, height: 4, borderRadius: 2, backgroundColor: "var(--secondary)", overflow: "hidden" }}>
+                            <div style={{ width: `${stats.tacklesEfectivos}%`, height: "100%", backgroundColor: stats.tacklesEfectivos >= 85 ? "var(--primary)" : "#3b82f6" }} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          <TrendingUp size={11} style={{ color: "#f59e0b" }} />
+                          <span className="font-mono tabular" style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>
+                            {stats.metrosGanados}
+                          </span>
+                          <span style={{ fontSize: 10, color: "var(--muted-foreground)" }}>m</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-2 justify-end">
-                          <button onClick={() => handleDelete(p.id, p.nombre)} title="Expulsar del club"
+                          <button onClick={e => { e.stopPropagation(); handleDelete(p.id, p.nombre) }} title="Expulsar del club"
                             className="p-1.5 rounded" style={{ background: "none", border: "none", cursor: "pointer" }}>
                             <Trash2 size={13} style={{ color: "#ef4444" }} />
                           </button>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -225,7 +262,125 @@ export default function Players() {
         )}
       </div>
 
+      {selectedPlayer && <PlayerDetailModal player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />}
+
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
+}
+
+// ────────────────────────────────────────────────────────────────
+// Modal de detalle del jugador con stats individuales
+// ────────────────────────────────────────────────────────────────
+function PlayerDetailModal({ player, onClose }: { player: Miembro; onClose: () => void }) {
+  const stats = getPlayerStats(player.id, player.posicion)
+  const color = hashColor(player.id)
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50"
+      style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}>
+      <div className="rounded-2xl border w-full max-w-md"
+        style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}
+        onClick={e => e.stopPropagation()}>
+
+        {/* Header con avatar + close */}
+        <div className="p-6 border-b relative" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+          <button onClick={onClose} aria-label="Cerrar"
+            className="absolute" style={{ top: 12, right: 12, background: "none", border: "none", cursor: "pointer", padding: 6, color: "var(--muted-foreground)" }}>
+            <X size={18} />
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
+              style={{ backgroundColor: color + "20", border: `1px solid ${color}40` }}>
+              <span style={{ fontSize: 22, fontWeight: 700, color }}>{initials(player.nombre)}</span>
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "var(--foreground)" }}>{player.nombre}</div>
+              <div className="flex items-center gap-2 mt-1" style={{ fontSize: 12, color: "var(--muted-foreground)" }}>
+                {player.dorsal && <span className="font-mono">#{player.dorsal}</span>}
+                {player.posicion && (
+                  <>
+                    <span style={{ opacity: 0.3 }}>·</span>
+                    <span>{player.posicion}</span>
+                  </>
+                )}
+                {player.edad && (
+                  <>
+                    <span style={{ opacity: 0.3 }}>·</span>
+                    <span>{player.edad} años</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-1 h-4 rounded" style={{ backgroundColor: "var(--primary)" }} />
+            <span className="font-mono" style={{ fontSize: 10, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>
+              RENDIMIENTO INDIVIDUAL · TEMPORADA
+            </span>
+          </div>
+
+          {/* Tackles efectivos */}
+          <div className="rounded-xl p-4" style={{ backgroundColor: "var(--secondary)", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Shield size={14} style={{ color: "#3b82f6" }} />
+                <span style={{ fontSize: 13, color: "var(--foreground)" }}>Tackles efectivos</span>
+              </div>
+              <span className="font-mono tabular" style={{ fontSize: 20, fontWeight: 700, color: stats.tacklesEfectivos >= 85 ? "var(--primary)" : "#3b82f6" }}>
+                {stats.tacklesEfectivos}%
+              </span>
+            </div>
+            <div style={{ height: 6, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.05)", overflow: "hidden" }}>
+              <div style={{ width: `${stats.tacklesEfectivos}%`, height: "100%", background: stats.tacklesEfectivos >= 85 ? "linear-gradient(90deg,#3b82f6,var(--primary))" : "#3b82f6", transition: "width .3s" }} />
+            </div>
+            <div style={{ fontSize: 10, color: "var(--muted-foreground)", marginTop: 6 }}>
+              {stats.tacklesEfectivos >= 90 ? "Excelente" : stats.tacklesEfectivos >= 80 ? "Muy bueno" : stats.tacklesEfectivos >= 70 ? "Bueno" : "Puede mejorar"}
+            </div>
+          </div>
+
+          {/* Metros ganados */}
+          <div className="rounded-xl p-4" style={{ backgroundColor: "var(--secondary)", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <TrendingUp size={14} style={{ color: "#f59e0b" }} />
+                <span style={{ fontSize: 13, color: "var(--foreground)" }}>Metros ganados por partido</span>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="font-mono tabular" style={{ fontSize: 20, fontWeight: 700, color: "#f59e0b" }}>{stats.metrosGanados}</span>
+                <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>m</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-1 mt-3">
+              {Array.from({ length: 10 }, (_, i) => {
+                const filled = i < Math.min(10, Math.floor(stats.metrosGanados / 15))
+                return (
+                  <div key={i} style={{ height: 4, borderRadius: 2, backgroundColor: filled ? "#f59e0b" : "rgba(255,255,255,0.05)" }} />
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Partidos jugados */}
+          <div className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: "rgba(57,224,122,0.06)", border: "1px solid rgba(57,224,122,0.15)" }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(57,224,122,0.15)" }}>
+              <Zap size={14} style={{ color: "var(--primary)" }} />
+            </div>
+            <div className="flex-1">
+              <div style={{ fontSize: 12, color: "var(--muted-foreground)" }}>Partidos jugados esta temporada</div>
+              <div className="font-mono tabular" style={{ fontSize: 16, fontWeight: 700, color: "var(--foreground)" }}>
+                {stats.partidosJugados}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   )
 }

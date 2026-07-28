@@ -164,3 +164,8 @@ where not exists (
   select 1 from creditos_movimientos m
   where m.club_id = c.id and m.tipo = 'bienvenida'
 );
+
+-- ── 8) Realtime: habilitar publicación para que el cliente reciba INSERTS ─
+-- Necesario para que el badge del sidebar y la página de créditos se actualicen
+-- solos cuando el webhook de MP suma créditos.
+alter publication supabase_realtime add table creditos_movimientos;

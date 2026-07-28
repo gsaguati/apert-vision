@@ -1,9 +1,18 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router"
-import { Play, Pause, Download, Zap, ArrowLeft, Home, Plane, Film, AlertCircle, Trash2 } from "lucide-react"
-import { supabase, Partido, Evento } from "../lib/supabase"
+import { Play, Pause, Download, Zap, ArrowLeft, Home, Plane, Film, AlertCircle, Trash2, Shield, TrendingUp, Award } from "lucide-react"
+import { supabase, Partido, Evento, Miembro } from "../lib/supabase"
 import { useAuth } from "../context/AuthContext"
+import { getPlayerStats } from "../lib/playerStats"
 import jsPDF from "jspdf"
+
+const AVATAR_COLORS = ["#39e07a","#3b82f6","#f59e0b","#a855f7","#ef4444","#06b6d4","#ec4899","#14b8a6"]
+function playerInitials(name: string) { return name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() }
+function playerColor(id: string) {
+  let h = 0
+  for (let i = 0; i < id.length; i++) h = ((h << 5) - h) + id.charCodeAt(i)
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length]
+}
 
 type ClipRow = { tipo: "lineout" | "scrum" | "kickoff"; url_storage: string }
 type VideoSource = "full" | "lineout" | "scrum" | "kickoff"
@@ -108,6 +117,7 @@ export default function MatchDetail() {
   const [partido, setPartido] = useState<Partido | null>(null)
   const [eventos, setEventos] = useState<Evento[]>([])
   const [clips, setClips]     = useState<ClipRow[]>([])
+  const [jugadores, setJugadores] = useState<Miembro[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [error, setError]     = useState<string | null>(null)
@@ -128,6 +138,13 @@ export default function MatchDetail() {
     setPartido(pRes.data)
     setEventos(eRes.data ?? [])
     setClips(cRes.data ?? [])
+    // Traer jugadores del club para "Rendimiento individual"
+    const { data: jugs } = await supabase
+      .from("miembros")
+      .select("*")
+      .eq("club_id", pRes.data.club_id)
+      .eq("rol", "jugador")
+    setJugadores(jugs ?? [])
     setLoading(false)
   })() }, [id])
 
@@ -377,6 +394,76 @@ export default function MatchDetail() {
             ))}
           </div>
         </div>
+
+        {/* Rendimiento individual — Top performers */}
+        {jugadores.length > 0 && partido && (
+          <div className="rounded-xl border p-4" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Award size={14} style={{ color: "var(--primary)" }} />
+                <span style={{ fontWeight: 600, fontSize: 13, color: "var(--foreground)" }}>
+                  Rendimiento individual
+                </span>
+              </div>
+              <span className="font-mono" style={{ fontSize: 10, color: "var(--muted-foreground)", letterSpacing: "0.08em" }}>
+                TOP PERFORMERS DEL PARTIDO
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {jugadores
+                .map(j => ({ j, stats: getPlayerStats(j.id, j.posicion, partido.id) }))
+                .sort((a, b) => (b.stats.tacklesEfectivos + b.stats.metrosGanados) - (a.stats.tacklesEfectivos + a.stats.metrosGanados))
+                .slice(0, 6)
+                .map(({ j, stats }, i) => {
+                  const color = playerColor(j.id)
+                  return (
+                    <div key={j.id} className="flex items-center gap-3 p-3 rounded-lg"
+                      style={{ backgroundColor: "var(--secondary)", border: i === 0 ? "1px solid rgba(57,224,122,0.3)" : "1px solid rgba(255,255,255,0.05)" }}>
+                      {i === 0 && (
+                        <div className="absolute" style={{ marginLeft: -6, marginTop: -18 }}>
+                          <Award size={14} style={{ color: "var(--primary)" }} />
+                        </div>
+                      )}
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: color + "20", border: `1px solid ${color}40` }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color }}>{playerInitials(j.nombre)}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate" style={{ fontSize: 13, fontWeight: 500, color: "var(--foreground)" }}>
+                          {j.nombre}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5" style={{ fontSize: 10, color: "var(--muted-foreground)" }}>
+                          {j.dorsal && <span className="font-mono">#{j.dorsal}</span>}
+                          {j.posicion && <span>· {j.posicion}</span>}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end shrink-0">
+                        <div className="flex items-center gap-1">
+                          <Shield size={10} style={{ color: "#3b82f6" }} />
+                          <span className="font-mono tabular" style={{ fontSize: 12, fontWeight: 600, color: "var(--foreground)" }}>
+                            {stats.tacklesEfectivos}%
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <TrendingUp size={10} style={{ color: "#f59e0b" }} />
+                          <span className="font-mono tabular" style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
+                            {stats.metrosGanados}m
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
+            {jugadores.length > 6 && (
+              <button onClick={() => navigate("/players")}
+                className="mt-3 flex items-center gap-1"
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "var(--primary)" }}>
+                Ver rendimiento completo del plantel →
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Timeline de eventos */}
         <div className="rounded-xl border p-4" style={{ backgroundColor: "var(--card)", borderColor: "rgba(255,255,255,0.07)" }}>

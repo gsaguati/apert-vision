@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import {
-  CreditCard, Check, Zap, TrendingUp, Star,
+  CreditCard, Check, Coins, TrendingUp, Star,
   ArrowUpRight, ArrowDownRight, Gift, Clock,
 } from "lucide-react"
 import { supabase, PlanCreditos, CreditoMovimiento, getSaldoCreditos } from "../lib/supabase"
@@ -99,7 +99,7 @@ export default function Creditos() {
               <div className="flex items-center gap-2 mb-3">
                 <div className="flex items-center justify-center"
                   style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: "rgba(57,224,122,0.12)" }}>
-                  <Zap size={16} style={{ color: "var(--primary)" }} />
+                  <Coins size={16} style={{ color: "var(--primary)" }} />
                 </div>
                 <span className="font-mono" style={{ fontSize: 11, color: "var(--muted-foreground)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                   Saldo actual

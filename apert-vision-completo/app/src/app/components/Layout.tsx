@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { NavLink, Outlet, useNavigate, Navigate } from "react-router"
 import {
   LayoutDashboard, Video, Users,
-  Calendar, BarChart2, Settings, LogOut, Eye, Zap,
+  Calendar, BarChart2, Settings, LogOut, Eye, Coins,
 } from "lucide-react"
 import { useAnalysis } from "../context/AnalysisContext"
 import { useAuth } from "../context/AuthContext"
@@ -14,7 +14,7 @@ const navItems = [
   { to: "/matches",  icon: Calendar,        label: "Partidos"      },
   { to: "/players",  icon: Users,           label: "Jugadores"     },
   { to: "/stats",    icon: BarChart2,       label: "Estadísticas"  },
-  { to: "/creditos", icon: Zap,             label: "Créditos"      },
+  { to: "/creditos", icon: Coins,           label: "Créditos"      },
   { to: "/settings", icon: Settings,        label: "Configuración" },
 ]
 
@@ -111,7 +111,7 @@ export default function Layout() {
               className="flex items-center gap-1.5"
               style={{ textDecoration: "none", cursor: "pointer" }}
               title="Ver créditos">
-              <Zap size={11} style={{ color: "var(--primary)" }} strokeWidth={2.5} />
+              <Coins size={12} style={{ color: "var(--primary)" }} strokeWidth={2.2} />
               <span className="font-mono tabular" style={{ fontSize: 11, fontWeight: 600, color: "var(--primary)" }}>
                 {saldo ?? "—"}
               </span>
