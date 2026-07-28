@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { Search, Trash2, ChevronUp, ChevronDown, Users, Copy, Check, RefreshCw, Share2, Shield, Zap, X, TrendingUp } from "lucide-react"
-import { supabase, Miembro } from "../lib/supabase"
+import { supabase, Miembro, loadPlayerStatsFromDb } from "../lib/supabase"
 import { useAuth } from "../context/AuthContext"
-import { getPlayerStats } from "../lib/playerStats"
+import { getPlayerStats, PlayerStats } from "../lib/playerStats"
 
 const POSITIONS = ["Todos","Pilier","Hooker","Lock","Flanker","Nº 8","Medio Scrum","Apertura","Wing","Centro","Fullback"]
 const AVATAR_COLORS = ["#39e07a","#3b82f6","#f59e0b","#a855f7","#ef4444","#06b6d4","#ec4899","#14b8a6"]
@@ -28,6 +28,7 @@ export default function Players() {
   const [refreshing, setRefreshing] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState<Miembro | null>(null)
   const [partidosCount, setPartidosCount] = useState(0)
+  const [statsMap, setStatsMap] = useState<Map<string, PlayerStats>>(new Map())
 
   const loadPlayers = async () => {
     setRefreshing(true)
@@ -36,10 +37,18 @@ export default function Players() {
       club ? supabase.from("partidos").select("id", { count: "exact", head: true }).eq("club_id", club.id) : Promise.resolve({ count: 0 }),
     ])
     if (pRes.error) console.error(pRes.error)
-    setPlayers(pRes.data ?? [])
+    const jugadores = pRes.data ?? []
+    setPlayers(jugadores)
     setPartidosCount((cRes as any).count ?? 0)
+    // Cargar stats desde la DB (auto-populate si faltan)
+    const stats = await loadPlayerStatsFromDb(jugadores)
+    setStatsMap(stats)
     setLoading(false); setRefreshing(false)
   }
+
+  // Helper: obtener stats de la DB o del fallback si aún no cargaron
+  const statsFor = (p: Miembro): PlayerStats =>
+    statsMap.get(p.id) ?? getPlayerStats(p.id, p.posicion)
 
   useEffect(() => { loadPlayers() }, [club?.id])
 
@@ -56,11 +65,11 @@ export default function Players() {
       const v = sort.dir === "asc" ? 1 : -1
       let av: any, bv: any
       if (sort.key === "tackles") {
-        av = getPlayerStats(a.id, a.posicion).tacklesEfectivos
-        bv = getPlayerStats(b.id, b.posicion).tacklesEfectivos
+        av = statsFor(a).tacklesEfectivos
+        bv = statsFor(b).tacklesEfectivos
       } else if (sort.key === "metros") {
-        av = getPlayerStats(a.id, a.posicion).metrosGanados
-        bv = getPlayerStats(b.id, b.posicion).metrosGanados
+        av = statsFor(a).metrosGanados
+        bv = statsFor(b).metrosGanados
       } else {
         av = (a as any)[sort.key]
         bv = (b as any)[sort.key]
@@ -199,7 +208,7 @@ export default function Players() {
                 </thead>
                 <tbody>
                   {filtered.map((p, i) => {
-                    const stats = getPlayerStats(p.id, p.posicion)
+                    const stats = statsFor(p)
                     return (
                     <tr key={p.id} onClick={() => setSelectedPlayer(p)} className="border-t transition-colors"
                       style={{ borderColor: "rgba(255,255,255,0.06)", backgroundColor: i % 2 === 0 ? "var(--card)" : "transparent", cursor: "pointer" }}
@@ -264,7 +273,7 @@ export default function Players() {
         )}
       </div>
 
-      {selectedPlayer && <PlayerDetailModal player={selectedPlayer} partidosReales={partidosCount} onClose={() => setSelectedPlayer(null)} />}
+      {selectedPlayer && <PlayerDetailModal player={selectedPlayer} stats={statsFor(selectedPlayer)} partidosReales={partidosCount} onClose={() => setSelectedPlayer(null)} />}
 
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
@@ -274,8 +283,7 @@ export default function Players() {
 // ────────────────────────────────────────────────────────────────
 // Modal de detalle del jugador con stats individuales
 // ────────────────────────────────────────────────────────────────
-function PlayerDetailModal({ player, partidosReales, onClose }: { player: Miembro; partidosReales: number; onClose: () => void }) {
-  const stats = getPlayerStats(player.id, player.posicion)
+function PlayerDetailModal({ player, stats, partidosReales, onClose }: { player: Miembro; stats: PlayerStats; partidosReales: number; onClose: () => void }) {
   const color = hashColor(player.id)
   // Partidos reales del club (los que analizó el entrenador). Si aún no hay ninguno,
   // usamos el fallback determinístico para que la demo no muestre 0.

@@ -53,3 +53,12 @@ data class Clip(
     val tipo: String,
     @SerialName("url_storage") val urlStorage: String,
 )
+
+/** Fila cruda de la tabla estadisticas_jugador */
+@Serializable
+data class EstadisticaJugadorRow(
+    @SerialName("jugador_id")                 val jugadorId:                String,
+    @SerialName("tackles_por_partido")        val tacklesPorPartido:        Int,
+    @SerialName("tackles_efectivos_pct")      val tacklesEfectivosPct:      Int,
+    @SerialName("metros_ganados_por_partido") val metrosGanadosPorPartido:  Int,
+)

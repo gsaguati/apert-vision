@@ -46,6 +46,33 @@ export interface PlayerStats {
   partidosJugados:   number     // partidos participados (deprecado — usar count real de la DB)
 }
 
+/** Row cruda como está en la tabla `estadisticas_jugador` de Supabase */
+export interface EstadisticaJugadorRow {
+  jugador_id:                 string
+  tackles_por_partido:        number
+  tackles_efectivos_pct:      number
+  metros_ganados_por_partido: number
+  actualizado_en:             string
+}
+
+export function statsFromRow(row: EstadisticaJugadorRow): PlayerStats {
+  return {
+    tacklesPorPartido: row.tackles_por_partido,
+    tacklesEfectivos:  row.tackles_efectivos_pct,
+    metrosGanados:     row.metros_ganados_por_partido,
+    partidosJugados:   0,  // no aplica — el count real viene de tabla partidos
+  }
+}
+
+export function rowFromStats(playerId: string, s: PlayerStats): Omit<EstadisticaJugadorRow, "actualizado_en"> {
+  return {
+    jugador_id:                 playerId,
+    tackles_por_partido:        s.tacklesPorPartido,
+    tackles_efectivos_pct:      s.tacklesEfectivos,
+    metros_ganados_por_partido: s.metrosGanados,
+  }
+}
+
 /**
  * @param playerId   UUID del jugador (usado como seed)
  * @param position   posición del jugador (ajusta los rangos)

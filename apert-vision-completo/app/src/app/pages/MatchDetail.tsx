@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router"
 import { Play, Pause, Download, Zap, ArrowLeft, Home, Plane, Film, AlertCircle, Trash2, Shield, TrendingUp, Award } from "lucide-react"
-import { supabase, Partido, Evento, Miembro } from "../lib/supabase"
+import { supabase, Partido, Evento, Miembro, loadPlayerStatsFromDb } from "../lib/supabase"
 import { useAuth } from "../context/AuthContext"
 import { getPlayerStats } from "../lib/playerStats"
 import jsPDF from "jspdf"
@@ -144,7 +144,12 @@ export default function MatchDetail() {
       .select("*")
       .eq("club_id", pRes.data.club_id)
       .eq("rol", "jugador")
-    setJugadores(jugs ?? [])
+    const jugadoresList = jugs ?? []
+    setJugadores(jugadoresList)
+    // Auto-populate en background: dispara fetch/insert de stats de temporada.
+    // El top-performers del partido usa un cálculo diferente (con seed jugador+partido)
+    // así que no bloqueamos esperando esta promise.
+    loadPlayerStatsFromDb(jugadoresList).catch(() => {})
     setLoading(false)
   })() }, [id])
 

@@ -22,11 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import com.example.apertvision.data.Miembro
+import com.example.apertvision.data.PlayerStats
 import com.example.apertvision.data.SupabaseClient
 import com.example.apertvision.data.getPlayerStats
+import com.example.apertvision.data.loadPlayerStatsFromDb
 import com.example.apertvision.ui.theme.*
 
 @Serializable
@@ -41,27 +42,23 @@ fun MyStatsScreen(
 ) {
     var partidosCount by remember { mutableIntStateOf(0) }
     var loading       by remember { mutableStateOf(true) }
-    val scope = rememberCoroutineScope()
+    // Fallback instantáneo con el helper local para que la UI no tenga loading state feo
+    var stats         by remember { mutableStateOf<PlayerStats>(getPlayerStats(miembro.id, miembro.posicion)) }
 
-    LaunchedEffect(clubId) {
-        scope.launch {
-            try {
-                val partidos = SupabaseClient.client.from("partidos")
-                    .select(Columns.list("id")) {
-                        filter { eq("club_id", clubId) }
-                    }
-                    .decodeList<PartidoIdOnly>()
-                partidosCount = partidos.size
-            } catch (_: Exception) {
-                partidosCount = 0
-            } finally {
-                loading = false
-            }
-        }
-    }
+    LaunchedEffect(clubId, miembro.id) {
+        // Contamos partidos y traemos stats de DB en paralelo
+        try {
+            val partidos = SupabaseClient.client.from("partidos")
+                .select(Columns.list("id")) {
+                    filter { eq("club_id", clubId) }
+                }
+                .decodeList<PartidoIdOnly>()
+            partidosCount = partidos.size
+        } catch (_: Exception) { partidosCount = 0 }
 
-    val stats = remember(miembro.id, miembro.posicion) {
-        getPlayerStats(miembro.id, miembro.posicion)
+        // Trae de DB (o auto-populate si no existe) y sobrescribe con lo persistido
+        stats = loadPlayerStatsFromDb(miembro)
+        loading = false
     }
     val partidosReales = if (partidosCount > 0) partidosCount else stats.partidosJugados
     val tacklesTemporada  = stats.tacklesPorPartido * partidosReales

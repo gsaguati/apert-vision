@@ -1,5 +1,8 @@
 package com.example.apertvision.data
 
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
+
 /**
  * Genera estadísticas individuales por jugador de forma DETERMINÍSTICA.
  * El mismo jugador siempre devuelve las mismas stats (no cambian entre visitas)
@@ -91,4 +94,47 @@ fun getPlayerStats(
     val tacklesPorPartido = (tacklesAbsBase + rng.next() * 5).toInt()
 
     return PlayerStats(tacklesPorPartido, tacklesEfectivos, metrosGanados, partidosJugados)
+}
+
+// ─── Persistencia en Supabase ────────────────────────────────────────────
+
+/**
+ * Lee las stats de la tabla `estadisticas_jugador` para un jugador.
+ * Si la fila no existe, la calcula con el helper determinístico y la inserta.
+ * Devuelve las stats efectivas (de DB o calculadas si el insert falló).
+ */
+suspend fun loadPlayerStatsFromDb(jugador: Miembro): PlayerStats {
+    val client = SupabaseClient.client
+    return try {
+        val existing = client.from("estadisticas_jugador")
+            .select(Columns.ALL) {
+                filter { eq("jugador_id", jugador.id) }
+                limit(1)
+            }
+            .decodeList<EstadisticaJugadorRow>()
+            .firstOrNull()
+
+        if (existing != null) {
+            return PlayerStats(
+                tacklesPorPartido  = existing.tacklesPorPartido,
+                tacklesEfectivos   = existing.tacklesEfectivosPct,
+                metrosGanados      = existing.metrosGanadosPorPartido,
+                partidosJugados    = 0,
+            )
+        }
+
+        // No existe → calcular + insertar
+        val calc = getPlayerStats(jugador.id, jugador.posicion)
+        val row = EstadisticaJugadorRow(
+            jugadorId                = jugador.id,
+            tacklesPorPartido        = calc.tacklesPorPartido,
+            tacklesEfectivosPct      = calc.tacklesEfectivos,
+            metrosGanadosPorPartido  = calc.metrosGanados,
+        )
+        try { client.from("estadisticas_jugador").upsert(row) } catch (_: Exception) { /* OK, seguimos con calc */ }
+        calc
+    } catch (_: Exception) {
+        // Fallback total: calcular en memoria
+        getPlayerStats(jugador.id, jugador.posicion)
+    }
 }
