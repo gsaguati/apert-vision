@@ -1,5 +1,11 @@
 package com.example.apertvision.ui.screens
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -227,13 +233,13 @@ private fun LocalVisitanteBadge(esLocal: Boolean) {
 
 @Composable
 private fun SkeletonMatchCard() {
-    val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "shimmer")
+    val transition = rememberInfiniteTransition(label = "shimmer")
     val alpha by transition.animateFloat(
         initialValue = 0.35f,
         targetValue = 0.7f,
-        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(900, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        animationSpec = infiniteRepeatable(
+            animation = tween(900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
         ),
         label = "shimmer-alpha",
     )
