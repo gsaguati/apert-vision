@@ -40,9 +40,10 @@ export function positionGroup(pos?: string | null): PositionGroup {
 }
 
 export interface PlayerStats {
-  tacklesEfectivos: number      // 0-100 (%)
-  metrosGanados:    number      // metros ganados con la pelota (por partido promedio)
-  partidosJugados:  number      // partidos participados
+  tacklesPorPartido: number     // promedio de tackles intentados por partido (10-18)
+  tacklesEfectivos:  number     // 0-100 (% de esos tackles que fueron efectivos)
+  metrosGanados:     number     // metros ganados con la pelota (por partido promedio)
+  partidosJugados:   number     // partidos participados (deprecado — usar count real de la DB)
 }
 
 /**
@@ -77,7 +78,13 @@ export function getPlayerStats(
 
   const tacklesEfectivos = Math.round(tacklesBase + rng() * tacklesRange)
   const metrosGanados    = Math.round(metrosBase  + rng() * metrosRange)
-  const partidosJugados  = Math.floor(rng() * 12) + 3  // 3-14 (solo tiene sentido sin partidoId)
+  const partidosJugados  = Math.floor(rng() * 12) + 3  // 3-14 (fallback; ideal usar count real de la DB)
 
-  return { tacklesEfectivos, metrosGanados, partidosJugados }
+  // Tackles totales por partido: forwards más (14-19), backs menos (9-14)
+  let tacklesBaseAbs = 11
+  if (group === "forward") tacklesBaseAbs = 14
+  else if (group === "back") tacklesBaseAbs = 9
+  const tacklesPorPartido = Math.round(tacklesBaseAbs + rng() * 5)
+
+  return { tacklesPorPartido, tacklesEfectivos, metrosGanados, partidosJugados }
 }

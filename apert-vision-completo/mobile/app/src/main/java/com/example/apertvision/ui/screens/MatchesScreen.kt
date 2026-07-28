@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Sports
 import androidx.compose.material3.*
@@ -38,6 +39,7 @@ fun MatchesScreen(
     club: Club,
     onLogout: () -> Unit,
     onMatchClick: (String) -> Unit,
+    onMyStatsClick: () -> Unit = {},
     viewModel: MatchesViewModel = viewModel(),
 ) {
     val matches by viewModel.matches.collectAsState()
@@ -55,6 +57,11 @@ fun MatchesScreen(
                     }
                 },
                 actions = {
+                    if (miembro.rol == "jugador") {
+                        IconButton(onClick = onMyStatsClick) {
+                            Icon(Icons.Default.Person, contentDescription = "Mis estadísticas", tint = Primary)
+                        }
+                    }
                     IconButton(onClick = { viewModel.load() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Recargar", tint = Muted)
                     }

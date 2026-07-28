@@ -25,6 +25,7 @@ import com.example.apertvision.matches.ClipConUrl
 import com.example.apertvision.ui.screens.LoginScreen
 import com.example.apertvision.ui.screens.MatchDetailScreen
 import com.example.apertvision.ui.screens.MatchesScreen
+import com.example.apertvision.ui.screens.MyStatsScreen
 import com.example.apertvision.ui.screens.SignupScreen
 import com.example.apertvision.ui.screens.VideoPlayerScreen
 import com.example.apertvision.ui.theme.ApertVisionTheme
@@ -108,7 +109,15 @@ private fun MainFlow(
                 miembro = ready.miembro,
                 club    = ready.club,
                 onLogout = onLogout,
-                onMatchClick = { id -> nav.navigate("match/$id") },
+                onMatchClick   = { id -> nav.navigate("match/$id") },
+                onMyStatsClick = { nav.navigate("mis-stats") },
+            )
+        }
+        composable("mis-stats") {
+            MyStatsScreen(
+                miembro = ready.miembro,
+                clubId  = ready.club.id,
+                onBack  = { nav.popBackStack() },
             )
         }
         composable(
@@ -119,6 +128,7 @@ private fun MainFlow(
             MatchDetailScreen(
                 partidoId  = id,
                 clubNombre = clubNombre,
+                miembro    = ready.miembro,
                 onBack = { nav.popBackStack() },
                 onClipClick = { clip ->
                     val encoded = URLEncoder.encode(clip.signedUrl, "UTF-8")

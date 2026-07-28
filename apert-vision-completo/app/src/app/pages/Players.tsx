@@ -27,19 +27,21 @@ export default function Players() {
   const [copied, setCopied]     = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState<Miembro | null>(null)
+  const [partidosCount, setPartidosCount] = useState(0)
 
   const loadPlayers = async () => {
     setRefreshing(true)
-    const { data, error } = await supabase
-      .from("miembros")
-      .select("*")
-      .eq("rol", "jugador")
-    if (error) console.error(error)
-    setPlayers(data ?? [])
+    const [pRes, cRes] = await Promise.all([
+      supabase.from("miembros").select("*").eq("rol", "jugador"),
+      club ? supabase.from("partidos").select("id", { count: "exact", head: true }).eq("club_id", club.id) : Promise.resolve({ count: 0 }),
+    ])
+    if (pRes.error) console.error(pRes.error)
+    setPlayers(pRes.data ?? [])
+    setPartidosCount((cRes as any).count ?? 0)
     setLoading(false); setRefreshing(false)
   }
 
-  useEffect(() => { loadPlayers() }, [])
+  useEffect(() => { loadPlayers() }, [club?.id])
 
   const toggleSort = (key: string) =>
     setSort(s => s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" })
@@ -262,7 +264,7 @@ export default function Players() {
         )}
       </div>
 
-      {selectedPlayer && <PlayerDetailModal player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />}
+      {selectedPlayer && <PlayerDetailModal player={selectedPlayer} partidosReales={partidosCount} onClose={() => setSelectedPlayer(null)} />}
 
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
@@ -272,9 +274,15 @@ export default function Players() {
 // ────────────────────────────────────────────────────────────────
 // Modal de detalle del jugador con stats individuales
 // ────────────────────────────────────────────────────────────────
-function PlayerDetailModal({ player, onClose }: { player: Miembro; onClose: () => void }) {
+function PlayerDetailModal({ player, partidosReales, onClose }: { player: Miembro; partidosReales: number; onClose: () => void }) {
   const stats = getPlayerStats(player.id, player.posicion)
   const color = hashColor(player.id)
+  // Partidos reales del club (los que analizó el entrenador). Si aún no hay ninguno,
+  // usamos el fallback determinístico para que la demo no muestre 0.
+  const partidosJugados = partidosReales > 0 ? partidosReales : stats.partidosJugados
+  // Total absoluto de tackles en la temporada = por partido × partidos
+  const tacklesTotalesTemporada = stats.tacklesPorPartido * partidosJugados
+  const tacklesEfectivosTotales = Math.round(tacklesTotalesTemporada * stats.tacklesEfectivos / 100)
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50"
@@ -325,22 +333,32 @@ function PlayerDetailModal({ player, onClose }: { player: Miembro; onClose: () =
             </span>
           </div>
 
-          {/* Tackles efectivos */}
+          {/* Tackles */}
           <div className="rounded-xl p-4" style={{ backgroundColor: "var(--secondary)", border: "1px solid rgba(255,255,255,0.05)" }}>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Shield size={14} style={{ color: "#3b82f6" }} />
-                <span style={{ fontSize: 13, color: "var(--foreground)" }}>Tackles efectivos</span>
+                <span style={{ fontSize: 13, color: "var(--foreground)" }}>Tackles</span>
               </div>
-              <span className="font-mono tabular" style={{ fontSize: 20, fontWeight: 700, color: stats.tacklesEfectivos >= 85 ? "var(--primary)" : "#3b82f6" }}>
-                {stats.tacklesEfectivos}%
-              </span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-mono tabular" style={{ fontSize: 22, fontWeight: 700, color: "var(--foreground)" }}>
+                  {stats.tacklesPorPartido}
+                </span>
+                <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>por partido</span>
+              </div>
             </div>
             <div style={{ height: 6, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.05)", overflow: "hidden" }}>
               <div style={{ width: `${stats.tacklesEfectivos}%`, height: "100%", background: stats.tacklesEfectivos >= 85 ? "linear-gradient(90deg,#3b82f6,var(--primary))" : "#3b82f6", transition: "width .3s" }} />
             </div>
-            <div style={{ fontSize: 10, color: "var(--muted-foreground)", marginTop: 6 }}>
-              {stats.tacklesEfectivos >= 90 ? "Excelente" : stats.tacklesEfectivos >= 80 ? "Muy bueno" : stats.tacklesEfectivos >= 70 ? "Bueno" : "Puede mejorar"}
+            <div className="flex items-center justify-between mt-2">
+              <div style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
+                <span className="font-mono tabular" style={{ color: stats.tacklesEfectivos >= 85 ? "var(--primary)" : "#3b82f6", fontWeight: 600 }}>
+                  {stats.tacklesEfectivos}%
+                </span> efectivos
+              </div>
+              <div className="font-mono" style={{ fontSize: 10, color: "var(--muted-foreground)" }}>
+                {tacklesEfectivosTotales} / {tacklesTotalesTemporada} en la temporada
+              </div>
             </div>
           </div>
 
@@ -352,29 +370,35 @@ function PlayerDetailModal({ player, onClose }: { player: Miembro; onClose: () =
                 <span style={{ fontSize: 13, color: "var(--foreground)" }}>Metros ganados por partido</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="font-mono tabular" style={{ fontSize: 20, fontWeight: 700, color: "#f59e0b" }}>{stats.metrosGanados}</span>
+                <span className="font-mono tabular" style={{ fontSize: 22, fontWeight: 700, color: "#f59e0b" }}>{stats.metrosGanados}</span>
                 <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>m</span>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-1 mt-3">
+            <div style={{ fontSize: 10, color: "var(--muted-foreground)", marginBottom: 8, lineHeight: 1.4 }}>
+              Metros que avanza corriendo con la pelota antes de ser tacleado, patear o pasar.
+            </div>
+            <div className="grid grid-cols-5 gap-1">
               {Array.from({ length: 10 }, (_, i) => {
-                const filled = i < Math.min(10, Math.floor(stats.metrosGanados / 15))
+                const filled = i < Math.min(10, Math.round(stats.metrosGanados / 15))
                 return (
-                  <div key={i} style={{ height: 4, borderRadius: 2, backgroundColor: filled ? "#f59e0b" : "rgba(255,255,255,0.05)" }} />
+                  <div key={i} style={{ height: 5, borderRadius: 2, backgroundColor: filled ? "#f59e0b" : "rgba(255,255,255,0.05)" }} />
                 )
               })}
             </div>
+            <div className="font-mono" style={{ fontSize: 10, color: "var(--muted-foreground)", marginTop: 6, textAlign: "right" }}>
+              ≈ {stats.metrosGanados * partidosJugados}m totales en la temporada
+            </div>
           </div>
 
-          {/* Partidos jugados */}
+          {/* Partidos jugados — cuenta real del club */}
           <div className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: "rgba(57,224,122,0.06)", border: "1px solid rgba(57,224,122,0.15)" }}>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(57,224,122,0.15)" }}>
               <Zap size={14} style={{ color: "var(--primary)" }} />
             </div>
             <div className="flex-1">
-              <div style={{ fontSize: 12, color: "var(--muted-foreground)" }}>Partidos jugados esta temporada</div>
+              <div style={{ fontSize: 12, color: "var(--muted-foreground)" }}>Partidos analizados esta temporada</div>
               <div className="font-mono tabular" style={{ fontSize: 16, fontWeight: 700, color: "var(--foreground)" }}>
-                {stats.partidosJugados}
+                {partidosJugados}
               </div>
             </div>
           </div>
