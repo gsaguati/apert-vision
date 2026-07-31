@@ -14,6 +14,7 @@ __pycache__/
 dist/
 build/
 .venv/
+.venv312/
 venv/
 env/
 
@@ -25,6 +26,13 @@ apert-vision-completo/codigo-python/dataset/test/
 # Logs de entrenamiento
 *.txt
 runs/
+
+# Modelos base de YOLO (se re-descargan solos)
+apert-vision-completo/codigo-python/yolo26n.pt
+apert-vision-completo/codigo-python/yolov8n.pt
+
+# Backup del modelo viejo (solo lineouts)
+apert-vision-completo/codigo-python/models/best_lineouts_only.pt
 # Excepción: requirements.txt de Python sí se sube
 !apert-vision-completo/codigo-python/requirements.txt
 

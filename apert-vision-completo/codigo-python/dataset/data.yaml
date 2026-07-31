@@ -1,12 +1,10 @@
+# Dataset combinado Apert Vision — generado por combinar_dataset.py
+path: D:/prueba/apert-vision-completo/apert-vision-completo/codigo-python/dataset
 train: train/images
-val: train/images
+val:   valid/images
 
-nc: 1
-names: ['apert-vision-lines-out']
-
-roboflow:
-  workspace: gonzalos-workspace-rri4p
-  project: apert-vision-lines-out
-  version: 1
-  license: CC BY 4.0
-  url: https://universe.roboflow.com/gonzalos-workspace-rri4p/apert-vision-lines-out/dataset/1
+nc: 3
+names:
+  0: lineout
+  1: scrum
+  2: kickoff
