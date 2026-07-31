@@ -4,6 +4,12 @@
 *.mov
 *.mkv
 
+# Archivos grandes / backups
+*.zip
+*.7z
+*.rar
+*.tar.gz
+
 # Python
 __pycache__/
 *.pyc
