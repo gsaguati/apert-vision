@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import { supabase } from "../lib/supabase"
 import { useAuth } from "../context/AuthContext"
+import logoUrl from "../../assets/logo.png"
 
 type Mode = "choose" | "create-club" | "join-club"
 
@@ -76,7 +77,7 @@ export default function Signup() {
           </Link>
 
           <div className="flex items-center gap-3 mb-8">
-            <img src="/logo.png" alt="Apert Vision" style={{ height: 40, width: "auto" }} />
+            <img src={logoUrl} alt="Apert Vision" style={{ height: 40, width: "auto" }} />
             <div>
               <div style={{ fontSize: 16, fontWeight: 700, color: "var(--foreground)" }}>Apert Vision</div>
               <div className="font-mono" style={{ fontSize: 9, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>RUGBY AI</div>

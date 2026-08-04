@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router"
 import { Eye, EyeOff, Target, BarChart3, Film, Lock } from "lucide-react"
 import { supabase } from "../lib/supabase"
+import logoUrl from "../../assets/logo.png"
 
 export default function Login() {
   const [email, setEmail]       = useState("")
@@ -35,7 +36,7 @@ export default function Login() {
         style={{ backgroundColor: "#060b12", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
         <div>
           <div className="flex items-center gap-3 mb-12">
-            <img src="/logo.png" alt="Apert Vision" style={{ height: 40, width: "auto" }} />
+            <img src={logoUrl} alt="Apert Vision" style={{ height: 40, width: "auto" }} />
             <div>
               <div style={{ fontSize: 16, fontWeight: 700, color: "var(--foreground)" }}>Apert Vision</div>
               <div className="font-mono" style={{ fontSize: 9, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>RUGBY AI</div>
@@ -75,7 +76,7 @@ export default function Login() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-[380px]">
           <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <img src="/logo.png" alt="Apert Vision" style={{ height: 32, width: "auto" }} />
+            <img src={logoUrl} alt="Apert Vision" style={{ height: 32, width: "auto" }} />
             <span style={{ fontSize: 15, fontWeight: 700 }}>Apert Vision</span>
           </div>
 

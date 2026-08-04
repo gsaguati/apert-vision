@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { NavLink, Outlet, useNavigate, Navigate } from "react-router"
+import logoUrl from "../../assets/logo.png"
 import {
   LayoutDashboard, Video, Users,
   Calendar, BarChart2, Settings, LogOut, Eye, Coins,
@@ -90,12 +91,11 @@ export default function Layout() {
         style={{ backgroundColor: "var(--sidebar)", borderColor: "var(--sidebar-border)" }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 py-5 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
-          <img src="/logo.png" alt="Apert Vision" style={{ height: 36, width: "auto", flexShrink: 0 }} />
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>Apert Vision</div>
-            <div className="font-mono" style={{ fontSize: 10, color: "var(--muted-foreground)", letterSpacing: "0.08em" }}>RUGBY AI</div>
-          </div>
+        <div className="flex items-center justify-center px-5 py-4 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
+          <img src={logoUrl} alt="Apert Vision" style={{ height: 68, width: "auto", display: "block" }} />
+        </div>
+        <div className="font-mono text-center pb-3" style={{ fontSize: 9, color: "var(--muted-foreground)", letterSpacing: "0.15em", borderBottom: "1px solid var(--sidebar-border)" }}>
+          RUGBY AI
         </div>
 
         {/* Club badge + créditos */}
