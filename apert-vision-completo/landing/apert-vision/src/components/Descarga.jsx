@@ -31,12 +31,14 @@ export default function Descarga({ data }) {
               onMouseLeave={() => setHovWin(false)}
               style={{ background: hovWin ? 'var(--verde2)' : 'var(--verde)', transform: hovWin ? 'translateY(-2px)' : 'none', boxShadow: hovWin ? '0 8px 28px var(--verde-glow)' : 'none' }}
             >🪟 Windows 10 / 11</button>
-            <button
+            <a
+              href="/apert-vision.apk"
+              download="apert-vision.apk"
               className="btn btn-solid"
               onMouseEnter={() => setHovApk(true)}
               onMouseLeave={() => setHovApk(false)}
-              style={{ background: hovApk ? 'var(--verde2)' : 'var(--verde)', transform: hovApk ? 'translateY(-2px)' : 'none', boxShadow: hovApk ? '0 8px 28px var(--verde-glow)' : 'none' }}
-            >🤖 Descargar APK</button>
+              style={{ background: hovApk ? 'var(--verde2)' : 'var(--verde)', transform: hovApk ? 'translateY(-2px)' : 'none', boxShadow: hovApk ? '0 8px 28px var(--verde-glow)' : 'none', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >🤖 Descargar APK</a>
           </div>
 
           <div style={{ display:'flex', justifyContent:'center', gap:14, flexWrap:'wrap', marginBottom:28 }}>
