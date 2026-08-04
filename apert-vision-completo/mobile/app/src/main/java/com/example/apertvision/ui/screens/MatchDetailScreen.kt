@@ -144,7 +144,7 @@ private fun Content(
         Spacer(Modifier.height(10.dp))
         ClipCard("Scrums",     countSC, ScrumColor,   state.clips.find { it.tipo == "scrum"   }, onClipClick)
         Spacer(Modifier.height(10.dp))
-        ClipCard("Salidas 22", countKO, KickoffColor, state.clips.find { it.tipo == "kickoff" }, onClipClick)
+        ClipCard("Salidas", countKO, KickoffColor, state.clips.find { it.tipo == "kickoff" }, onClipClick)
 
         // Rendimiento del jugador en este partido (solo si el usuario es jugador)
         if (miembro.rol == "jugador") {

@@ -148,7 +148,7 @@ private fun MainFlow(
             val title = when (tipo) {
                 "lineout" -> "Line-outs"
                 "scrum"   -> "Scrums"
-                "kickoff" -> "Salidas 22"
+                "kickoff" -> "Salidas"
                 else -> tipo
             }
             VideoPlayerScreen(

@@ -26,7 +26,7 @@ CLASS_ALIASES = {
     "lines-out": "lineout", "line-out": "lineout", "lineout": "lineout",
     "scrum": "scrum", "kickoff": "kickoff", "salida": "kickoff", "salida-22": "kickoff",
 }
-CLASS_LABELS = {"lineout": "Line-out", "scrum": "Scrum", "kickoff": "Salida 22"}
+CLASS_LABELS = {"lineout": "Line-out", "scrum": "Scrum", "kickoff": "Salida"}
 CLASS_COLORS_BGR = {
     "lineout": (80, 224, 57),
     "scrum":   (246, 130, 59),

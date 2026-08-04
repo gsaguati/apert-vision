@@ -288,7 +288,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         { event_type: "lineout", label: "Line-out", time_str: "02:14", second: 134,  frame: 3350,  confidence: 0.97 },
         { event_type: "scrum",   label: "Scrum",    time_str: "07:41", second: 461,  frame: 11525, confidence: 0.94 },
         { event_type: "lineout", label: "Line-out", time_str: "12:08", second: 728,  frame: 18200, confidence: 0.99 },
-        { event_type: "kickoff", label: "Salida 22", time_str: "18:33", second: 1113, frame: 27825, confidence: 0.91 },
+        { event_type: "kickoff", label: "Salida", time_str: "18:33", second: 1113, frame: 27825, confidence: 0.91 },
       ]
       let evIdx = 0
       const tick = setInterval(() => {

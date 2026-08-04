@@ -19,7 +19,7 @@ import jsPDF from "jspdf"
 const typeColor: Record<string, string> = {
   "Line-out":  "#39e07a",
   "Scrum":     "#3b82f6",
-  "Salida 22": "#f59e0b",
+  "Salida": "#f59e0b",
 }
 
 // ── Match info modal ────────────────────────────────────────────────────────
@@ -556,7 +556,7 @@ export default function Analysis() {
     const statsData = [
       ["Line-outs detectados", String(counts.lineout ?? 0)],
       ["Scrums detectados",    String(counts.scrum   ?? 0)],
-      ["Salidas 22",           String(counts.kickoff ?? 0)],
+      ["Salidas",           String(counts.kickoff ?? 0)],
       ["Total formaciones",    String(result.total_events)],
       ["Confianza promedio",   result.events.length ? `${(result.events.reduce((a,e) => a+e.confidence,0)/result.events.length*100).toFixed(1)}%` : "—"],
     ]
@@ -797,7 +797,7 @@ export default function Analysis() {
             {[
               { key: "lineout", label: "Line-outs", count: lo, color: "#39e07a" },
               { key: "scrum",   label: "Scrums",    count: sc, color: "#3b82f6" },
-              { key: "kickoff", label: "Salidas 22",count: ko, color: "#f59e0b" },
+              { key: "kickoff", label: "Salidas",count: ko, color: "#f59e0b" },
             ].map(({ key, label, count, color }) => {
               const clipPath = result?.clips?.[key]
               const hasClip = !!clipPath
@@ -837,7 +837,7 @@ export default function Analysis() {
             {[
               { label: "Line-outs detectados", value: String(lo), color: "#39e07a" },
               { label: "Scrums detectados",    value: String(sc), color: "#3b82f6" },
-              { label: "Salidas 22",           value: String(ko), color: "#f59e0b" },
+              { label: "Salidas",           value: String(ko), color: "#f59e0b" },
               { label: "Duración del partido", value: `${Math.floor((result?.video_duration_sec??0)/60)}:${String(Math.round((result?.video_duration_sec??0)%60)).padStart(2,"0")}`, color: "#6b7a99" },
               { label: "Confianza promedio",   value: result?.events?.length ? `${(result.events.reduce((a,e)=>a+e.confidence,0)/result.events.length*100).toFixed(1)}%` : "—", color: "#39e07a" },
             ].map(({ label, value, color }) => (

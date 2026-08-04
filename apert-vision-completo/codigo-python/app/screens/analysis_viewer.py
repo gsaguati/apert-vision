@@ -312,7 +312,7 @@ class AnalysisViewerScreen(QWidget):
         side_col.setSpacing(10)
         self._card_lo   = SideStatCard("⚡", "0", "Line-outs detectados", C_GREENBG, C_GREEN)
         self._card_sc   = SideStatCard("⚡", "0", "Scrums detectados",    "#0a1a2a", C_BLUE)
-        self._card_ko   = SideStatCard("⚡", "0", "Salidas 22",           C_ORANGEBG, C_ORANGE)
+        self._card_ko   = SideStatCard("⚡", "0", "Salidas",           C_ORANGEBG, C_ORANGE)
         self._card_dur  = SideStatCard("⏱", "80:00", "Duración del partido", C_SURFACE2, C_MUTED)
         self._card_conf = SideStatCard("〰", "—", "Confianza promedio",    C_GREENBG, C_GREEN)
         for card in (self._card_lo, self._card_sc, self._card_ko, self._card_dur, self._card_conf):

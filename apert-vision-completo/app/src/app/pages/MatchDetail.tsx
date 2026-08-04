@@ -25,7 +25,7 @@ const typeColor: Record<string, string> = {
 const typeLabel: Record<string, string> = {
   lineout: "Line-out",
   scrum:   "Scrum",
-  kickoff: "Salida 22",
+  kickoff: "Salida",
 }
 
 // ── Video Player ───────────────────────────────────────────────────────────
@@ -381,7 +381,7 @@ export default function MatchDetail() {
             {[
               { label: "Line-outs", value: String(counts.lineout), color: "#39e07a" },
               { label: "Scrums",    value: String(counts.scrum),   color: "#3b82f6" },
-              { label: "Salidas 22",value: String(counts.kickoff), color: "#f59e0b" },
+              { label: "Salidas",value: String(counts.kickoff), color: "#f59e0b" },
               { label: "Total formaciones", value: String(eventos.length), color: "#a855f7" },
               { label: "Confianza IA promedio", value: eventos.length ? `${confAvg.toFixed(1)}%` : "—", color: "#39e07a" },
             ].map(({ label, value, color }) => (

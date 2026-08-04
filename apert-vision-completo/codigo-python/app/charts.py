@@ -142,7 +142,7 @@ class BarChart(QWidget):
         super().__init__()
         self._groups  = []   # [{"label": "CB", "values": [lo, sc, ko]}, ...]
         self._colors  = [_CHART_GREEN, _CHART_BLUE, _CHART_AMBER]
-        self._legends = ["Line-outs", "Scrums", "Salidas 22"]
+        self._legends = ["Line-outs", "Scrums", "Salidas"]
         self.setMinimumHeight(200)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
 
