@@ -27,6 +27,7 @@ function MatchModal({ onConfirm, onCancel }: { onConfirm: (info: MatchInfo) => v
   const today = new Date().toISOString().split("T")[0]
   const [form, setForm] = useState<MatchInfo>({
     rival: "", fecha: today, es_local: true, resultado: "W", marcador: "",
+    color_local: "#39e07a", color_visitante: "#3b82f6", posesion_local: 50,
   })
   const inputStyle: React.CSSProperties = {
     width: "100%", height: 40,
@@ -100,6 +101,74 @@ function MatchModal({ onConfirm, onCancel }: { onConfirm: (info: MatchInfo) => v
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Colores de las camisetas */}
+          <div>
+            <label style={{ fontSize: 11, color: "var(--muted-foreground)", display: "block", marginBottom: 5 }}>
+              Colores de las camisetas
+            </label>
+            <div className="flex gap-2">
+              {/* Local */}
+              <div className="flex items-center gap-2 flex-1 px-3 py-2 rounded-lg"
+                style={{ backgroundColor: "var(--secondary)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <input type="color" value={form.color_local ?? "#39e07a"}
+                  onChange={e => setForm(f => ({ ...f, color_local: e.target.value }))}
+                  style={{ width: 32, height: 24, border: "none", background: "none", cursor: "pointer", padding: 0 }} />
+                <span style={{ fontSize: 12, color: "var(--foreground)" }}>Local</span>
+                <span className="font-mono ml-auto" style={{ fontSize: 10, color: "var(--muted-foreground)" }}>
+                  {(form.color_local ?? "#39e07a").toUpperCase()}
+                </span>
+              </div>
+              {/* Visitante */}
+              <div className="flex items-center gap-2 flex-1 px-3 py-2 rounded-lg"
+                style={{ backgroundColor: "var(--secondary)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <input type="color" value={form.color_visitante ?? "#3b82f6"}
+                  onChange={e => setForm(f => ({ ...f, color_visitante: e.target.value }))}
+                  style={{ width: 32, height: 24, border: "none", background: "none", cursor: "pointer", padding: 0 }} />
+                <span style={{ fontSize: 12, color: "var(--foreground)" }}>Visitante</span>
+                <span className="font-mono ml-auto" style={{ fontSize: 10, color: "var(--muted-foreground)" }}>
+                  {(form.color_visitante ?? "#3b82f6").toUpperCase()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Posesión de la pelota */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
+                Posesión de la pelota
+              </label>
+              <div className="flex items-center gap-2 font-mono" style={{ fontSize: 11 }}>
+                <span style={{ color: form.color_local ?? "#39e07a", fontWeight: 700 }}>
+                  {form.posesion_local ?? 50}%
+                </span>
+                <span style={{ color: "var(--muted-foreground)" }}>vs</span>
+                <span style={{ color: form.color_visitante ?? "#3b82f6", fontWeight: 700 }}>
+                  {100 - (form.posesion_local ?? 50)}%
+                </span>
+              </div>
+            </div>
+            {/* Barra visual */}
+            <div className="flex h-2 rounded-full overflow-hidden mb-2"
+              style={{ backgroundColor: "var(--secondary)" }}>
+              <div style={{
+                width: `${form.posesion_local ?? 50}%`,
+                backgroundColor: form.color_local ?? "#39e07a",
+                transition: "width 0.15s",
+              }} />
+              <div style={{
+                width: `${100 - (form.posesion_local ?? 50)}%`,
+                backgroundColor: form.color_visitante ?? "#3b82f6",
+                transition: "width 0.15s",
+              }} />
+            </div>
+            {/* Slider */}
+            <input type="range" min="0" max="100" step="1"
+              value={form.posesion_local ?? 50}
+              onChange={e => setForm(f => ({ ...f, posesion_local: Number(e.target.value) }))}
+              style={{ width: "100%", accentColor: form.color_local ?? "#39e07a", cursor: "pointer" }} />
           </div>
         </div>
         <div className="flex gap-3 mt-6">

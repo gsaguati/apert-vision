@@ -63,6 +63,9 @@ export interface MatchInfo {
   es_local: boolean
   resultado: "W" | "L" | "D"
   marcador: string
+  color_local?: string                   // hex color (opcional — para reportes/UI)
+  color_visitante?: string               // hex color (opcional)
+  posesion_local?: number                // 0-100 % posesión del local (opcional)
 }
 
 export interface AnalysisResult {
@@ -161,14 +164,17 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         const { data: partidoData, error: pErr } = await supabase
           .from("partidos")
           .insert({
-            club_id:    club.id,
-            creado_por: miembro.id,
-            rival:      matchInfo.rival,
-            fecha:      matchInfo.fecha,
-            es_local:   matchInfo.es_local,
-            resultado:  matchInfo.resultado,
-            marcador:   matchInfo.marcador || null,
-            video_path: videoPath || null,
+            club_id:         club.id,
+            creado_por:      miembro.id,
+            rival:           matchInfo.rival,
+            fecha:           matchInfo.fecha,
+            es_local:        matchInfo.es_local,
+            resultado:       matchInfo.resultado,
+            marcador:        matchInfo.marcador || null,
+            video_path:      videoPath || null,
+            color_local:     matchInfo.color_local     ?? null,
+            color_visitante: matchInfo.color_visitante ?? null,
+            posesion_local:  matchInfo.posesion_local  ?? null,
           })
           .select("id")
           .single()

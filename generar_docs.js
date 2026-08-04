@@ -5,6 +5,7 @@ const {
   Document, Packer, Paragraph, TextRun, HeadingLevel,
   Table, TableRow, TableCell, WidthType, BorderStyle,
   AlignmentType, PageBreak, ShadingType, LevelFormat,
+  convertInchesToTwip,
 } = require('docx')
 const fs = require('fs')
 const path = require('path')
@@ -47,18 +48,28 @@ const bold = (text) => new TextRun({ text, bold: true })
 const italic = (text) => new TextRun({ text, italics: true })
 const spacer = () => new Paragraph({ children: [new TextRun('')], spacing: { after: 100 } })
 
+const BORDER = { style: BorderStyle.SINGLE, size: 4, color: 'BFBFBF' }
+const CELL_MARGINS = { top: 120, bottom: 120, left: 140, right: 140 }
+
 const cell = (text, opts = {}) => new TableCell({
   children: [new Paragraph({
     children: [new TextRun({ text, bold: opts.bold, color: opts.color, size: opts.size ?? 20 })],
     alignment: opts.align ?? AlignmentType.LEFT,
+    spacing: { before: 40, after: 40 },
   })],
   width: opts.width ? { size: opts.width, type: WidthType.PERCENTAGE } : undefined,
-  shading: opts.bg ? { type: ShadingType.CLEAR, fill: opts.bg } : undefined,
+  shading: opts.bg ? { type: ShadingType.CLEAR, fill: opts.bg, color: 'auto' } : undefined,
+  margins: CELL_MARGINS,
+  verticalAlign: 'center',
 })
 
 const table = (rows) => new Table({
-  rows: rows.map(r => new TableRow({ children: r })),
+  rows: rows.map(r => new TableRow({ children: r, cantSplit: true })),
   width: { size: 100, type: WidthType.PERCENTAGE },
+  borders: {
+    top: BORDER, bottom: BORDER, left: BORDER, right: BORDER,
+    insideHorizontal: BORDER, insideVertical: BORDER,
+  },
 })
 
 const guardar = (doc, filename) => Packer.toBuffer(doc).then(buf => {
@@ -74,7 +85,7 @@ const pl03 = new Document({
   creator: 'Gonzalo Saguati',
   title: 'PL03 - Entrega Final - Apert Vision',
   sections: [{
-    properties: {},
+    properties: { page: { margin: { top: 1080, bottom: 1080, left: 1080, right: 1080 } } },
     children: [
       new Paragraph({
         children: [new TextRun({ text: 'INFORMACIÓN PARA ENTREGA DEL PROYECTO', bold: true, size: 36, color: VERDE_OSC })],
@@ -194,7 +205,7 @@ const manual = new Document({
   creator: 'Gonzalo Saguati',
   title: 'Manual de Usuario - Apert Vision',
   sections: [{
-    properties: {},
+    properties: { page: { margin: { top: 1080, bottom: 1080, left: 1080, right: 1080 } } },
     children: [
       new Paragraph({
         children: [new TextRun({ text: 'MANUAL DE USUARIO', bold: true, size: 44, color: VERDE_OSC })],
@@ -353,7 +364,7 @@ const casos = new Document({
   creator: 'Gonzalo Saguati',
   title: 'Casos de Prueba - Apert Vision',
   sections: [{
-    properties: {},
+    properties: { page: { margin: { top: 1080, bottom: 1080, left: 1080, right: 1080 } } },
     children: [
       new Paragraph({
         children: [new TextRun({ text: 'CASOS DE PRUEBA', bold: true, size: 40, color: VERDE_OSC })],
@@ -506,7 +517,7 @@ const rfApk = new Document({
   creator: 'Gonzalo Saguati',
   title: 'Requisitos Funcionales APK - Apert Vision',
   sections: [{
-    properties: {},
+    properties: { page: { margin: { top: 1080, bottom: 1080, left: 1080, right: 1080 } } },
     children: [
       new Paragraph({
         children: [new TextRun({ text: 'REQUISITOS FUNCIONALES', bold: true, size: 40, color: VERDE_OSC })],
@@ -613,7 +624,7 @@ const uml = new Document({
   creator: 'Gonzalo Saguati',
   title: 'UML - Apert Vision',
   sections: [{
-    properties: {},
+    properties: { page: { margin: { top: 1080, bottom: 1080, left: 1080, right: 1080 } } },
     children: [
       new Paragraph({
         children: [new TextRun({ text: 'DIAGRAMAS UML', bold: true, size: 40, color: VERDE_OSC })],
@@ -771,7 +782,7 @@ const der = new Document({
   creator: 'Gonzalo Saguati',
   title: 'DER Actualizado - Apert Vision',
   sections: [{
-    properties: {},
+    properties: { page: { margin: { top: 1080, bottom: 1080, left: 1080, right: 1080 } } },
     children: [
       new Paragraph({
         children: [new TextRun({ text: 'DIAGRAMA ENTIDAD-RELACIÓN', bold: true, size: 40, color: VERDE_OSC })],

@@ -31,21 +31,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    // Timeout de seguridad: si Supabase no responde en 5s, asumimos sin sesión.
+    // Previene que la pantalla "Cargando..." se cuelgue indefinidamente cuando
+    // la red o el servicio están lentos.
+    const timeoutId = setTimeout(() => {
+      console.warn("[Auth] Timeout de 5s alcanzado — asumiendo sin sesión")
+      setLoading(false)
+    }, 5000)
+
     // Sesión inicial
     supabase.auth.getSession().then(async ({ data }) => {
+      clearTimeout(timeoutId)
       setSession(data.session)
-      await loadUserData(data.session)
+      await loadUserData(data.session).catch(e => console.error("[Auth] loadUserData:", e))
+      setLoading(false)
+    }).catch(e => {
+      clearTimeout(timeoutId)
+      console.error("[Auth] getSession error:", e)
       setLoading(false)
     })
 
     // Escuchar cambios de sesión
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
       setSession(newSession)
-      await loadUserData(newSession)
+      await loadUserData(newSession).catch(e => console.error("[Auth] loadUserData onChange:", e))
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(timeoutId)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const refresh = async () => {

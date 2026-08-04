@@ -50,6 +50,9 @@ export interface Partido {
   marcador: string | null
   es_local: boolean
   video_path: string | null
+  color_local: string | null           // hex color de la camiseta local
+  color_visitante: string | null       // hex color de la camiseta rival
+  posesion_local: number | null        // 0-100 % posesión del local
   created_at: string
 }
 
