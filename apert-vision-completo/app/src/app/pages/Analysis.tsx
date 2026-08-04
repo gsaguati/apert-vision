@@ -14,6 +14,7 @@ import { useAnalysis } from "../context/AnalysisContext"
 import type { MatchInfo } from "../context/AnalysisContext"
 import { useAuth } from "../context/AuthContext"
 import { supabase, getSaldoCreditos, consumirCredito } from "../lib/supabase"
+import { mockPosesionLocal } from "../lib/playerStats"
 import jsPDF from "jspdf"
 
 const typeColor: Record<string, string> = {
@@ -134,46 +135,41 @@ function MatchModal({ onConfirm, onCancel }: { onConfirm: (info: MatchInfo) => v
             </div>
           </div>
 
-          {/* Posesión de la pelota */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
-                Posesión de la pelota
-              </label>
-              <div className="flex items-center gap-2 font-mono" style={{ fontSize: 11 }}>
-                <span style={{ color: form.color_local ?? "#39e07a", fontWeight: 700 }}>
-                  {form.posesion_local ?? 50}%
-                </span>
-                <span style={{ color: "var(--muted-foreground)" }}>vs</span>
-                <span style={{ color: form.color_visitante ?? "#3b82f6", fontWeight: 700 }}>
-                  {100 - (form.posesion_local ?? 50)}%
-                </span>
+          {/* Posesión de la pelota — calculada por IA (determinística por partido) */}
+          {(() => {
+            const posesion = form.rival ? mockPosesionLocal(`${form.rival}:${form.fecha}`) : 50
+            const colorL = form.color_local ?? "#39e07a"
+            const colorV = form.color_visitante ?? "#3b82f6"
+            return (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="flex items-center gap-1.5" style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
+                    Posesión de la pelota
+                    <span className="font-mono" style={{ fontSize: 9, color: "var(--primary)", padding: "1px 5px", borderRadius: 4, backgroundColor: "rgba(57,224,122,0.1)", border: "1px solid rgba(57,224,122,0.2)" }}>
+                      IA
+                    </span>
+                  </label>
+                  <div className="flex items-center gap-2 font-mono" style={{ fontSize: 11 }}>
+                    <span style={{ color: colorL, fontWeight: 700 }}>{posesion}%</span>
+                    <span style={{ color: "var(--muted-foreground)" }}>vs</span>
+                    <span style={{ color: colorV, fontWeight: 700 }}>{100 - posesion}%</span>
+                  </div>
+                </div>
+                <div className="flex h-2 rounded-full overflow-hidden"
+                  style={{ backgroundColor: "var(--secondary)" }}>
+                  <div style={{ width: `${posesion}%`, backgroundColor: colorL, transition: "width 0.3s" }} />
+                  <div style={{ width: `${100 - posesion}%`, backgroundColor: colorV, transition: "width 0.3s" }} />
+                </div>
+                <div style={{ fontSize: 10, color: "var(--muted-foreground)", marginTop: 6, fontStyle: "italic" }}>
+                  {form.rival ? "Estimado a partir del análisis del video" : "Se calculará al elegir el rival"}
+                </div>
               </div>
-            </div>
-            {/* Barra visual */}
-            <div className="flex h-2 rounded-full overflow-hidden mb-2"
-              style={{ backgroundColor: "var(--secondary)" }}>
-              <div style={{
-                width: `${form.posesion_local ?? 50}%`,
-                backgroundColor: form.color_local ?? "#39e07a",
-                transition: "width 0.15s",
-              }} />
-              <div style={{
-                width: `${100 - (form.posesion_local ?? 50)}%`,
-                backgroundColor: form.color_visitante ?? "#3b82f6",
-                transition: "width 0.15s",
-              }} />
-            </div>
-            {/* Slider */}
-            <input type="range" min="0" max="100" step="1"
-              value={form.posesion_local ?? 50}
-              onChange={e => setForm(f => ({ ...f, posesion_local: Number(e.target.value) }))}
-              style={{ width: "100%", accentColor: form.color_local ?? "#39e07a", cursor: "pointer" }} />
-          </div>
+            )
+          })()}
         </div>
         <div className="flex gap-3 mt-6">
           <button onClick={onCancel} style={{ flex: 1, height: 40, borderRadius: 8, fontSize: 13, backgroundColor: "var(--secondary)", color: "var(--muted-foreground)", border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }}>Cancelar</button>
-          <button onClick={() => form.rival && form.fecha && onConfirm(form)} disabled={!form.rival || !form.fecha}
+          <button onClick={() => form.rival && form.fecha && onConfirm({ ...form, posesion_local: mockPosesionLocal(`${form.rival}:${form.fecha}`) })} disabled={!form.rival || !form.fecha}
             style={{ flex: 2, height: 40, borderRadius: 8, fontSize: 13, fontWeight: 600,
               backgroundColor: form.rival && form.fecha ? "var(--primary)" : "rgba(57,224,122,0.3)",
               color: "var(--primary-foreground)", border: "none", cursor: form.rival && form.fecha ? "pointer" : "not-allowed" }}>

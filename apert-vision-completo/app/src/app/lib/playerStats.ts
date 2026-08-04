@@ -25,6 +25,16 @@ function seededRandom(seed: string): () => number {
   }
 }
 
+/**
+ * Genera un % de posesión del equipo local (42-62%) de forma determinística
+ * a partir de los datos del partido. El mismo partido siempre da el mismo valor.
+ * Rangos realistas del rugby amateur — posesión suele estar entre 40-60%.
+ */
+export function mockPosesionLocal(seed: string): number {
+  const rng = seededRandom("posesion:" + seed)
+  return Math.round(42 + rng() * 20)  // 42-62
+}
+
 export type PositionGroup = "forward" | "back" | "half" | "mixed"
 
 const FORWARDS = ["Pilier", "Hooker", "Lock", "Flanker", "Nº 8"]
