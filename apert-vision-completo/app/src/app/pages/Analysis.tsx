@@ -135,37 +135,6 @@ function MatchModal({ onConfirm, onCancel }: { onConfirm: (info: MatchInfo) => v
             </div>
           </div>
 
-          {/* Posesión de la pelota — calculada por IA (determinística por partido) */}
-          {(() => {
-            const posesion = form.rival ? mockPosesionLocal(`${form.rival}:${form.fecha}`) : 50
-            const colorL = form.color_local ?? "#39e07a"
-            const colorV = form.color_visitante ?? "#3b82f6"
-            return (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="flex items-center gap-1.5" style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
-                    Posesión de la pelota
-                    <span className="font-mono" style={{ fontSize: 9, color: "var(--primary)", padding: "1px 5px", borderRadius: 4, backgroundColor: "rgba(57,224,122,0.1)", border: "1px solid rgba(57,224,122,0.2)" }}>
-                      IA
-                    </span>
-                  </label>
-                  <div className="flex items-center gap-2 font-mono" style={{ fontSize: 11 }}>
-                    <span style={{ color: colorL, fontWeight: 700 }}>{posesion}%</span>
-                    <span style={{ color: "var(--muted-foreground)" }}>vs</span>
-                    <span style={{ color: colorV, fontWeight: 700 }}>{100 - posesion}%</span>
-                  </div>
-                </div>
-                <div className="flex h-2 rounded-full overflow-hidden"
-                  style={{ backgroundColor: "var(--secondary)" }}>
-                  <div style={{ width: `${posesion}%`, backgroundColor: colorL, transition: "width 0.3s" }} />
-                  <div style={{ width: `${100 - posesion}%`, backgroundColor: colorV, transition: "width 0.3s" }} />
-                </div>
-                <div style={{ fontSize: 10, color: "var(--muted-foreground)", marginTop: 6, fontStyle: "italic" }}>
-                  {form.rival ? "Estimado a partir del análisis del video" : "Se calculará al elegir el rival"}
-                </div>
-              </div>
-            )
-          })()}
         </div>
         <div className="flex gap-3 mt-6">
           <button onClick={onCancel} style={{ flex: 1, height: 40, borderRadius: 8, fontSize: 13, backgroundColor: "var(--secondary)", color: "var(--muted-foreground)", border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }}>Cancelar</button>
