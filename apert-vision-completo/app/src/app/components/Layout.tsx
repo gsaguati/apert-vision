@@ -91,9 +91,7 @@ export default function Layout() {
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-5 py-5 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0" style={{ backgroundColor: "var(--primary)" }}>
-            <Eye size={16} style={{ color: "var(--primary-foreground)" }} />
-          </div>
+          <img src="/logo.png" alt="Apert Vision" style={{ height: 36, width: "auto", flexShrink: 0 }} />
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>Apert Vision</div>
             <div className="font-mono" style={{ fontSize: 10, color: "var(--muted-foreground)", letterSpacing: "0.08em" }}>RUGBY AI</div>

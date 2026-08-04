@@ -38,6 +38,7 @@ function createWindow() {
     minHeight: 700,
     backgroundColor: '#080c14',
     title: 'Apert Vision',
+    icon: path.join(__dirname, '..', 'public', 'logo.png'),
     autoHideMenuBar: true,
     // Barra superior pintada del color del tema, botones de Windows quedan integrados
     titleBarStyle: 'hidden',
@@ -59,8 +60,8 @@ function createWindow() {
   mainWindow.removeMenu()
 
   if (isDev) {
-    // Limpiar caché en dev para siempre ver los últimos cambios
-    mainWindow.webContents.session.clearCache()
+    // Vite HMR ya se encarga de aplicar los cambios — no hace falta limpiar cache
+    // en cada arranque (eso hacía que la app tardara mucho en abrir).
     mainWindow.loadURL('http://localhost:5173')
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {

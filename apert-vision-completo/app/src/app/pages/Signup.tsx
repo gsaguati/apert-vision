@@ -76,9 +76,7 @@ export default function Signup() {
           </Link>
 
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "var(--primary)" }}>
-              <Eye size={18} style={{ color: "var(--primary-foreground)" }} />
-            </div>
+            <img src="/logo.png" alt="Apert Vision" style={{ height: 40, width: "auto" }} />
             <div>
               <div style={{ fontSize: 16, fontWeight: 700, color: "var(--foreground)" }}>Apert Vision</div>
               <div className="font-mono" style={{ fontSize: 9, color: "var(--muted-foreground)", letterSpacing: "0.1em" }}>RUGBY AI</div>

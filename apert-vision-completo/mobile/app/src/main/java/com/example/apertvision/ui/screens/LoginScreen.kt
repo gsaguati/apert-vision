@@ -1,14 +1,16 @@
 package com.example.apertvision.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.res.painterResource
+import com.example.apertvision.R
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,17 +45,11 @@ fun LoginScreen(
         ) {
             // Logo / branding
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier.size(40.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Surface(color = Primary, shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxSize()) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.RemoveRedEye, contentDescription = null,
-                                tint = Color(0xFF080C14), modifier = Modifier.size(20.dp))
-                        }
-                    }
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.apert_logo),
+                    contentDescription = "Apert Vision",
+                    modifier = Modifier.size(48.dp),
+                )
                 Spacer(Modifier.width(12.dp))
                 Column {
                     Text("Apert Vision", color = OnBackground, fontWeight = FontWeight.Bold, fontSize = 18.sp)

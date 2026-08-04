@@ -18,7 +18,7 @@ export default function Navbar() {
       <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
         {/* Logo */}
         <a href="#hero" style={{ fontFamily:'var(--display)', fontWeight:800, fontSize:22, letterSpacing:3, color:'var(--blanco)', textDecoration:'none', display:'flex', alignItems:'center', gap:10, textTransform:'uppercase' }}>
-          <span style={{ width:28, height:28, background:'var(--verde)', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}>🏉</span>
+          <img src="/logo.png" alt="Apert Vision" style={{ height:34, width:'auto', display:'block' }} />
           Apert<span style={{ color:'var(--verde)' }}>Vision</span>
         </a>
 
