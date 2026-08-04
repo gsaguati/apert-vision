@@ -56,3 +56,6 @@ Thumbs.db
 
 # Claude Code local config
 .claude/
+
+# Documentación (entregada por separado, no se versiona en el repo)
+apert-vision-completo/documentacion/
