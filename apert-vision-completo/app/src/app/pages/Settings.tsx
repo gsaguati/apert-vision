@@ -1,27 +1,14 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { IOSToggle } from "../components/IOSToggle"
-import { Save, Info, Copy, RefreshCw, Check, LogOut, Trash2, Users, Briefcase, User } from "lucide-react"
+import { Save, Info, Copy, RefreshCw, Check, LogOut, Trash2, Users, Briefcase, User, Mail, MessageCircle, LifeBuoy } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 import { supabase } from "../lib/supabase"
-
-const teamColors = [
-  { name: "Verde",    hex: "#16a34a" },
-  { name: "Azul",     hex: "#2563eb" },
-  { name: "Rojo",     hex: "#dc2626" },
-  { name: "Blanco",   hex: "#f8fafc" },
-  { name: "Negro",    hex: "#0f172a" },
-  { name: "Amarillo", hex: "#ca8a04" },
-  { name: "Celeste",  hex: "#0284c7" },
-  { name: "Naranja",  hex: "#ea580c" },
-]
 
 export default function Settings() {
   const navigate = useNavigate()
   const { club, miembro, refresh, signOut } = useAuth()
 
-  const [homeColor, setHomeColor]     = useState("#16a34a")
-  const [awayColor, setAwayColor]     = useState("#2563eb")
   const [confidence, setConfidence]   = useState(85)
   const [saved, setSaved]             = useState(false)
   const [copiedCode, setCopiedCode]   = useState<string | null>(null)
@@ -206,42 +193,6 @@ export default function Settings() {
           </div>
         </Section>
 
-        {/* ── COLORES ─────────────────────────────────────── */}
-        <Section title="Colores de Equipos">
-          <div className="px-5 py-4">
-            <div className="flex items-start gap-2 p-3 rounded-lg mb-4" style={{ backgroundColor: "rgba(57,224,122,0.06)", border: "1px solid rgba(57,224,122,0.2)" }}>
-              <Info size={14} style={{ color: "var(--primary)", marginTop: 1, flexShrink: 0 }} />
-              <div style={{ fontSize: 12, color: "var(--muted-foreground)" }}>
-                Estos colores se usan para identificar posesión de pelota en el análisis.
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-5">
-              {[
-                { label: "Equipo Local",     current: homeColor, set: setHomeColor },
-                { label: "Equipo Visitante", current: awayColor, set: setAwayColor },
-              ].map(({ label, current, set }) => (
-                <div key={label}>
-                  <div className="text-foreground mb-2" style={{ fontSize: 12, fontWeight: 500 }}>{label}</div>
-                  <div className="flex flex-wrap gap-2">
-                    {teamColors.map(c => (
-                      <button key={c.hex} onClick={() => set(c.hex)} title={c.name}
-                        className="w-7 h-7 rounded-full transition-transform hover:scale-110"
-                        style={{ backgroundColor: c.hex,
-                          outline: current === c.hex ? "2px solid var(--primary)" : "2px solid transparent",
-                          outlineOffset: 2,
-                          border: c.hex === "#f8fafc" ? "1px solid rgba(255,255,255,0.15)" : "none" }} />
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="w-4 h-4 rounded" style={{ backgroundColor: current }} />
-                    <span className="font-mono" style={{ fontSize: 11, color: "var(--muted-foreground)" }}>{current}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Section>
-
         {/* ── IA ─────────────────────────────────────────── */}
         <Section title="Modelo de IA">
           <Row label="Umbral de confianza" description="Formaciones por debajo no se muestran">
@@ -280,6 +231,53 @@ export default function Settings() {
           <Row label="PDF automático al finalizar">
             <IOSToggle checked={toggles.autoExport} onChange={setToggle("autoExport")} size="sm" />
           </Row>
+        </Section>
+
+        {/* ── SOPORTE ────────────────────────────────────── */}
+        <Section title="Soporte">
+          <div className="px-5 py-4 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(57,224,122,0.15)" }}>
+                <LifeBuoy size={16} style={{ color: "var(--primary)" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>¿Necesitás ayuda?</div>
+                <div style={{ fontSize: 11, color: "var(--muted-foreground)", marginTop: 2, lineHeight: 1.5 }}>
+                  Escribinos por mail o WhatsApp. Respondemos consultas técnicas, dudas sobre créditos y feedback en menos de 24 hs.
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <a href="mailto:soporte@apertvision.com?subject=Consulta%20sobre%20Apert%20Vision"
+                className="flex items-center gap-3 p-3 rounded-lg transition-all hover:opacity-80"
+                style={{ backgroundColor: "var(--secondary)", border: "1px solid rgba(255,255,255,0.07)", textDecoration: "none" }}>
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(57,224,122,0.15)" }}>
+                  <Mail size={16} style={{ color: "var(--primary)" }} />
+                </div>
+                <div className="min-w-0">
+                  <div style={{ fontSize: 11, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Email</div>
+                  <div style={{ fontSize: 12, color: "var(--foreground)", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    soporte@apertvision.com
+                  </div>
+                </div>
+              </a>
+
+              <a href="https://wa.me/5491100000000?text=Hola%2C%20tengo%20una%20consulta%20sobre%20Apert%20Vision%3A" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 rounded-lg transition-all hover:opacity-80"
+                style={{ backgroundColor: "var(--secondary)", border: "1px solid rgba(255,255,255,0.07)", textDecoration: "none" }}>
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(37,211,102,0.15)" }}>
+                  <MessageCircle size={16} style={{ color: "#25D366" }} />
+                </div>
+                <div className="min-w-0">
+                  <div style={{ fontSize: 11, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.05em" }}>WhatsApp</div>
+                  <div style={{ fontSize: 12, color: "var(--foreground)", fontWeight: 500, whiteSpace: "nowrap" }}>
+                    +54 9 11 0000 0000
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
         </Section>
 
         {/* ── ZONA PELIGROSA ─────────────────────────────── */}

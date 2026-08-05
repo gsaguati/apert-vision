@@ -9,7 +9,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,9 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.Intent
+import android.net.Uri
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.serialization.Serializable
@@ -225,6 +231,101 @@ fun MyStatsScreen(
             }
 
             Spacer(Modifier.height(8.dp))
+
+            // ── SOPORTE ──────────────────────────────────
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.width(3.dp).height(14.dp).background(Primary))
+                Spacer(Modifier.width(8.dp))
+                Text("SOPORTE AL CLIENTE",
+                    color = Muted, fontSize = 10.sp, letterSpacing = 1.2.sp, fontWeight = FontWeight.Medium)
+            }
+
+            SupportSection()
+
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun SupportSection() {
+    val context = LocalContext.current
+    val openEmail = {
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:soporte@apertvision.com")
+            putExtra(Intent.EXTRA_SUBJECT, "Consulta sobre Apert Vision")
+        }
+        try { context.startActivity(intent) } catch (_: Exception) {}
+    }
+    val openWhatsApp = {
+        val url = "https://wa.me/5491100000000?text=" +
+            Uri.encode("Hola, tengo una consulta sobre Apert Vision:")
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        try { context.startActivity(intent) } catch (_: Exception) {}
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Surface,
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, Border),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.SupportAgent, contentDescription = null, tint = Primary, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("¿Necesitás ayuda?", color = OnBackground, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "Escribinos por mail o WhatsApp. Respondemos en menos de 24 hs.",
+                color = Muted, fontSize = 11.sp, lineHeight = 15.sp,
+            )
+            Spacer(Modifier.height(14.dp))
+
+            // Email
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = openEmail,
+                color = Primary.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(10.dp),
+                border = BorderStroke(1.dp, Primary.copy(alpha = 0.2f)),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Default.Email, contentDescription = null, tint = Primary, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("Email", color = Muted, fontSize = 10.sp, letterSpacing = 1.sp)
+                        Text("soporte@apertvision.com", color = OnBackground, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    }
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+
+            // WhatsApp
+            val whatsappColor = Color(0xFF25D366)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = openWhatsApp,
+                color = whatsappColor.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(10.dp),
+                border = BorderStroke(1.dp, whatsappColor.copy(alpha = 0.25f)),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Default.Chat, contentDescription = null, tint = whatsappColor, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("WhatsApp", color = Muted, fontSize = 10.sp, letterSpacing = 1.sp)
+                        Text("+54 9 11 0000 0000", color = OnBackground, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    }
+                }
+            }
         }
     }
 }

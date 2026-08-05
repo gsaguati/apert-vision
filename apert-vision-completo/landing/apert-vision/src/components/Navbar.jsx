@@ -7,6 +7,7 @@ const LINKS = [
   ['#flujo',     'Cómo funciona'],
   ['#audiencia', 'Para quién'],
   ['#faq',       'FAQ'],
+  ['#soporte',   'Soporte'],
 ]
 
 export default function Navbar() {

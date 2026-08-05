@@ -12,6 +12,7 @@ import Audiencia      from './components/Audiencia'
 import Tecnologia     from './components/Tecnologia'
 import Descarga       from './components/Descarga'
 import Faq            from './components/Faq'
+import Soporte        from './components/Soporte'
 import Footer         from './components/Footer'
 import GestionPanel   from './components/GestionPanel'
 
@@ -57,6 +58,7 @@ export default function App() {
         <Tecnologia   data={data.tecnologia} />
         <Descarga     data={data.descarga} />
         <Faq          data={data.faq} />
+        <Soporte />
       </main>
 
       <Footer />

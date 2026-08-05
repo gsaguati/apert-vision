@@ -1,0 +1,23 @@
+# ═══════════════════════════════════════════════════════════════
+# local.properties.example — Apert Vision Mobile
+# ═══════════════════════════════════════════════════════════════
+#
+# INSTRUCCIONES:
+# 1. Copiá este archivo como `local.properties` (mismo directorio).
+# 2. Cambiá `sdk.dir` por la ruta al Android SDK de tu máquina.
+# 3. Las credenciales de Supabase ya vienen listas (son claves
+#    publishable/anon, seguras de commitear en el .example).
+#
+# NOTA: `local.properties` está en el .gitignore — nunca se commitea.
+# ═══════════════════════════════════════════════════════════════
+
+# Ruta al Android SDK (cambiá según tu instalación)
+# Windows:  C\:\\Users\\<TU_USUARIO>\\AppData\\Local\\Android\\Sdk
+# macOS:    /Users/<TU_USUARIO>/Library/Android/sdk
+# Linux:    /home/<TU_USUARIO>/Android/Sdk
+sdk.dir=C\:\\Users\\<TU_USUARIO>\\AppData\\Local\\Android\\Sdk
+
+# ── Apert Vision · credenciales Supabase ──
+# Publishable/anon key — segura por diseño (la seguridad va por RLS)
+SUPABASE_URL=https://ggndcadupigycdlhnurd.supabase.co
+SUPABASE_KEY=sb_publishable_GIBu91Y2P3OelO7LGbUhJA_LQdsjnqo
