@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
-import { NavLink, Outlet, useNavigate, Navigate } from "react-router"
+import { NavLink, Outlet, useNavigate, Navigate, useLocation } from "react-router"
 import logoUrl from "../../assets/logo.png"
 import {
   LayoutDashboard, Video, Users,
-  Calendar, BarChart2, Settings, LogOut, Eye, Coins,
+  Calendar, BarChart2, Settings, LogOut, Eye, Coins, Shield,
 } from "lucide-react"
 import { useAnalysis } from "../context/AnalysisContext"
 import { useAuth } from "../context/AuthContext"
@@ -21,7 +21,8 @@ const navItems = [
 
 export default function Layout() {
   const navigate = useNavigate()
-  const { session, miembro, club, loading, signOut } = useAuth()
+  const location = useLocation()
+  const { session, miembro, club, isSuperAdmin, loading, signOut } = useAuth()
   const { phase, progress } = useAnalysis()
   const isAnalyzing = phase === "analyzing"
 
@@ -53,11 +54,18 @@ export default function Layout() {
   // Sin sesión → al login
   if (!session) return <Navigate to="/login" replace />
 
-  // Hay sesión pero no es miembro de ningún club → al signup
-  if (!miembro) return <Navigate to="/signup" replace />
-
-  // Solo entrenadores pueden usar el Desktop
-  if (miembro.rol !== "entrenador") {
+  // Super admin sin club puede entrar directo al panel
+  if (isSuperAdmin && !miembro) {
+    // Si va a la home o algo que no sea /admin, redirigir a /admin
+    if (location.pathname === "/" || location.pathname === "") {
+      return <Navigate to="/admin" replace />
+    }
+    // permitir el render (nav se adapta abajo)
+  } else if (!miembro) {
+    // Hay sesión pero no es miembro de ningún club → al signup
+    return <Navigate to="/signup" replace />
+  } else if (miembro.rol !== "entrenador" && !isSuperAdmin) {
+    // Solo entrenadores (o super admins) pueden usar el Desktop
     return (
       <div className="flex h-screen w-full items-center justify-center flex-col gap-4" style={{ backgroundColor: "var(--background)" }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: "var(--foreground)" }}>
@@ -80,7 +88,11 @@ export default function Layout() {
     navigate("/login")
   }
 
-  const initials = miembro.nombre.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
+  const displayName = miembro?.nombre ?? (isSuperAdmin ? "Super Admin" : session.user.email ?? "Usuario")
+  const displayRol  = miembro?.rol ?? (isSuperAdmin ? "super admin" : "")
+  const initials = displayName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
+  const showClubBadge = !!club
+  const visibleNavItems = miembro ? navItems : []
 
   return (
     <div className="flex h-screen w-full overflow-hidden" style={{ backgroundColor: "var(--background)" }}>
@@ -98,31 +110,68 @@ export default function Layout() {
           RUGBY AI
         </div>
 
-        {/* Club badge + créditos */}
-        <div className="px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
-          <div className="flex flex-col gap-1.5 px-3 py-2.5 rounded-lg" style={{ backgroundColor: "var(--sidebar-accent)" }}>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "var(--primary)" }} />
-              <span className="truncate" style={{ fontSize: 12, color: "var(--muted-foreground)" }}>{club?.nombre ?? "Mi Club"}</span>
+        {/* Club badge + créditos (solo si hay club) */}
+        {showClubBadge && (
+          <div className="px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
+            <div className="flex flex-col gap-1.5 px-3 py-2.5 rounded-lg" style={{ backgroundColor: "var(--sidebar-accent)" }}>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "var(--primary)" }} />
+                <span className="truncate" style={{ fontSize: 12, color: "var(--muted-foreground)" }}>{club?.nombre ?? "Mi Club"}</span>
+              </div>
+              <NavLink to="/creditos"
+                className="flex items-center gap-1.5"
+                style={{ textDecoration: "none", cursor: "pointer" }}
+                title="Ver créditos">
+                <Coins size={12} style={{ color: "var(--primary)" }} strokeWidth={2.2} />
+                <span className="font-mono tabular" style={{ fontSize: 11, fontWeight: 600, color: "var(--primary)" }}>
+                  {saldo ?? "—"}
+                </span>
+                <span style={{ fontSize: 10, color: "var(--muted-foreground)" }}>
+                  crédito{saldo === 1 ? "" : "s"}
+                </span>
+              </NavLink>
             </div>
-            <NavLink to="/creditos"
-              className="flex items-center gap-1.5"
-              style={{ textDecoration: "none", cursor: "pointer" }}
-              title="Ver créditos">
-              <Coins size={12} style={{ color: "var(--primary)" }} strokeWidth={2.2} />
-              <span className="font-mono tabular" style={{ fontSize: 11, fontWeight: 600, color: "var(--primary)" }}>
-                {saldo ?? "—"}
-              </span>
-              <span style={{ fontSize: 10, color: "var(--muted-foreground)" }}>
-                crédito{saldo === 1 ? "" : "s"}
-              </span>
-            </NavLink>
           </div>
-        </div>
+        )}
+
+        {/* Badge de Super Admin (solo si no hay club) */}
+        {isSuperAdmin && !showClubBadge && (
+          <div className="px-4 py-3 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg" style={{ backgroundColor: "rgba(57,224,122,0.08)", border: "1px solid rgba(57,224,122,0.2)" }}>
+              <Shield size={12} style={{ color: "var(--primary)" }} />
+              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--primary)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                Modo Super Admin
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-3 space-y-0.5">
-          {navItems.map(({ to, icon: Icon, label }) => {
+          {isSuperAdmin && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 ${
+                  isActive ? "" : "text-muted-foreground hover:text-foreground"
+                }`
+              }
+              style={({ isActive }) =>
+                isActive ? { backgroundColor: "var(--sidebar-accent)", color: "var(--primary)" } : {}
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Shield size={16} style={{ color: isActive ? "var(--primary)" : undefined }} />
+                  <span style={{ fontWeight: isActive ? 500 : 400 }}>Admin</span>
+                  {isActive && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--primary)" }} />
+                  )}
+                </>
+              )}
+            </NavLink>
+          )}
+          {visibleNavItems.map(({ to, icon: Icon, label }) => {
             const isAnalysisItem = to === "/analysis"
             return (
               <NavLink
@@ -173,8 +222,8 @@ export default function Layout() {
               <span style={{ fontSize: 11, fontWeight: 700, color: "#080c14" }}>{initials}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm truncate" style={{ fontWeight: 500, color: "var(--foreground)" }}>{miembro.nombre}</div>
-              <div style={{ fontSize: 11, color: "var(--muted-foreground)", textTransform: "capitalize" }}>{miembro.rol}</div>
+              <div className="text-sm truncate" style={{ fontWeight: 500, color: "var(--foreground)" }}>{displayName}</div>
+              <div style={{ fontSize: 11, color: "var(--muted-foreground)", textTransform: "capitalize" }}>{displayRol}</div>
             </div>
             <button onClick={handleLogout} title="Cerrar sesión" aria-label="Cerrar sesión"
               style={{ background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>

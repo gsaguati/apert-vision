@@ -6,13 +6,14 @@ interface AuthState {
   session: Session | null
   miembro: Miembro | null
   club: Club | null
+  isSuperAdmin: boolean
   loading: boolean
   refresh: () => Promise<void>
   signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthState>({
-  session: null, miembro: null, club: null, loading: true,
+  session: null, miembro: null, club: null, isSuperAdmin: false, loading: true,
   refresh: async () => {}, signOut: async () => {},
 })
 
@@ -20,14 +21,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [miembro, setMiembro] = useState<Miembro | null>(null)
   const [club, setClub]       = useState<Club | null>(null)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const loadUserData = async (currentSession: Session | null) => {
     if (!currentSession) {
-      setMiembro(null); setClub(null); return
+      setMiembro(null); setClub(null); setIsSuperAdmin(false); return
     }
-    const [m, c] = await Promise.all([getCurrentMiembro(), getCurrentClub()])
-    setMiembro(m); setClub(c)
+    const [m, c, admin] = await Promise.all([
+      getCurrentMiembro(),
+      getCurrentClub(),
+      supabase.rpc("is_super_admin").then(r => Boolean(r.data)).catch(() => false),
+    ])
+    setMiembro(m); setClub(c); setIsSuperAdmin(admin)
   }
 
   useEffect(() => {
@@ -53,6 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Escuchar cambios de sesión
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      // Reset inmediato para que no queden restos del usuario anterior
+      // (evita mostrar la pantalla de "solo entrenadores" mientras carga el nuevo user)
+      setMiembro(null); setClub(null); setIsSuperAdmin(false); setLoading(true)
       setSession(newSession)
       await loadUserData(newSession).catch(e => console.error("[Auth] loadUserData onChange:", e))
       setLoading(false)
@@ -72,11 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut()
-    setMiembro(null); setClub(null); setSession(null)
+    setMiembro(null); setClub(null); setIsSuperAdmin(false); setSession(null)
   }
 
   return (
-    <AuthContext.Provider value={{ session, miembro, club, loading, refresh, signOut }}>
+    <AuthContext.Provider value={{ session, miembro, club, isSuperAdmin, loading, refresh, signOut }}>
       {children}
     </AuthContext.Provider>
   )

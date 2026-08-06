@@ -10,6 +10,7 @@ import MatchDetail from "./pages/MatchDetail";
 import Stats     from "./pages/Stats";
 import Settings  from "./pages/Settings";
 import Creditos  from "./pages/Creditos";
+import Admin     from "./pages/Admin";
 
 export const router = createBrowserRouter([
   { path: "/login",  Component: Login  },
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: "stats",    Component: Stats     },
       { path: "creditos", Component: Creditos  },
       { path: "settings", Component: Settings  },
+      { path: "admin",    Component: Admin     },
     ],
   },
 ]);
